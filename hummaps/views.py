@@ -5,6 +5,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from hummaps import app
 from hummaps.database import db_session
 from hummaps.forms import SearchForm
+from hummaps.search import do_search
 
 
 @app.route('/')
@@ -17,9 +18,9 @@ def search():
 def show_results():
     form = SearchForm()
     if form.validate_on_submit():
-        pass
+        results = do_search(form.description)
 
-    return render_template('results.html')
+    return render_template('results.html', results=results)
 
 
 @app.route('/show', methods=['GET'])
