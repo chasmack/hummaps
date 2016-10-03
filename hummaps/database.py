@@ -8,7 +8,7 @@ from flask.ext.login import UserMixin
 
 from hummaps import app, login_manager
 
-engine = create_engine(app.config['DATABASE_URL'])
+engine = create_engine(app.config['DATABASE_URL'], echo=False)
 db_session = scoped_session(
     sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
@@ -16,7 +16,3 @@ Base = declarative_base()
 if 'schema' in app.config['DATABASE_TABLE_ARGS']:
     Base.metadata.schema = app.config['DATABASE_TABLE_ARGS']['schema']
 Base.query = db_session.query_property()
-
-
-def init_db():
-    Base.metadata.create_all(bind=engine)

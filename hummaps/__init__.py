@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # configuration
 DEBUG = True
-DATABASE_URL = r'postgresql+psycopg2://hummaps:#dq8536*^*@localhost:5432/ec2-user'
+DATABASE_URL = r'postgresql+psycopg2://hummaps:g712X$@localhost:5432/production'
 DATABASE_TABLE_ARGS = {'schema': 'hummaps'}
 SECRET_KEY = b'\xff\xe9\xbaZ\x8ao\xbf\xf5W\x00\xa0T\x05Rd\xc0u\xca\x00\xc2\xa9\xebnM'
 RECAPTCHA_PARAMETERS = {'render': 'onload'}

@@ -1,18 +1,46 @@
+from sqlalchemy import func
+
+from hummaps.database import db_session
+from hummaps.models import Map, MapImage, TRS, Source, MapType, Surveyor, CC, CCImage
 
 
-def do_search(query):
+def do_search(desc):
 
-    results = [
-        {'maptype': 'pm', 'book': 20, 'page': 111, 'npages': 2,
-         'heading': 'Book 20 of Parcel Maps pages 111-112',
-         'text1': 'Recorded May 7, 1985 by Ken Omsberg for R. Carter.',
-         'text2': 'SE/4 S12 & NE/4 S13 & SE/4 S13 1N,4E + SW/4 S18 & NW/4 S19 1N,5E',
-         'mapimage': '/hummaps/maps/pm/020/020pm111-001.jpg'},
-        {'maptype': 'Maps', 'book': 17, 'page': 120, 'npages': 6,
-         'heading': 'Book 17 of Maps pages 120-125',
-         'text1': 'Recorded Feb 24, 1982 by Ken Omsberg for Larabee Vally Estates',
-         'text2': 'SE/4 S13 & SW/4 S13 & SE/4 S23 & S24 & NW/4 S25 1N,4E + SW/4 S19 1N,5E',
-         'mapimage': '/hummaps/maps/rm/017/017rm120-001.jpg'}
-    ]
+    # stmt = db_session.query(CC.map_id, func.count('*').label('cc_count'))
+    # stmt = stmt.group_by(CC.map_id).subquery()
 
-    return results
+    # query = db_session.query(Map, func.coalesce(stmt.c.cc_count, 0).label('cc_count'))
+    # query = query.outerjoin(stmt, Map.id == stmt.c.map_id)
+
+    query = db_session.query(Map).join(TRS).join(MapType)
+    query = query.filter(TRS.tshp == 6, TRS.rng == 0, TRS.sec == 32)
+    query = query.filter(TRS.qqsec.op('&')(1) != 0)
+    # query = query.filter(Map.description.op('~')('.*NW/4 S32'))
+    query = query.order_by(MapType.abbrev, Map.recdate.desc())
+
+    maps = query.all()
+
+    return maps
+
+if __name__ == '__main__':
+
+    results = do_search('nw/4 s32 t7n r1s')
+    for map in results:
+
+        mapimages = ', '.join([mapimage.imagefile for mapimage in map.mapimage])
+        if mapimages == '':
+            mapimages = 'None'
+
+        certs = []
+        for cc in map.cc:
+            imagefiles = ', '.join([ccimage.imagefile for ccimage in cc.ccimage])
+            if imagefiles == '':
+                imagefiles = 'None'
+            certs.append('CC=%s (%s)' % (cc.doc_number, imagefiles))
+        certs = ', '.join(certs)
+
+        print('%06d: %s (%s) %s' % (map.id, map.bookpage(), mapimages, certs))
+
+    print('%d maps found.' % (len(results)))
+
+
