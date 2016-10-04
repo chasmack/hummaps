@@ -1,5 +1,6 @@
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from hummaps.database import Base
 
@@ -98,11 +99,38 @@ class Map(Base):
     surveyor = relationship('Surveyor', back_populates='map')
     cc = relationship('CC', back_populates='map')
 
+    @hybrid_property
+    def heading(self):
+        h = 'Book %d of %ss' % (self.book, self.maptype.maptype)
+        if self.npages > 1:
+            h += ' Pages %d-%d' % (self.page, self.page + self.npages - 1)
+        else:
+            h += ' Page %d' % (self.page)
+        return h
+
+    @hybrid_property
+    def line1(self):
+        return 'Recorded %s by %s for %s' % (self.recdate, self.surveyor.fullname, self.client)
+
+    @hybrid_property
+    def line2(self):
+        return self.description
+
+    @hybrid_property
     def bookpage(self):
         return '%03d%s%03d' % (self.book, self.maptype.abbrev.upper(), self.page)
 
+    @hybrid_method
+    def url(self, page=1):
+        nimages = len(self.mapimage)
+        if nimages == 0:
+            return None
+        img = self.mapimage[nimages - 1] if page > nimages else self.mapimage[page - 1]
+
+        return '/hummaps/maps/%s/%s/%s' % (img.imagefile[3:5], img.imagefile[0:3], img.imagefile)
+
     def __repr__(self):
-        return '<Map(id=%d, map="%s")>' % (self.id, self.bookpage())
+        return '<Map(id=%d, map="%s")>' % (self.id, self.bookpage)
 
 
 class MapType(Base):

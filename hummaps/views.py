@@ -18,9 +18,11 @@ def search():
 def show_results():
     form = SearchForm()
     if form.validate_on_submit():
-        results = do_search(form.description)
+        maps = do_search(form.description.data)
+    else:
+        maps = []
 
-    return render_template('results.html', results=results)
+    return render_template('results.html', maps=maps)
 
 
 @app.route('/show', methods=['GET'])
