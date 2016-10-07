@@ -127,7 +127,7 @@ class Map(Base):
             return None
         img = self.mapimage[nimages - 1] if page > nimages else self.mapimage[page - 1]
 
-        return '/hummaps/maps/%s/%s/%s' % (img.imagefile[3:5], img.imagefile[0:3], img.imagefile)
+        return 'maps/%s/%s/%s' % (img.imagefile[3:5], img.imagefile[0:3], img.imagefile)
 
     def __repr__(self):
         return '<Map(id=%d, map="%s")>' % (self.id, self.bookpage)

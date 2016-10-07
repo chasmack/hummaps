@@ -18,11 +18,15 @@ def search():
 def show_results():
     form = SearchForm()
     if form.validate_on_submit():
-        maps = do_search(form.description.data)
+        results = do_search(form.description.data)
     else:
-        maps = []
+        results = []
 
-    return render_template('results.html', maps=maps)
+    count = len(results)
+    if count > 200:
+        results = results[0:200]
+
+    return render_template('results.html', count=count, results=results)
 
 
 @app.route('/show', methods=['GET'])
