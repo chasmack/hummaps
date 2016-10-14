@@ -69,7 +69,7 @@ class TRS(Base):
     tshp = Column(Integer)
     rng = Column(Integer)
     sec = Column(Integer)
-    qqsec = Column(Integer)
+    subsec = Column(Integer)
     source_id = Column(Integer, ForeignKey('source.id'))
 
     map = relationship('Map', back_populates='trs')
