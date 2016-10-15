@@ -1,108 +1,13 @@
 import re
 from datetime import date
 import calendar
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, not_, between
 
 from hummaps.database import db_session
 from hummaps.models import Map, MapImage, TRS, Source, MapType, Surveyor, CC, CCImage
 
-def tshp_num(t):
-    tshp = None
-    m = re.search('T(\d{1,2})([NS])', t)
-    if m:
-        if m.group(2) == 'N':
-            tshp = int(m.group(1)) - 1
-        else:
-            tshp = -1 * int(m.group(1))
-    return tshp
 
-def rng_num(r):
-    rng = None
-    m = re.search('R*(\d{1,2})([EW])', r)
-    if m:
-        if m.group(2) == 'E':
-            rng = int(m.group(1)) - 1
-        else:
-            rng = -1 * int(m.group(1))
-    return rng
-
-
-def subsec_bits(ss):
-
-    # bit patterns for first (right) term
-    q_bits = {
-        'NE': 0x00CC, 'SE': 0xCC00, 'SW': 0x3300, 'NW': 0x0033,
-        'N': 0x00FF, 'S': 0xFF00, 'E': 0xCCCC, 'W': 0x3333
-    }
-
-    # bit patterns for second (left) term
-    qq_bits = {
-        'NE': 0x0A0A, 'SE': 0xA0A0, 'SW': 0x5050, 'NW': 0x0505,
-        'N': 0x0F0F, 'S': 0xF0F0, 'E': 0xAAAA, 'W': 0x5555
-    }
-
-    # xx/4 and xx/4 xx/4
-    m = re.fullmatch('(?:([NS][EW])/4\s+)?([NS][EW])/4', ss)
-    if m:
-        qq, q = m.groups()
-        return q_bits[q] if qq is None else q_bits[q] & qq_bits[qq]
-
-    # x/2 and x/2 x/2
-    m = re.fullmatch('(?:([NSEW])/2\s+)?([NSEW])/2', ss)
-    if m:
-        qq, q = m.groups()
-        if qq and re.match('E[NS]|[NS]W', ''.join(sorted([q,qq]))):
-            # this algorithm doesn't work for N/2 E/2, etc (and it shouldn't have to)
-            return None
-        return q_bits[q] if qq is None else q_bits[q] & qq_bits[qq]
-
-    # x/2 xx/4
-    m = re.fullmatch('([NSEW])/2\s+([NS][EW])/4', ss)
-    if m:
-        qq, q = m.groups()
-        return q_bits[q] & qq_bits[qq]
-
-    return None
-
-
-def township_range_section(strm):
-
-    # parse off any sections and subsections
-    secs = []
-    for s in re.findall('((?:(?:[NSEW]+/[24]\s+)?[NSEW]+/[24]\s+)?S\d{1,2}),?\s+', strm):
-        m = re.fullmatch('((?:[NSEW]+/[24]\s+)?[NSEW]+/[24])?\s*S(\d+)\s*', s)
-        if m:
-            if m.group(1) is not None:
-                subsec = subsec_bits(m.group(1))
-                if subsec is None:
-                    # return 'Subsection error: "%s"' % (s)
-                    return None
-            else:
-                subsec = None
-            sec = int(m.group(2))
-            if sec < 1 or sec > 36:
-                # return 'Section number error: "$s"' % (s)
-                return None
-
-            secs.append({'sec': sec, 'subsec': subsec})
-
-        else:
-            # return 'Section formatting error: "%s"' % (s)
-            return None
-
-    m = re.search('(T\d{1,2}[NS])\s+(R\d{1,2}[EW])\s*$', strm)
-    if m:
-        t = tshp_num(m.group(1))
-        r = rng_num(m.group(2))
-        trs = {'tshp': t, 'rng': r, 'secs': secs}
-    else:
-        # return 'Township/Range format error: "%s"' % (strm)
-        return None
-
-    return trs
-
-
-def parse_dates(d):
+def parse_dates(date_str):
 
     # Parse a date field into a date range.
     # Date fields can be -
@@ -115,7 +20,8 @@ def parse_dates(d):
 
     # a match returns 6 elements ('m1/', 'd1/', 'y1', 'm2/', 'd2/', 'y2')
     # all elements except y1 are optional
-    m = re.fullmatch('(?:(\d+/)(\d+/)?)?(\d{4})(?:\s+(?:(\d+/)(\d+/)?)?(\d{4}))?', d.strip())
+    pat = '(?:(\d+/)(\d+/)?)?(\d{4})(?:\s+(?:(\d+/)(\d+/)?)?(\d{4}))?'
+    m = re.fullmatch(pat, date_str.strip())
     if m is None:
         return None
 
@@ -159,77 +65,199 @@ def parse_dates(d):
     return (start_date.isoformat(), end_date.isoformat())
 
 
+def tshp_num(tshp_str):
+    m = re.search('T(\d{1,2})([NS])', tshp_str.upper())
+    if m is None:
+        return None
+    if m.group(2) == 'N':
+        return int(m.group(1)) - 1
+    else:
+        return -1 * int(m.group(1))
+
+
+def rng_num(rng_str):
+    m = re.search('R*(\d{1,2})([EW])', rng_str.upper())
+    if m is None:
+        return None
+    if m.group(2) == 'E':
+        return int(m.group(1)) - 1
+    else:
+        return -1 * int(m.group(1))
+
+
+def subsec_bits(subsec_str):
+
+    # bit patterns for first (right) term
+    q_bits = {
+        'NE': 0x00CC, 'SE': 0xCC00, 'SW': 0x3300, 'NW': 0x0033,
+        'N': 0x00FF, 'S': 0xFF00, 'E': 0xCCCC, 'W': 0x3333
+    }
+
+    # bit patterns for second (left) term
+    qq_bits = {
+        'NE': 0x0A0A, 'SE': 0xA0A0, 'SW': 0x5050, 'NW': 0x0505,
+        'N': 0x0F0F, 'S': 0xF0F0, 'E': 0xAAAA, 'W': 0x5555
+    }
+
+    if re.search('1/1', subsec_str):
+        return 0xffff               # all subsections
+
+    ss = subsec_str.upper().strip()
+
+    # xx/4 and xx/4 xx/4
+    m = re.fullmatch('(?:([NS][EW])/4\s+)?([NS][EW])/4', ss)
+    if m:
+        qq, q = m.groups()
+        return q_bits[q] if qq is None else q_bits[q] & qq_bits[qq]
+
+    # x/2 and x/2 x/2
+    m = re.fullmatch('(?:([NSEW])/2\s+)?([NSEW])/2', ss)
+    if m:
+        qq, q = m.groups()
+        if qq and re.match('E[NS]|[NS]W', ''.join(sorted([q,qq]))):
+            # this algorithm doesn't work for N/2 E/2, etc (and it shouldn't have to)
+            return None
+        return q_bits[q] if qq is None else q_bits[q] & qq_bits[qq]
+
+    # x/2 xx/4
+    m = re.fullmatch('([NSEW])/2\s+([NS][EW])/4', ss)
+    if m:
+        qq, q = m.groups()
+        return q_bits[q] & qq_bits[qq]
+
+    return None
+
+
+def township_range_section(trs_str):
+
+    # parse off any sections and subsections
+    secs = []
+    ss_pat = '(?:[NS][WE]/4|[NSEW]/2|1/1)'
+    sec_pat = '(?:(?:{ss_pat}\s+)?{ss_pat}\s+)?S\d{{1,2}}'.format(ss_pat=ss_pat)
+    for s in re.findall('({sec_pat})(?:,\s*)?'.format(sec_pat=sec_pat), trs_str, flags=re.I):
+
+        pat = '((?:{ss_pat}\s+)?{ss_pat}\s+)?S(\d+)\s*'.format(ss_pat=ss_pat)
+        m = re.fullmatch(pat, s, flags=re.I)
+        if m is None:
+            # return 'Section formatting error: "%s"' % (s)
+            return None
+
+        if m.group(1):
+            subsec = subsec_bits(m.group(1))
+            if subsec is None:
+                # return 'Subsection error: "%s"' % (s)
+                return None
+        else:
+            subsec = None
+        sec = int(m.group(2))
+        if sec == 0 or sec > 36:
+            # return 'Section number error: "$s"' % (s)
+            return None
+
+        secs.append({'sec': sec, 'subsec': subsec})
+
+    m = re.search('(T\d{1,2}[NS])\s+(R\d{1}[EW])\s*$', trs_str, flags=re.I)
+    if m:
+        t = tshp_num(m.group(1))
+        r = rng_num(m.group(2))
+        trs = {'tshp': t, 'rng': r, 'secs': secs}
+    else:
+        # return 'Township/Range format error: "%s"' % (strm)
+        return None
+
+    return trs
+
+
 def do_search(search):
 
-    search = search.upper().strip()
+    # subqueries to for the final UNOIN/EXCEPT
+    subq_union = []
+    subq_except = []
 
-    # accumulate terms to be OR'ed together
-    search_terms = []
-
-    # first scan query string for maps
-    maps = re.findall('\b?(\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+)\b?', search)
-    search = re.sub('\s*\d+(?:CR|HM|MM|PM|RM|RS|UR)\d+\s*', '', search)
-    for book, type, page in maps:
-        search_terms.append(
-            and_(
-                Map.book == int(book), MapType.abbrev == type,
-                Map.page <= int(page), Map.page + Map.npages > int(page))
-        )
-
-    # split into multiple independent searches terms
+    # split into multiple independent search terms
     for prefix, term in  re.findall('([+-])?\s*([^+-]+)', search):
 
-        # parse surveyor, client, date, desc & maptype in double quotes
-        desc = re.findall('(BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:]"(.*?)(?<!")"(?!")', term)
+        # break independent terms into a list of 'OR' and 'AND' elements
+        or_terms = []
+        and_terms = []
+
+        # list of keyword search terms
+        desc = []
+
+        # parse for surveyor, client, date, desc & maptype in double quotes
+        pat = '(BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:]"(.*?)(?<!")"(?!")'
+        dquotes = re.findall(pat, term, flags=re.I)
         # replace two consecutive double quotes with a single double quote
-        desc = [(s[0], re.sub('""', '"', s[1])) for s in desc]
-        # remove description terms in double quotes
-        term = re.sub('(?:BY|FOR|DATE|DESC|MAPTYPE)[=:]".*?(?<!")"(?!")', '', term)
+        desc += [(s[0], re.sub('""', '"', s[1])) for s in dquotes]
+        term = re.sub(pat, '', term, flags=re.I)
 
-        # parse single word surveyor, client, date, desc & maptype without quotes
-        desc = re.findall('(BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:](\S+)', term)
-        # remove single word description terms
-        term = re.sub('(?:BY|FOR|DATE|DESC|MAPTYPE)[=:]\S+', '', term)
+        # parse for single word surveyor, client, date, desc & maptype without quotes
+        pat = '(BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:](\S+)'
+        desc += re.findall(pat, term, flags=re.I)
+        term = re.sub(pat, '', term, flags=re.I)
 
-        # township/range/sections should be all that's left
-        trs = township_range_section(term) if term != '' else None
+        # parse for individual maps
+        pat = '(\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+)'
+        desc += [('MAP', m) for m in re.findall(pat, term, flags=re.I)]
+        term = re.sub(pat, '', term, flags=re.I)
 
-        t = []
-        for f, d in desc:
-            if f =='BY':
-                print('by="%s"' % d)
-                t.append(and_(Surveyor.fullname.op('~')(d)))
-            elif f == 'FOR':
-                t.append(and_(Map.client.op('~')(d)))
-            elif f == 'DATE':
+        # parse for township/range/sections
+        trs = township_range_section(term)
+        if trs:
+            desc.append(('TRS', trs))
+
+        for k, d in desc:
+            k = k.upper()
+            if k =='BY':
+                and_terms.append(and_(Surveyor.fullname.op('~*')(d)))
+            elif k == 'FOR':
+                and_terms.append(and_(Map.client.op('~*')(d)))
+            elif k == 'DATE':
                 dates = parse_dates(d)
                 if dates:
-                    t.append(and_(Map.recdate >= dates[0]))
-                    t.append(and_(Map.recdate <= dates[1]))
-            elif f == 'DESC':
-                t.append(and_(Map.description.op('~')(d)))
-            elif f[-4:] == 'TYPE':
-                t.append(and_(MapType.abbrev.op('~')(d)))
+                    and_terms.append(between(Map.recdate, *dates))
+            elif k == 'DESC':
+                and_terms.append(and_(Map.description.op('~*')(d)))
+            elif k[-4:] == 'TYPE':
+                and_terms.append(and_(MapType.abbrev.op('~*')(d)))
+            elif k == 'MAP':
+                book, type, page = d
+                or_terms.append(
+                    and_(
+                        Map.book == int(book), MapType.abbrev == type.upper(),
+                        Map.page <= int(page), Map.page + Map.npages > int(page))
+                )
+            elif k == 'TRS':
+                secs = []
+                for sec in d['secs']:
+                    if sec['subsec']:
+                        secs.append(and_(
+                            TRS.sec == sec['sec'],
+                            TRS.subsec.op('&')(sec['subsec']) > 0))
+                    else:
+                        secs.append(and_(TRS.sec == sec['sec']))
+                and_terms.append(and_(TRS.tshp == d['tshp'], TRS.rng == d['rng'], or_(*secs)))
 
-        if trs:
-            t.append(and_(TRS.tshp == trs['tshp'], TRS.rng == trs['rng']))
-            secs = []
-            for sec in trs['secs']:
+        if and_terms:
+            or_terms.append(and_(*and_terms))
+        if or_terms:
+            q = db_session.query(Map.id).join(TRS).join(MapType)
+            q = q.outerjoin(Surveyor)  # surveyor can be null
+            q = q.filter(or_(*or_terms))
+            if prefix == '-':
+                subq_except.append(q)
+            else:
+                subq_union.append(q)
 
-                if sec['subsec']:
-                    secs.append(and_(TRS.sec == sec['sec'], TRS.subsec.op('&')(sec['subsec']) != 0))
-                else:
-                    secs.append(and_(TRS.sec == sec['sec']))
-            if secs:
-                t.append(or_(*secs))
-
-        if t:
-            search_terms.append(and_(*t))
-
-    if search_terms:
+    if subq_union:
         query = db_session.query(Map).join(TRS).join(MapType)
-        query = query.outerjoin(Surveyor)           # surveyor can be null
-        query = query.filter(or_(*search_terms))
+        query = query.outerjoin(Surveyor)  # surveyor can be null
+        subq = subq_union.pop(0)
+        for q in subq_union:
+            subq = subq.union(q)
+        for q in subq_except:
+            subq = subq.except_(q)
+        query = query.filter(Map.id.in_(subq))
         query = query.order_by(MapType.maptype, Map.recdate.desc(), Map.page.desc())
         results = query.all()
 
@@ -240,21 +268,41 @@ def do_search(search):
 
 if __name__ == '__main__':
 
-    srch = 's/2 s32 t7n r1e + n/2 s5 t6n r1e'
+    search = [
+        's36 t2n r5e',
+        '1/1 s36 t2n r5e',
+        'n/2 s36 t2n r5e + s/2 s36 t2n r5e',
+        'se/4 s36 t2n r5e',
+        'w/2 se/4 s36 t2n r5e + sw/4 s31 t2n r6e',
+        's36 t2n r5e - w/2 se/4 s36 t2n r5e + s31 t2n r6e - sw/4 s31 t2n r6e',
+        '1/1 s32 t7n r1e',
+        'desc:".*"".*"',
+        'desc:"',
+        's5 t6n r1e - ne/4 s5 t6n r1e',
+        's5 t6n r1e - ne/4 s5 t6n r1e -type:cr -type:hm -type:ur',
+        's5 t6n r1e - ne/4 s5 t6n r1e -type:cr|hm|ur',
+        '+s5 t6n r1e type:rs|rm|pm -ne/4 s5 t6n r1e',
+        '+s5 t6n r1e type:(?!cr|hm|ur).. -ne/4 s5 t6n r1e',
+        'date:2015 by:crivelli + date:2015 by:pulley',
+        'date:2015 by:CrIveLLi|PuLLey',
+        'type=rm ne/4 s5 t6n r1e by=schillinger',
+        'type=rm ne/4 s5 t6n r1e',
+        '11rm5 69rs30 69rs11 34rs58',
+        'type=rm ne/4 s5 t6n r1e + 11rm5 69rs30 69rs11 34rs58',
+        'type=rm ne/4 s5 t6n r1e 11rm5 69rs30 69rs11 34rs58',
+        '11rm5 69rs30 69rs11 34rs58',
+        'desc:\d{5}'
+    ]
+
+    for srch in search:
+        results = do_search(srch)
+
+        print('%d, \'%s\'' % (len(results) if results else 0, srch))
+
+    exit(0)
+
     srch = 'ne/4 s5 t6n r1e'
-    srch = 'desc:".*"".*"'
-    srch = 'se/4 s3 t4n r1e desc="patrick" by="crive""lli"'
-    srch = 's5 t6n r1e - ne/4 s5 t6n r1e'
-    srch = 'date:6/2001'
-    srch = 'type=rm ne/4 s5 t6n r1e by=schillinger'
-    srch = 'type=rm ne/4 s5 t6n r1e 11rm5'
-    srch = 'type=rm ne/4 s5 t6n r1e 11rm5 69rs30 69rs11 34rs58'
-    srch = '11rm5 69rs30 69rs11 34rs58'
-    srch = 'desc:\' type:(?!UR|RS|PM)..'
-
-    print('search: >>>%s<<<' % (srch))
     results = do_search(srch)
-
     if results:
         n = len(results)
 
