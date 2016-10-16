@@ -104,7 +104,7 @@ work as expected. However many punctuation characters take on
 special meaning in a regular expression. Specifically, "." (dot),
 "*" (asterisk), "+" (plus), "?" (question mark), "|" (vertical bar)
 as well as certain less common combinations of other punctuation have
-special meaning. Fortunately most of these special characters do
+special meaning. Fortunately most of these special characters either do
 not appear in the descriptions or are so common ("." and "+") that
 including them in a search is not useful.
 
