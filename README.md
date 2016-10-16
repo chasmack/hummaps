@@ -1,6 +1,6 @@
 # hummaps
 
-Hummaps is an internet version of the Humboldt County map index.
+Hummaps is an online version of the Humboldt County map index.
 It is offered as an alternative to the MS Access based application
 commonly referred to as the Hollins Index.
 
@@ -12,9 +12,9 @@ Searches are text based and must conform to a relatively strict format.
 
 A basic search looks like this: `s36 t2n r5e`
 
-This should find the same maps as an equivalent search on Hollins.
+This should turn up the same maps as an equivalent search on Hollins.
 Extra spaces in and around the search terms are ignored but you must
-separate terms by at least one space. Upper and lower case letters
+separate search terms by at least one space. Upper and lower case letters
 can be used interchangeably.
 
 To search in more than one section: `s36 t2n r5e + s35 t2n r5e`
@@ -33,10 +33,14 @@ Subsections help limit the number of maps returned by a search.
 
 To search for quarter-sections: `sw/4 s15, nw/4 s22 t6n r5e`
 
+Spanning a township line: `n/2 ne/4 s5 t6n r1e + s/2 se/4 S32 t7n r1e`
+
+The smallest searchable subsection is 40 acres (quarter-quarter section). 
+
 When a subsection is included in a search term the original Hollins
-section records are not included in the results for that term. One
+records for that section are not included in the results. One
 strategy is to start with a narrow search and subsequently broaden
-the search while excluding previious results.
+the search while excluding previous results.
 
 The narrow search: `sw/4 s15, nw/4 s22 t6n r5e`
 
@@ -45,7 +49,7 @@ A broader search still using subsections: `1/1 s15, 1/1 s22 t6n r5e`
 And finally the full search: `s15, s22 t6n r5e - 1/1 s15, 1/1 s22 t6n r5e`
 
 The term `1/1` does a subsection search for an entire section. It is
-equalivent to searching for both `n/2` and `s/2` of the section.
+equalivent to searching for both `n/2` and `s/2` in the section.
 The last search adds the original Hollins results but excludes
 results from the previous searches.
 
@@ -68,8 +72,8 @@ To add a range of dates: `type:rs by:crivelli date:"4/2012 2015"`
 
 To add a description: `type:rs desc:"mad river"`
 
-If the search term includes spaces it must be enclosed in double
-quotes. Date terms can have one or two dates formatted `mm/dd/yyyy`.
+If the key name search term includes spaces it must be enclosed in
+double quotes. Date terms can have one or two dates formatted `mm/dd/yyyy`.
 Dates with missing elements work as expected: `date:"4/2012 2015"`
 is 4/1/2012 through 12/31/2015.
 
@@ -77,11 +81,11 @@ Searches are case-insensitive: `by:CrIveLLi type:Rm + by:cRIvELLi type:cR`
 
 Key name search terms (except dates) are processed using regular
 expressions. A little knowledge of regular expressions can be very
-handy. A not-to-gentle explanation can be found at [postgresql.org](https://www.postgresql.org/docs/9.4/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP).
+handy. A not-very-gentle explanation can be found at [postgresql.org](https://www.postgresql.org/docs/9.4/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP).
 
 Using regular expressions: `by:crivelli|pulley type:pm|rm`
 
-An important use of regular expressions is searching for descriptions.
+An important use of regular expressions is in searching for descriptions.
 Variations in spelling can often be smoothed over.
 
 Using two search terms: `desc:patrick desc:point`
@@ -91,9 +95,18 @@ Using a regular expression: `desc:patrick.{1,3}point`
 The regular expression searches for any description with the word
 "patrick" followed by the word "point" with 1 to 3 characters between
 the words. This smooths over the inconsistent use of an apostrophe
-in the word patrick. The first search using two terms will pick up
+in the word patrick's. The first search using two terms will pick up
 any descriptions having both "patrick" and "point" anywhere in the
 description.
+
+Generally simple strings with alphanumeric characters and spaces
+work as expected. However many punctuation characters take on
+special meaning in a regular expression. Specifically, "." (dot),
+"*" (asterisk), "+" (plus), "?" (question mark), "|" (vertical bar)
+as well as certain less common combinations of other punctuation have
+special meaning. Fortunately most of these special characters do
+not appear in the descriptions or are so common ("." and "+") that
+including them in a search is not useful.
 
 #### Support
 
