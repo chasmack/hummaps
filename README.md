@@ -13,7 +13,7 @@ Searches are text based and must conform to a relatively strict format.
 A basic search looks like this: `s36 t2n r5e`
 
 This should turn up the same maps as an equivalent search on Hollins.
-Extra spaces in and around the search terms are ignored but you must
+Extra spaces around the search terms are ignored but you must
 separate search terms by at least one space. Upper and lower case letters
 can be used interchangeably.
 
