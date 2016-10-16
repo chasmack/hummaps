@@ -27,9 +27,10 @@ To search in more than one township: `s36 t2n r5e + s1 t1n r5e`
 
 A recent addition to the Hollins Index was the inclusion of subsection
 information. Originally maps were indexed into sections adjacent
-to the area being mapped. For example, if a map covered the sw/4 of
-section 1 it would also show up in searches of sections 2, 11 and 12.
-Subsections help limit the number of maps returned by a search.
+to the area being mapped thereby broadening searches. For example, 
+if a map covered the sw/4 of section 1 it would also show up in searches 
+of sections 2, 11 and 12. Subsections help limit the number of maps 
+returned by a search.
 
 To search for quarter-sections: `sw/4 s15, nw/4 s22 t6n r5e`
 
