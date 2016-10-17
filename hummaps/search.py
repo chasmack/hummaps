@@ -7,6 +7,18 @@ from hummaps.database import db_session
 from hummaps.models import Map, MapImage, TRS, Source, MapType, Surveyor, CC, CCImage
 
 
+class ParseError(Exception):
+    def __init__(self, err, term=''):
+        self.err = err
+        self.term = term
+
+    def __str__(self):
+        if self.term:
+            return '\'%s\': \'%s\'' % (self.term, self.err)
+        else:
+            return '\'%s\'' % self.err
+
+
 def parse_dates(date_str):
 
     # Parse a date field into a date range.
@@ -23,7 +35,7 @@ def parse_dates(date_str):
     pat = '(?:(\d+/)(\d+/)?)?(\d{4})(?:\s+(?:(\d+/)(\d+/)?)?(\d{4}))?'
     m = re.fullmatch(pat, date_str.strip())
     if m is None:
-        return None
+        raise ParseError(date_str)
 
     m1, d1, y1, m2, d2, y2 = m.groups()
 
@@ -128,46 +140,6 @@ def subsec_bits(subsec_str):
     return None
 
 
-def township_range_section(trs_str):
-
-    # parse off any sections and subsections
-    secs = []
-    ss_pat = '(?:[NS][WE]/4|[NSEW]/2|1/1)'
-    sec_pat = '(?:(?:{ss_pat}\s+)?{ss_pat}\s+)?S\d{{1,2}}'.format(ss_pat=ss_pat)
-    for s in re.findall('({sec_pat})(?:,\s*)?'.format(sec_pat=sec_pat), trs_str, flags=re.I):
-
-        pat = '((?:{ss_pat}\s+)?{ss_pat}\s+)?S(\d+)\s*'.format(ss_pat=ss_pat)
-        m = re.fullmatch(pat, s, flags=re.I)
-        if m is None:
-            # return 'Section formatting error: "%s"' % (s)
-            return None
-
-        if m.group(1):
-            subsec = subsec_bits(m.group(1))
-            if subsec is None:
-                # return 'Subsection error: "%s"' % (s)
-                return None
-        else:
-            subsec = None
-        sec = int(m.group(2))
-        if sec == 0 or sec > 36:
-            # return 'Section number error: "$s"' % (s)
-            return None
-
-        secs.append({'sec': sec, 'subsec': subsec})
-
-    m = re.search('(T\d{1,2}[NS])\s+(R\d{1}[EW])\s*$', trs_str, flags=re.I)
-    if m:
-        t = tshp_num(m.group(1))
-        r = rng_num(m.group(2))
-        trs = {'tshp': t, 'rng': r, 'secs': secs}
-    else:
-        # return 'Township/Range format error: "%s"' % (strm)
-        return None
-
-    return trs
-
-
 def do_search(search):
 
     # subqueries to for the final UNOIN/EXCEPT
@@ -201,10 +173,37 @@ def do_search(search):
         desc += [('MAP', m) for m in re.findall(pat, term, flags=re.I)]
         term = re.sub(pat, '', term, flags=re.I)
 
-        # parse for township/range/sections
-        trs = township_range_section(term)
-        if trs:
+        # parse township/range/sections
+        ss_pat = '(?:[NS][WE]/4|[NSEW]/2|1/1)'
+        sec_pat = '(?:(?:{ss_pat}\s+)?{ss_pat}\s+)?S\d{{1,2}}'.format(ss_pat=ss_pat)
+        trs_pat = '((?:{sec_pat},?\s*)+)(T\d{{1,2}}[NS])\s+(R\d{{1}}[EW])'.format(sec_pat=sec_pat)
+
+        m = re.search(trs_pat, term, flags=re.I)
+        if m:
+            term = term[:m.start()] + term[m.end():]
+            trs = {'tshp': tshp_num(m.group(2)), 'rng': rng_num(m.group(3)), 'secs': []}
+            trs_str = m.group(0)
+
+            # parse the sections/subsections
+            sec_pat = '((?:{ss_pat}\s+)?{ss_pat}\s+)?(S\d{{1,2}})'.format(ss_pat=ss_pat)
+            for ss, s in re.findall(sec_pat, m.group(1), flags=re.I):
+                if ss:
+                    subsec = subsec_bits(ss)
+                    if subsec is None:
+                        raise ParseError(ss, trs_str)
+                else:
+                    subsec = None
+                sec = int(s[1:])
+                if sec == 0 or sec > 36:
+                    raise ParseError(s, trs_str)
+                trs['secs'].append({'sec': sec, 'subsec': subsec})
+
             desc.append(('TRS', trs))
+
+        # shouldn't be anything left at this point'
+        term = term.strip()
+        if term:
+            raise ParseError(term, search)
 
         for k, d in desc:
             k = k.upper()
@@ -242,7 +241,7 @@ def do_search(search):
             or_terms.append(and_(*and_terms))
         if or_terms:
             q = db_session.query(Map.id).join(TRS).join(MapType)
-            q = q.outerjoin(Surveyor)  # surveyor can be null
+            q = q.outerjoin(Surveyor)
             q = q.filter(or_(*or_terms))
             if prefix == '-':
                 subq_except.append(q)
@@ -251,7 +250,7 @@ def do_search(search):
 
     if subq_union:
         query = db_session.query(Map).join(TRS).join(MapType)
-        query = query.outerjoin(Surveyor)  # surveyor can be null
+        query = query.outerjoin(Surveyor)
         subq = subq_union.pop(0)
         for q in subq_union:
             subq = subq.union(q)
@@ -269,6 +268,7 @@ def do_search(search):
 if __name__ == '__main__':
 
     search = [
+        'e/2 s6 t2n r5e',
         's36 t2n r5e',
         '1/1 s36 t2n r5e',
         'n/2 s36 t2n r5e + s/2 s36 t2n r5e',

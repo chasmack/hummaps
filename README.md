@@ -32,7 +32,7 @@ if a map covered the sw/4 of section 1 it would also show up in searches
 of sections 2, 11 and 12. Subsections help limit the number of maps 
 returned by a search.
 
-To search for quarter-sections: `sw/4 s15, nw/4 s22 t6n r5e`
+To search for quarter sections: `sw/4 s15, nw/4 s22 t6n r5e`
 
 Spanning a township line: `n/2 ne/4 s5 t6n r1e + s/2 se/4 S32 t7n r1e`
 
@@ -74,7 +74,7 @@ To add a range of dates: `type:rs by:crivelli date:"4/2012 2015"`
 To add a description: `type:rs desc:"mad river"`
 
 If the key name search term includes spaces it must be enclosed in
-double quotes. Date terms can have one or two dates formatted `mm/dd/yyyy`.
+double quotes. Date terms can have one or two dates formatted as `mm/dd/yyyy`.
 Dates with missing elements work as expected: `date:"4/2012 2015"`
 is 4/1/2012 through 12/31/2015.
 
