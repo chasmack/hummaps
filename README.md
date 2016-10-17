@@ -98,7 +98,7 @@ The regular expression searches for any description with the word
 the words. This smooths over the inconsistent use of an apostrophe
 in the word patrick's. The first search using two terms will pick up
 any descriptions having both "patrick" and "point" anywhere in the
-description.
+description. 
 
 Generally simple strings with alphanumeric characters and spaces
 work as expected. However many punctuation characters take on

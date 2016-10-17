@@ -5,7 +5,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from hummaps import app
 from hummaps.database import db_session
 from hummaps.forms import SearchForm
-from hummaps.search import do_search
+from hummaps.search import do_search, ParseError
 
 
 @app.route('/')

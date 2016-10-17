@@ -14,9 +14,9 @@ class ParseError(Exception):
 
     def __str__(self):
         if self.term:
-            return '\'%s\': \'%s\'' % (self.term, self.err)
+            return '%s: %s' % (self.term, self.err)
         else:
-            return '\'%s\'' % self.err
+            return self.err
 
 
 def parse_dates(date_str):
@@ -147,30 +147,26 @@ def do_search(search):
     subq_except = []
 
     # split into multiple independent search terms
-    for prefix, term in  re.findall('([+-])?\s*([^+-]+)', search):
-
-        # break independent terms into a list of 'OR' and 'AND' elements
-        or_terms = []
-        and_terms = []
+    for prefix, term in re.findall('([+-])?\s*([^+-]+)', search):
 
         # list of keyword search terms
         desc = []
 
         # parse for surveyor, client, date, desc & maptype in double quotes
-        pat = '(BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:]"(.*?)(?<!")"(?!")'
+        pat = '((BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:]"(.*?)(?<!")"(?!"))'
         dquotes = re.findall(pat, term, flags=re.I)
         # replace two consecutive double quotes with a single double quote
-        desc += [(s[0], re.sub('""', '"', s[1])) for s in dquotes]
+        desc += [(s[0], s[1], re.sub('""', '"', s[2])) for s in dquotes]
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for single word surveyor, client, date, desc & maptype without quotes
-        pat = '(BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:](\S+)'
+        pat = '((BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:](\S+))'
         desc += re.findall(pat, term, flags=re.I)
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for individual maps
-        pat = '(\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+)'
-        desc += [('MAP', m) for m in re.findall(pat, term, flags=re.I)]
+        pat = '((\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+),?)'
+        desc += [(m[0], 'MAP', m[1:]) for m in re.findall(pat, term, flags=re.I)]
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse township/range/sections
@@ -198,29 +194,46 @@ def do_search(search):
                     raise ParseError(s, trs_str)
                 trs['secs'].append({'sec': sec, 'subsec': subsec})
 
-            desc.append(('TRS', trs))
+            desc.append((trs_str, 'TRS', trs))
 
-        # shouldn't be anything left at this point'
+        # shouldn't be anything left at this point
         term = term.strip()
         if term:
-            raise ParseError(term, search)
+            if term == search.strip():
+                raise ParseError(search)
+            else:
+                raise ParseError(term, search)
 
-        for k, d in desc:
+        # lists of 'OR' and 'AND' elements
+        or_terms = []
+        and_terms = []
+
+        # keys and search terms
+        # for terms that will be eventually processed by a postgresql regular expression
+        # we try to compile here and redirect any exception to a ParseError
+        for term, k, v in desc:
             k = k.upper()
-            if k =='BY':
-                and_terms.append(and_(Surveyor.fullname.op('~*')(d)))
+            if k == 'BY':
+                try: re.compile(v)
+                except: raise ParseError(v, term)
+                and_terms.append(and_(Surveyor.fullname.op('~*')(v)))
             elif k == 'FOR':
-                and_terms.append(and_(Map.client.op('~*')(d)))
+                try: re.compile(v)
+                except: raise ParseError(v, term)
+                and_terms.append(and_(Map.client.op('~*')(v)))
             elif k == 'DATE':
-                dates = parse_dates(d)
-                if dates:
-                    and_terms.append(between(Map.recdate, *dates))
+                dates = parse_dates(v)
+                and_terms.append(between(Map.recdate, *dates))
             elif k == 'DESC':
-                and_terms.append(and_(Map.description.op('~*')(d)))
+                try: re.compile(v)
+                except: raise ParseError(v, term)
+                and_terms.append(and_(Map.description.op('~*')(v)))
             elif k[-4:] == 'TYPE':
-                and_terms.append(and_(MapType.abbrev.op('~*')(d)))
+                try: re.compile(v)
+                except: raise ParseError(v, term)
+                and_terms.append(and_(MapType.abbrev.op('~*')(v)))
             elif k == 'MAP':
-                book, type, page = d
+                book, type, page = v
                 or_terms.append(
                     and_(
                         Map.book == int(book), MapType.abbrev == type.upper(),
@@ -228,14 +241,14 @@ def do_search(search):
                 )
             elif k == 'TRS':
                 secs = []
-                for sec in d['secs']:
+                for sec in v['secs']:
                     if sec['subsec']:
                         secs.append(and_(
                             TRS.sec == sec['sec'],
                             TRS.subsec.op('&')(sec['subsec']) > 0))
                     else:
                         secs.append(and_(TRS.sec == sec['sec']))
-                and_terms.append(and_(TRS.tshp == d['tshp'], TRS.rng == d['rng'], or_(*secs)))
+                and_terms.append(and_(TRS.tshp == v['tshp'], TRS.rng == v['rng'], or_(*secs)))
 
         if and_terms:
             or_terms.append(and_(*and_terms))
@@ -258,51 +271,70 @@ def do_search(search):
             subq = subq.except_(q)
         query = query.filter(Map.id.in_(subq))
         query = query.order_by(MapType.maptype, Map.recdate.desc(), Map.page.desc())
-        results = query.all()
 
+        return query.all()
     else:
-        results = None
+        return []
 
-    return results
 
 if __name__ == '__main__':
 
     search = [
-        'e/2 s6 t2n r5e',
-        's36 t2n r5e',
-        '1/1 s36 t2n r5e',
-        'n/2 s36 t2n r5e + s/2 s36 t2n r5e',
-        'se/4 s36 t2n r5e',
-        'w/2 se/4 s36 t2n r5e + sw/4 s31 t2n r6e',
-        's36 t2n r5e - w/2 se/4 s36 t2n r5e + s31 t2n r6e - sw/4 s31 t2n r6e',
-        '1/1 s32 t7n r1e',
-        'desc:".*"".*"',
-        'desc:"',
-        's5 t6n r1e - ne/4 s5 t6n r1e',
-        's5 t6n r1e - ne/4 s5 t6n r1e -type:cr -type:hm -type:ur',
-        's5 t6n r1e - ne/4 s5 t6n r1e -type:cr|hm|ur',
-        '+s5 t6n r1e type:rs|rm|pm -ne/4 s5 t6n r1e',
-        '+s5 t6n r1e type:(?!cr|hm|ur).. -ne/4 s5 t6n r1e',
-        'date:2015 by:crivelli + date:2015 by:pulley',
-        'date:2015 by:CrIveLLi|PuLLey',
-        'type=rm ne/4 s5 t6n r1e by=schillinger',
-        'type=rm ne/4 s5 t6n r1e',
-        '11rm5 69rs30 69rs11 34rs58',
-        'type=rm ne/4 s5 t6n r1e + 11rm5 69rs30 69rs11 34rs58',
-        'type=rm ne/4 s5 t6n r1e 11rm5 69rs30 69rs11 34rs58',
-        '11rm5 69rs30 69rs11 34rs58',
-        'desc:\d{5}'
+        ('s36 t2n r5e', 26),
+        ('1/1 s36 t2n r5e', 5),
+        ('s/2 s36 t2n r5e', 5),
+        ('sw/4 s36 t2n r5e', 5),
+        ('s/2 w/2 s36 t2n r5e', ParseError),
+        ('s/2 sw/4 s36 t2n r5e', 5),
+        ('n/2 sw/4 s36 t2n r5e', 5),
+        ('w/2 sw/4 s36 t2n r5e', 4),
+        ('se/4 s36 t2n r5e', 3),
+        ('w/2 se/4 s36 t2n r5e + sw/4 s31 t2n r6e', 7),
+        ('s36 t2n r5e - w/2 se/4 s36 t2n r5e + s31 t2n r6e - sw/4 s31 t2n r6e', 20),
+        ('1/1 s32 t7n r1e', 248),
+        ('desc:"', 4),
+        ('desc:" ""."" "', 3),
+        ('s5 t6n r1e - ne/4 s5 t6n r1e', 199),
+        ('s5 t6n r1e - ne/4 s5 t6n r1e -type:cr -type:hm -type:ur', 180),
+        ('s5 t6n r1e - ne/4 s5 t6n r1e -type:cr|hm|ur', 180),
+        ('+s5 t6n r1e type:rs|rm|pm -ne/4 s5 t6n r1e', 180),
+        ('+s5 t6n r1e type:(?!cr|hm|ur).. -ne/4 s5 t6n r1e', 180),
+        ('date:2015 by:crivelli + date:2015 by:pulley', 23),
+        ('date:2015 by:CrIveLLi|PuLLey', 23),
+        ('type=rm ne/4 s5 t6n r1e by=schillinger', 6),
+        ('type=rm ne/4 s5 t6n r1e', 34),
+        ('11rm5 69rs30 69rs11 34rs58', 4),
+        ('type=rm ne/4 s5 t6n r1e', 34),
+        ('type=rm ne/4 s5 t6n r1e + 11rm5 69rs30 69rs11 34rs58', 38),
+        ('type=rm ne/4 s5 t6n r1e 11rm5 69rs30 69rs11 34rs58', 38),
+        ('5cr45 2hm90 1mm100 45rs100 16pm10 19rm30 1ur150', 7),
+        ('5cr45, 2hm90, 1mm100, 45rs100, 16pm10, 19rm30, 1ur150', 7),
+        ('5cr45 2hm90 1mm100 45rs100 16pm10 19rn30 1ur150', ParseError),
+        ('desc:\d{5}', 100),
+        ('nothing', ParseError),
+        ('desc:?', ParseError),
     ]
 
-    for srch in search:
-        results = do_search(srch)
+    for srch, result in search:
+        try:
+            maps = do_search(srch)
 
-        print('%d, \'%s\'' % (len(results) if results else 0, srch))
+        except Exception as e:
+            print('\'%s\': %s: %s' % (srch, type(e), str(e)))
+            if result is not None and issubclass(result, Exception):
+                assert isinstance(e, result)
+            elif result is not None:
+                raise
 
-    exit(0)
+        else:
+            if result is not None:
+                assert len(maps) == result
 
-    srch = 'ne/4 s5 t6n r1e'
+            print('\'%s\': %d' % (srch, len(maps)))
+
+    srch = 'desc:" ""."" "'
     results = do_search(srch)
+    print('\nsearch: \'%s\'' % srch)
     if results:
         n = len(results)
 
@@ -322,7 +354,7 @@ if __name__ == '__main__':
                 certs.append('CC=%s (%s)' % (cc.doc_number, imagefiles))
             certs = ', '.join(certs)
 
-            print('%2d %6d %s %s' % (i + 1, map.id, map.maptype.abbrev.upper(), map.bookpage))
+            print('%2d %6d %s %s %s' % (i + 1, map.id, map.maptype.abbrev.upper(), map.bookpage, map.description))
             # print(map.heading)
             # print(map.line1)
             # print(map.line2)
