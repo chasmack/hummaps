@@ -17,10 +17,15 @@ def search():
 @app.route('/results', methods=['GET', 'POST'])
 def show_results():
     form = SearchForm()
+    results = []
     if form.validate_on_submit():
-        results = do_search(form.description.data)
-    else:
-        results = []
+        try:
+            results = do_search(form.description.data)
+        except ParseError as e:
+            term = ' (%s)' % e.term if e.term else ''
+            flash('Search format error%s: <strong>%s</strong>' % (term, e.err), 'error')
+        except Exception as e:
+            flash('<strong>Search Error:</strong> %s' % str(e), 'error')
 
     count = len(results)
     if count > 200:
