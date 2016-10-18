@@ -142,38 +142,37 @@ def subsec_bits(subsec_str):
 
 def do_search(search):
 
-    # subqueries to for the final UNOIN/EXCEPT
+    # subqueries for the UNION/EXCEPT
     subq_union = []
     subq_except = []
 
-    # split into multiple independent search terms
-    for prefix, term in re.findall('([+-])?\s*([^+-]+)', search):
+    # split into multiple independent union/exclude search terms
+    for prefix, term in re.findall('([+-])?([^+-]+)', search):
 
-        # list of keyword search terms
-        desc = []
+        # a list of subterms for this union/exclude term
+        subterms = []
 
         # parse for surveyor, client, date, desc & maptype in double quotes
         pat = '((BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:]"(.*?)(?<!")"(?!"))'
         dquotes = re.findall(pat, term, flags=re.I)
         # replace two consecutive double quotes with a single double quote
-        desc += [(s[0], s[1], re.sub('""', '"', s[2])) for s in dquotes]
+        subterms += [(s[0], s[1], re.sub('""', '"', s[2])) for s in dquotes]
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for single word surveyor, client, date, desc & maptype without quotes
         pat = '((BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:](\S+))'
-        desc += re.findall(pat, term, flags=re.I)
+        subterms += re.findall(pat, term, flags=re.I)
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for individual maps
         pat = '((\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+),?)'
-        desc += [(m[0], 'MAP', m[1:]) for m in re.findall(pat, term, flags=re.I)]
+        subterms += [(m[0], 'MAP', m[1:]) for m in re.findall(pat, term, flags=re.I)]
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse township/range/sections
         ss_pat = '(?:[NS][WE]/4|[NSEW]/2|1/1)'
         sec_pat = '(?:(?:{ss_pat}\s+)?{ss_pat}\s+)?S\d{{1,2}}'.format(ss_pat=ss_pat)
         trs_pat = '((?:{sec_pat},?\s*)+)(T\d{{1,2}}[NS])\s+(R\d{{1}}[EW])'.format(sec_pat=sec_pat)
-
         m = re.search(trs_pat, term, flags=re.I)
         if m:
             term = term[:m.start()] + term[m.end():]
@@ -194,7 +193,7 @@ def do_search(search):
                     raise ParseError(s, trs_str)
                 trs['secs'].append({'sec': sec, 'subsec': subsec})
 
-            desc.append((trs_str, 'TRS', trs))
+            subterms.append((trs_str, 'TRS', trs))
 
         # shouldn't be anything left at this point
         term = term.strip()
@@ -211,7 +210,7 @@ def do_search(search):
         # keys and search terms
         # for terms that will be eventually processed by a postgresql regular expression
         # we try to compile here and redirect any exception to a ParseError
-        for term, k, v in desc:
+        for term, k, v in subterms:
             k = k.upper()
             if k == 'BY':
                 try: re.compile(v)
@@ -279,6 +278,40 @@ def do_search(search):
 
 if __name__ == '__main__':
 
+    srch = 'desc:" ""."" "'
+    results = do_search(srch)
+    print('\nsearch: \'%s\'' % srch)
+    if results:
+        n = len(results)
+
+        for i in range(n):
+
+            map = results[i]
+
+            mapimages = ', '.join([mapimage.imagefile for mapimage in map.mapimage])
+            if mapimages == '':
+                mapimages = 'None'
+
+            certs = []
+            for cc in map.cc:
+                imagefiles = ', '.join([ccimage.imagefile for ccimage in cc.ccimage])
+                if imagefiles == '':
+                    imagefiles = 'None'
+                certs.append('CC=%s (%s)' % (cc.doc_number, imagefiles))
+            certs = ', '.join(certs)
+
+            print('%2d %6d %s %s %s' % (i + 1, map.id, map.maptype.abbrev.upper(), map.bookpage, map.description))
+            # print(map.heading)
+            # print(map.line1)
+            # print(map.line2)
+            # print(map.url())
+            # print()
+
+        print('results: %d maps found.' % (n))
+    else:
+        print('Nothing found.')
+
+    print()
     search = [
         ('s36 t2n r5e', 26),
         ('1/1 s36 t2n r5e', 5),
@@ -332,41 +365,6 @@ if __name__ == '__main__':
 
             print('\'%s\': %d' % (srch, len(maps)))
 
-    srch = 'desc:" ""."" "'
-    results = do_search(srch)
-    print('\nsearch: \'%s\'' % srch)
-    if results:
-        n = len(results)
-
-        for i in range(n):
-
-            map = results[i]
-
-            mapimages = ', '.join([mapimage.imagefile for mapimage in map.mapimage])
-            if mapimages == '':
-                mapimages = 'None'
-
-            certs = []
-            for cc in map.cc:
-                imagefiles = ', '.join([ccimage.imagefile for ccimage in cc.ccimage])
-                if imagefiles == '':
-                    imagefiles = 'None'
-                certs.append('CC=%s (%s)' % (cc.doc_number, imagefiles))
-            certs = ', '.join(certs)
-
-            print('%2d %6d %s %s %s' % (i + 1, map.id, map.maptype.abbrev.upper(), map.bookpage, map.description))
-            # print(map.heading)
-            # print(map.line1)
-            # print(map.line2)
-            # print(map.url())
-            # print()
-
-
-        print('\nresults: %d maps' % (n))
-
-    else:
-        print('Nothing found.')
-
     # cards = ['N', 'S', 'E', 'W']
     # for a in cards:
     #     for b in cards:
@@ -376,7 +374,6 @@ if __name__ == '__main__':
     #         s = ''.join(sorted([b,a]))
     #         c = 'NO' if re.match('E[NS]|[NS]W', s) else 'YES'
     #         print(b,a,c)
-
 
     # ss = ['NE/4', 'SE/4', 'SW/4', 'NW/4', 'N/2', 'S/2', 'E/2', 'W/2']
     # for q in ss:
