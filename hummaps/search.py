@@ -153,14 +153,14 @@ def do_search(search):
         subterms = []
 
         # parse for surveyor, client, date, desc & maptype in double quotes
-        pat = '((BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:]"(.*?)(?<!")"(?!"))'
+        pat = '((BY|FOR|DATE|DESC|TYPE)[=:]"(.*?)(?<!")"(?!"))'
         dquotes = re.findall(pat, term, flags=re.I)
         # replace two consecutive double quotes with a single double quote
         subterms += [(s[0], s[1], re.sub('""', '"', s[2])) for s in dquotes]
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for single word surveyor, client, date, desc & maptype without quotes
-        pat = '((BY|FOR|DATE|DESC|(?:MAP)?TYPE)[=:](\S+))'
+        pat = '((BY|FOR|DATE|DESC|TYPE)[=:](\S+))'
         subterms += re.findall(pat, term, flags=re.I)
         term = re.sub(pat, '', term, flags=re.I)
 
@@ -227,15 +227,15 @@ def do_search(search):
                 try: re.compile(v)
                 except: raise ParseError(v, term)
                 and_terms.append(and_(Map.description.op('~*')(v)))
-            elif k[-4:] == 'TYPE':
+            elif k == 'TYPE':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
                 and_terms.append(and_(MapType.abbrev.op('~*')(v)))
             elif k == 'MAP':
-                book, type, page = v
+                book, maptype, page = v
                 or_terms.append(
                     and_(
-                        Map.book == int(book), MapType.abbrev == type.upper(),
+                        Map.book == int(book), MapType.abbrev == maptype.upper(),
                         Map.page <= int(page), Map.page + Map.npages > int(page))
                 )
             elif k == 'TRS':
@@ -253,7 +253,7 @@ def do_search(search):
             or_terms.append(and_(*and_terms))
         if or_terms:
             q = db_session.query(Map.id).join(TRS).join(MapType)
-            q = q.outerjoin(Surveyor)
+            q = q.outerjoin(Surveyor, Map.surveyor)
             q = q.filter(or_(*or_terms))
             if prefix == '-':
                 subq_except.append(q)
@@ -262,7 +262,7 @@ def do_search(search):
 
     if subq_union:
         query = db_session.query(Map).join(TRS).join(MapType)
-        query = query.outerjoin(Surveyor)
+        query = query.outerjoin(Surveyor, Map.surveyor)
         subq = subq_union.pop(0)
         for q in subq_union:
             subq = subq.union(q)
@@ -278,7 +278,12 @@ def do_search(search):
 
 if __name__ == '__main__':
 
-    srch = 'desc:" ""."" "'
+    # for m in db_session.query(Map).join(Surveyor, Map.surveyor).filter(Surveyor.fullname.op('~*')('crivelli')):
+    #     print(m, ', '.join([s.name for s in m.surveyor]))
+    #
+    # exit(0)
+
+    srch = 'by:preston'
     results = do_search(srch)
     print('\nsearch: \'%s\'' % srch)
     if results:
@@ -301,11 +306,11 @@ if __name__ == '__main__':
             certs = ', '.join(certs)
 
             print('%2d %6d %s %s %s' % (i + 1, map.id, map.maptype.abbrev.upper(), map.bookpage, map.description))
-            # print(map.heading)
-            # print(map.line1)
-            # print(map.line2)
-            # print(map.url())
-            # print()
+            print(map.heading)
+            print(map.line1)
+            print(map.line2)
+            print(map.url())
+            print()
 
         print('results: %d maps found.' % (n))
     else:
@@ -324,7 +329,7 @@ if __name__ == '__main__':
         ('se/4 s36 t2n r5e', 3),
         ('w/2 se/4 s36 t2n r5e + sw/4 s31 t2n r6e', 7),
         ('s36 t2n r5e - w/2 se/4 s36 t2n r5e + s31 t2n r6e - sw/4 s31 t2n r6e', 20),
-        ('1/1 s32 t7n r1e', 248),
+        ('1/1 s32 t7n r1e', 249),
         ('desc:"', 4),
         ('desc:" ""."" "', 3),
         ('s5 t6n r1e - ne/4 s5 t6n r1e', 199),

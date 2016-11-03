@@ -2,10 +2,12 @@
 
 {% block page_content %}
   <div class="col-md-offset-3 col-md-6">
-  {%  if count > results|length %}
+  {% if count > results|length %}
       <h2>Showing maps 1-{{ results|count }} of {{ count }}.</h2>
-  {% elif count > 0 %}
+  {% elif count > 1 %}
       <h2>{{ count }} maps found.</h2>
+  {% elif count == 1 %}
+      <h2>{{ count }} map found.</h2>
   {% else %}
       <h2>No maps found.</h2>
   {%  endif %}
@@ -14,7 +16,10 @@
       <a href="{{ map.url() }}" class="list-group-item active">
         <h4 class="list-group-item-heading">{{ map.heading }}</h4>
         <p class="list-group-item-text">{{ map.line1 }}</p>
+        {% if map.line2 %}
         <p class="list-group-item-text">{{ map.line2 }}</p>
+        {% endif %}
+        <p class="list-group-item-text">{{ map.line3 }}</p>
       </a>
     {% endfor %}
     </div>

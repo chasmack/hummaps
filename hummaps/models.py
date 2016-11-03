@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from hummaps.database import Base
@@ -79,6 +79,56 @@ class TRS(Base):
         return '<TRS(id=%d)>' % (self.id)
 
 
+class MapType(Base):
+    __tablename__ = 'maptype'
+
+    id = Column(Integer, primary_key=True)
+    maptype = Column(String)
+    abbrev = Column(String)
+
+    map = relationship('Map', back_populates='maptype')
+
+    def __repr__(self):
+        return '<MapType(id=%d, maptype="%s", abbrev="%s")>' % (self.id, self.maptype, self.abbrev)
+
+
+# Association table for the many to many relationship between Map <-> Surveyor
+signed_by = Table('signed_by', Base.metadata,
+    Column('map_id', Integer, ForeignKey('map.id'), primary_key=True),
+    Column('surveyor_id', Integer, ForeignKey('surveyor.id'), primary_key=True)
+)
+
+
+class Surveyor(Base):
+    __tablename__ = 'surveyor'
+
+    id = Column(Integer, primary_key=True)
+    fullname = Column(String)
+    firstname = Column(String)
+    secondname = Column(String)
+    thirdname = Column(String)
+    lastname = Column(String)
+    suffix = Column(String)
+    pls = Column(String)
+    rce = Column(String)
+
+    # many to many Map <-> Surveyor
+    map = relationship('Map', secondary=signed_by, back_populates='surveyor')
+
+    @hybrid_property
+    def name(self):
+        name = self.firstname[0] + '. '
+        if self.secondname:
+            name += self.secondname[0] + '. '
+        name += self.lastname.capitalize()
+        if self.suffix:
+            name += ' ' + self.suffix
+        return name
+
+    def __repr__(self):
+        return '<Surveyor(id=%d, fullname="%s")>' % (self.id, self.fullname)
+
+
 class Map(Base):
     __tablename__ = 'map'
 
@@ -88,7 +138,6 @@ class Map(Base):
     page = Column(Integer)
     npages = Column(Integer)
     recdate = Column(Date)
-    surveyor_id = Column(Integer, ForeignKey('surveyor.id'))
     client = Column(String)
     description = Column(String)
     note = Column(String)
@@ -96,8 +145,10 @@ class Map(Base):
     trs = relationship('TRS', back_populates='map')
     mapimage = relationship('MapImage', order_by=MapImage.page, back_populates='map')
     maptype = relationship('MapType', back_populates='map')
-    surveyor = relationship('Surveyor', back_populates='map')
     cc = relationship('CC', back_populates='map')
+
+    # many to many Map <-> Surveyor
+    surveyor = relationship('Surveyor', secondary=signed_by, back_populates='map')
 
     @hybrid_property
     def heading(self):
@@ -110,10 +161,31 @@ class Map(Base):
 
     @hybrid_property
     def line1(self):
-        return 'Recorded %s by %s for %s' % (self.recdate, self.surveyor.fullname, self.client)
+        surveyors = []
+        for s in self.surveyor:
+            lics = []
+            if s.pls:
+                lics.append('LS' + s.pls)
+            if s.rce:
+                lics.append('RCE' + s.rce)
+            if lics:
+                lics = ' (' + ', '.join(lics) + ')'
+            else:
+                lics = ''
+            surveyors.append(s.name + lics)
+        if surveyors:
+            surveyors = ', '.join(surveyors)
+        else:
+            surveyors = '(UNKNOWN)'
+
+        return 'Recorded %s by %s' % (self.recdate, surveyors)
 
     @hybrid_property
     def line2(self):
+        return 'For ' + self.client if self.client else None
+
+    @hybrid_property
+    def line3(self):
         return self.description
 
     @hybrid_property
@@ -133,35 +205,7 @@ class Map(Base):
         return '<Map(id=%d, map="%s")>' % (self.id, self.bookpage)
 
 
-class MapType(Base):
-    __tablename__ = 'maptype'
-
-    id = Column(Integer, primary_key=True)
-    maptype = Column(String)
-    abbrev = Column(String)
-
-    map = relationship('Map', back_populates='maptype')
-
-    def __repr__(self):
-        return '<MapType(id=%d, maptype="%s", abbrev="%s")>' % (self.id, self.maptype, self.abbrev)
-
-
-class Surveyor(Base):
-    __tablename__ = 'surveyor'
-
-    id = Column(Integer, primary_key=True)
-    lastname = Column(String)
-    fullname = Column(String)
-    pls = Column(Integer)
-    rce = Column(Integer)
-
-    map = relationship('Map', back_populates='surveyor')
-
-    def __repr__(self):
-        return '<Surveyor(id=%d, fullname="%s")>' % (self.id, self.fullname)
-
-
-
 
 if __name__ == '__main__':
+
     pass
