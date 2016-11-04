@@ -12,7 +12,7 @@ Searches are text based and must conform to a relatively strict format.
 
 A basic search looks like this: `s36 t2n r5e`
 
-Alternately: `s36 2n 5e`
+The township and range prefix are optional: `s36 2n 5e` or `s36 2n,5e`
 
 This should turn up the same maps as an equivalent search on Hollins.
 Extra spaces around the search terms are ignored but you must
