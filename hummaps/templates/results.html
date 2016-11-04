@@ -5,11 +5,11 @@
   {% if count > results|length %}
       <h2>Showing maps 1-{{ results|count }} of {{ count }}.</h2>
   {% elif count > 1 %}
-      <h2>{{ count }} maps found.</h2>
+      <h2>{{ count }} maps found</h2>
   {% elif count == 1 %}
-      <h2>{{ count }} map found.</h2>
+      <h2>{{ count }} map found</h2>
   {% else %}
-      <h2>No maps found.</h2>
+      <h2>No maps found</h2>
   {%  endif %}
     <div class="list-group">
     {% for map in results %}

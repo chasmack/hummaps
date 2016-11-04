@@ -12,6 +12,8 @@ Searches are text based and must conform to a relatively strict format.
 
 A basic search looks like this: `s36 t2n r5e`
 
+Alternately: `s36 2n 5e`
+
 This should turn up the same maps as an equivalent search on Hollins.
 Extra spaces around the search terms are ignored but you must
 separate search terms by at least one space. Upper and lower case letters
@@ -19,7 +21,7 @@ can be used interchangeably.
 
 To search in more than one section: `s36 t2n r5e + s35 t2n r5e`
 
-Or more succinctly: `s35, s36 t2n r5e`
+Or more succinctly: `s35 s36 2n 5e`
 
 To search in more than one township: `s36 t2n r5e + s1 t1n r5e`
 

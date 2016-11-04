@@ -117,10 +117,13 @@ class Surveyor(Base):
 
     @hybrid_property
     def name(self):
-        name = self.firstname[0] + '. '
+        name = [self.firstname]
         if self.secondname:
-            name += self.secondname[0] + '. '
-        name += self.lastname.capitalize()
+            name.append(self.secondname[0] + '.')
+        if self.thirdname:
+            name.append(self.thirdname[0] + '.')
+        name.append(self.lastname)
+        name = ' '.join(name).title()
         if self.suffix:
             name += ' ' + self.suffix
         return name
@@ -152,11 +155,13 @@ class Map(Base):
 
     @hybrid_property
     def heading(self):
-        h = 'Book %d of %ss' % (self.book, self.maptype.maptype)
+        h = '%d of %ss' % (self.book, self.maptype.maptype)
         if self.npages > 1:
-            h += ' Pages %d-%d' % (self.page, self.page + self.npages - 1)
+            h += ' %d-%d' % (self.page, self.page + self.npages - 1)
+            # h += ' Pages %d-%d' % (self.page, self.page + self.npages - 1)
         else:
-            h += ' Page %d' % (self.page)
+            h += ' %d' % (self.page)
+            # h += ' Page %d' % (self.page)
         return h
 
     @hybrid_property
@@ -178,7 +183,9 @@ class Map(Base):
         else:
             surveyors = '(UNKNOWN)'
 
-        return 'Recorded %s by %s' % (self.recdate, surveyors)
+        recdate =self.recdate.strftime(' %m/ %d/%Y').replace(' 0', '').replace(' ', '')
+
+        return 'Recorded %s by %s' % (recdate, surveyors)
 
     @hybrid_property
     def line2(self):

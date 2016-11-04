@@ -78,7 +78,7 @@ def parse_dates(date_str):
 
 
 def tshp_num(tshp_str):
-    m = re.search('T(\d{1,2})([NS])', tshp_str.upper())
+    m = re.match('(\d{1,2})([NS])', tshp_str.upper())
     if m is None:
         return None
     if m.group(2) == 'N':
@@ -88,7 +88,7 @@ def tshp_num(tshp_str):
 
 
 def rng_num(rng_str):
-    m = re.search('R*(\d{1,2})([EW])', rng_str.upper())
+    m = re.match('(\d{1,2})([EW])', rng_str.upper())
     if m is None:
         return None
     if m.group(2) == 'E':
@@ -173,6 +173,7 @@ def do_search(search):
         ss_pat = '(?:[NS][WE]/4|[NSEW]/2|1/1)'
         sec_pat = '(?:(?:{ss_pat}\s+)?{ss_pat}\s+)?S\d{{1,2}}'.format(ss_pat=ss_pat)
         trs_pat = '((?:{sec_pat},?\s*)+)(T\d{{1,2}}[NS])\s+(R\d{{1}}[EW])'.format(sec_pat=sec_pat)
+        trs_pat = '((?:{sec_pat},?\s*)+)T?(\d{{1,2}}[NS])(?:,\s*|\s+)R?(\d{{1,2}}[EW])'.format(sec_pat=sec_pat)
         m = re.search(trs_pat, term, flags=re.I)
         if m:
             term = term[:m.start()] + term[m.end():]
@@ -215,7 +216,19 @@ def do_search(search):
             if k == 'BY':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
-                and_terms.append(and_(Surveyor.fullname.op('~*')(v)))
+                m = re.match('(P?LS|R?CE)?([\d.?*]+)', v, flags=re.I)
+                if m:
+                    type, number = m.groups()
+                    if type is None:
+                        # pattern search both pls and rce
+                        and_terms.append(or_(Surveyor.pls.op('~*')(v), Surveyor.rce.op('~*')(v)))
+                    elif type.upper()[-2:] == 'LS':
+                        and_terms.append(and_(Surveyor.pls.op('~*')(number)))
+                    else:
+                        and_terms.append(and_(Surveyor.rce.op('~*')(number)))
+                else:
+                    # pattern search fullname
+                    and_terms.append(and_(Surveyor.fullname.op('~*')(v)))
             elif k == 'FOR':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
@@ -283,7 +296,7 @@ if __name__ == '__main__':
     #
     # exit(0)
 
-    srch = 'by:preston'
+    srch = 'by:ls9153'
     results = do_search(srch)
     print('\nsearch: \'%s\'' % srch)
     if results:
@@ -316,9 +329,18 @@ if __name__ == '__main__':
     else:
         print('Nothing found.')
 
+    # exit(0)
+
     print()
     search = [
         ('s36 t2n r5e', 26),
+        ('s36 t2n,r5e', 26),
+        ('s36 t2n, r5e', 26),
+        ('s36 2n 5e', 26),
+        ('s36 2n,5e', 26),
+        ('s25 s26 s35 s36 2n 5e', 31),
+        ('s25,s26,s35,s36 2n 5e', 31),
+        ('s25, s26, s35, s36 2n 5e', 31),
         ('1/1 s36 t2n r5e', 5),
         ('s/2 s36 t2n r5e', 5),
         ('sw/4 s36 t2n r5e', 5),
@@ -339,6 +361,9 @@ if __name__ == '__main__':
         ('+s5 t6n r1e type:(?!cr|hm|ur).. -ne/4 s5 t6n r1e', 180),
         ('date:2015 by:crivelli + date:2015 by:pulley', 23),
         ('date:2015 by:CrIveLLi|PuLLey', 23),
+        ('by:ls9153', 1),
+        ('by:9153', 1),
+        ('by:rce62665', 1),
         ('type=rm ne/4 s5 t6n r1e by=schillinger', 6),
         ('type=rm ne/4 s5 t6n r1e', 34),
         ('11rm5 69rs30 69rs11 34rs58', 4),
