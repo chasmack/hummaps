@@ -51,10 +51,10 @@ A broader search still using subsections: `1/1 s15, 1/1 s22 t6n r5e`
 
 And finally the full search: `s15, s22 t6n r5e - 1/1 s15, 1/1 s22 t6n r5e`
 
-The term `1/1` does a subsection search for an entire section. It is
-equalivent to searching for both `n/2` and `s/2` in the section.
+The term `1/1` does a subsection search for an entire section.
+It is equalivent to searching both the `n/2` and `s/2` of a section.
 The last search adds the original Hollins results but excludes
-results from the previous searches.
+results from the previous searches. Commas shown are optional.
 
 #### Individual maps
 
