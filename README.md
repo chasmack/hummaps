@@ -58,7 +58,7 @@ results from the previous searches.
 
 #### Individual maps
 
-To get individual maps: `27pm85 24pm59 21pm85`
+To get individual maps: `27pm85 24rm59 21rs85`
 
 #### Key name terms
 
