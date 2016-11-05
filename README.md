@@ -62,10 +62,12 @@ To get individual maps: `27pm85 24rm59 21rs85`
 
 #### Key name terms
 
-Map type, surveyor, client, map description and recording dates can
+Map type, surveyor, client, description and recording dates can
 be included in a search using key name terms.
 
 Key names are: `type:` `by:` `for:` `desc:` `date:`
+
+Or without the `Shift`: `type=` `by=` `for=` `desc=` `date=`
 
 To search for parcel maps by a surveyor: `type:pm by:crivelli`
 
