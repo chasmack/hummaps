@@ -306,7 +306,7 @@ if __name__ == '__main__':
 
             map = results[i]
 
-            mapimages = ', '.join([mapimage.imagefile for mapimage in map.mapimage])
+            mapimages = ', '.join([mapimage.imagefile for mapimage in map.mapimages])
             if mapimages == '':
                 mapimages = 'None'
 
@@ -323,6 +323,8 @@ if __name__ == '__main__':
             print(map.line1)
             print(map.line2)
             print(map.url())
+            for mapimage in map.mapimages:
+                print(mapimage.imagefile)
             print()
 
         print('results: %d maps found.' % (n))
@@ -337,7 +339,7 @@ if __name__ == '__main__':
         ('s36 t2n,r5e', 26),
         ('s36 t2n, r5e', 26),
         ('s36 2n 5e', 26),
-        ('s36 2n,5e', 26),
+        ('s30 1n,5e', 23),
         ('s25 s26 s35 s36 2n 5e', 31),
         ('s25,s26,s35,s36 2n 5e', 31),
         ('s25, s26, s35, s36 2n 5e', 31),

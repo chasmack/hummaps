@@ -8,15 +8,10 @@ from hummaps.forms import SearchForm
 from hummaps.search import do_search, ParseError
 
 
-@app.route('/')
-def search():
+@app.route('/', methods=['GET', 'POST'])
+def index():
     form = SearchForm()
-    return render_template('search.html', form=form)
 
-
-@app.route('/results', methods=['GET', 'POST'])
-def show_results():
-    form = SearchForm()
     results = []
     if form.validate_on_submit():
         try:
@@ -27,18 +22,38 @@ def show_results():
         except Exception as e:
             flash('Search error: <strong>%s</strong>' % str(e), 'error')
 
+    else:
+        return render_template('index.html', form=form, count=0, results=[])
+
     count = len(results)
     if count > 200:
         results = results[0:200]
 
-    return render_template('results.html', count=count, results=results)
+    return render_template('index.html', form=form, count=count, results=results)
 
 
-@app.route('/show', methods=['GET'])
-def show_map():
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    form = SearchForm()
 
-    return render_template('show_map.html')
+    results = []
+    if form.validate_on_submit():
+        try:
+            results = do_search(form.description.data)
+        except ParseError as e:
+            term = ' (%s)' % e.term if e.term else ''
+            flash('Search error%s: <strong>%s</strong>' % (term, e.err), 'error')
+        except Exception as e:
+            flash('Search error: <strong>%s</strong>' % str(e), 'error')
 
+    else:
+        return render_template('search.html', form=form, count=0, results=[])
+
+    count = len(results)
+    if count > 200:
+        results = results[0:200]
+
+    return render_template('search.html', form=form, count=count, results=results)
 
 #
 # HTTP error handlers

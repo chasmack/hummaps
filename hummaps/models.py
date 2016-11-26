@@ -13,7 +13,7 @@ class MapImage(Base):
     page = Column(Integer)
     imagefile = Column(String)
 
-    map = relationship('Map', back_populates='mapimage')
+    map = relationship('Map', back_populates='mapimages')
 
     def __repr__(self):
         return '<MapImage(id=%d, map=%d, imagefile="%s")>' % (self.id, self.map_id, self.imagefile)
@@ -27,7 +27,7 @@ class CCImage(Base):
     page = Column(Integer)
     imagefile = Column(String)
 
-    cc = relationship('CC', back_populates='ccimage')
+    cc = relationship('CC', back_populates='ccimages')
 
     def __repr__(self):
         return '<CCImage(id=%d, cc=%d, imagefile="%s")>' % (self.id, self.cc_id, self.imagefile)
@@ -41,8 +41,8 @@ class CC(Base):
     doc_number = Column(String)
     npages = Column(Integer)
 
-    map = relationship('Map', back_populates='cc')
-    ccimage = relationship('CCImage', order_by=CCImage.page, back_populates='cc')
+    map = relationship('Map', back_populates='certs')
+    ccimages = relationship('CCImage', order_by=CCImage.page, back_populates='cc')
 
     def __repr__(self):
         return '<CC(id=%d, doc="%s")>' % (self.id, self.doc_number)
@@ -146,9 +146,9 @@ class Map(Base):
     note = Column(String)
 
     trs = relationship('TRS', back_populates='map')
-    mapimage = relationship('MapImage', order_by=MapImage.page, back_populates='map')
+    mapimages = relationship('MapImage', order_by=MapImage.page, back_populates='map')
     maptype = relationship('MapType', back_populates='map')
-    cc = relationship('CC', back_populates='map')
+    certs = relationship('CC', back_populates='map')
 
     # many to many Map <-> Surveyor
     surveyor = relationship('Surveyor', secondary=signed_by, back_populates='map')
@@ -201,12 +201,12 @@ class Map(Base):
 
     @hybrid_method
     def url(self, page=1):
-        nimages = len(self.mapimage)
+        nimages = len(self.mapimages)
         if nimages == 0:
             return None
-        img = self.mapimage[nimages - 1] if page > nimages else self.mapimage[page - 1]
+        img = self.mapimages[nimages - 1] if page > nimages else self.mapimages[page - 1]
 
-        return 'maps/%s/%s/%s' % (img.imagefile[3:5], img.imagefile[0:3], img.imagefile)
+        return img.imagefile
 
     def __repr__(self):
         return '<Map(id=%d, map="%s")>' % (self.id, self.bookpage)

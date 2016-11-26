@@ -67,7 +67,7 @@ be included in a search using key name terms.
 
 Key names are: `type:` `by:` `for:` `desc:` `date:`
 
-Or without the **shift**: `type=` `by=` `for=` `desc=` `date=`
+Or without the shift: `type=` `by=` `for=` `desc=` `date=`
 
 To search for parcel maps by a surveyor: `type:pm by:crivelli`
 

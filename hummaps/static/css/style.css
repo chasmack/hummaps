@@ -1,32 +1,13 @@
 html {
-  position: relative;
-  min-height: 100%;
+  height: 100%;
 }
 body {
-  padding-top: 40px;
-  padding-bottom: 40px;
-  background: #F5FCFF;
+  background: #fafdfd;
   color: #333666;
 }
 section {
   text-align: center;
   margin: 50px 0;
-}
-.panzoom-parent {
-  border: 2px solid #333;
-}
-.panzoom-parent .panzoom {
-  border: 1px solid #666;
-}
-.buttons {
-  margin: 40px 0 0;
-}
-.footer {
-  position: absolute;
-  bottom: 10px;
-  width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 60px;
 }
 
 .flashed-messages {
