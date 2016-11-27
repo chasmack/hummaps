@@ -16,7 +16,7 @@
 {%- block navbar %}
 <!-- begin navbar block -->
   <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container-fluid">
+    <div class="container">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
           <span class="icon-bar"></span>
@@ -42,7 +42,7 @@
                       <span class="glyphicon glyphicon-search"></span>
                     </button>
                   </span>
-                  {{ form.description(class='form-control', style="width: 360px", autofocus=True, placeholder="Search for...") }}
+                  {{ form.description(class='form-control', autofocus=True, placeholder="Search for...") }}
                 </div>
               </div>
             </form>
@@ -61,283 +61,101 @@
 {%- endblock navbar -%}
 
 {%- block content %}
+  <div id="content-frame" class="container-fluid">
+
 <!-- begin flashed messages -->
-{%- with messages = get_flashed_messages(with_categories=True), transform = {
-  'critical': 'danger',
-  'error': 'danger',
-  'warning': 'warning',
-  'info': 'info',
-  'debug': 'info',
-  'success': 'success',
-}, glyphicon = {
-  'critical': 'exclamation',
-  'error': 'exclamation',
-  'warning': 'exclamation',
-  'info': 'info',
-  'debug': 'info',
-  'success': 'ok',
-} -%}
-{%- if messages %}
-    <div class="container flashed-messages" style="margin-top: 60px;">
-{%- for cat, msg in messages %}
+    {%- with messages = get_flashed_messages(with_categories=True), transform = {
+      'critical': 'danger',
+      'error': 'danger',
+      'warning': 'warning',
+      'info': 'info',
+      'debug': 'info',
+      'success': 'success',
+    }, glyphicon = {
+      'critical': 'exclamation',
+      'error': 'exclamation',
+      'warning': 'exclamation',
+      'info': 'info',
+      'debug': 'info',
+      'success': 'ok',
+    } -%}
+    {%- if messages %}
+    <div class="container flashed-messages">
+      {%- for cat, msg in messages %}
       <div class="row">
         <div class="col-md-offset-3 col-md-6">
-          <div class="alert alert-{{ transform.get(cat, 'info') }} alert-dismissible" role="alert">
+          <div class="alert alert-{{ transform.get(cat, 'info') }}" role="alert">
             <span class="glyphicon glyphicon-{{ glyphicon.get(cat, 'info') }}-sign"></span> {{msg|safe}}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
           </div>
         </div>
       </div>
-{% endfor %}      </div>
+      {% endfor %}
     </div>
-{%  else %}
-  <!-- begin content block -->
+    {%- endif -%}
+    {%- endwith %}
+<!-- end flashed messages -->
 
-  <div class="container-fluid map-list" style="margin-top: 60px;">
-    <div class="row">
-      <div class="col-md-offset-3 col-md-6">
-        {% if count > results|length %}
-        <h3 class="text-center">Showing 1-{{ results|count }} of {{ count }}</h3>
-        {% elif count > 1 %}
-        <h3 class="text-center">{{ count }} maps</h3>
-        {% elif count == 0 %}
-        <h3 class="text-center">No maps</h3>
-        {% endif %}
-        <div class="list-group">
-          {% for map in results %}
-          <a href="#" class="list-group-item map-item{% if map.mapimages|length == 0 %} disabled{% endif %}">
-            {% if map.mapimages|length > 0 %}
-            <div class="map-images" style="display: none;">
-              {% for mapimage in map.mapimages %}
-              <img src="{{ mapimage.imagefile }}" alt="{{ map.bookpage }}">
-              {% endfor %}
-            </div>
-            {% endif %}
-            {% if map.certs|length > 0 %}
-            <div class="certs" style="display: none;">
-              {% for cc in map.certs %}
-              <div class="cc" data-doc="{{ cc.doc_number }}" style="display: none">
-                {% for ccimage in cc.ccimages %}
-                <img src="{{ ccimage.imagefile }}" alt="{{ cc.doc_number }}">
+<!-- begin content block -->
+    <div id="map-list" class="container-fluid">
+      <div class="row">
+        <div class="col-md-offset-3 col-md-6">
+          {% if count > results|length %}
+          <h3 class="text-center">Showing 1-{{ results|count }} of {{ count }}</h3>
+          {% elif count > 1 %}
+          <h3 class="text-center">{{ count }} maps</h3>
+          {% elif count == 1 %}
+          <h3 class="text-center">1 map</h3>
+          {% else %}
+          <h3 class="text-center">No maps</h3>
+          {% endif %}
+          <div class="list-group">
+            {% for map in results %}
+            <a href="#" class="list-group-item map-item{% if map.mapimages|length == 0 %} disabled{% endif %}">
+              {% if map.mapimages|length > 0 %}
+              <div class="map-images" style="display: none;">
+                {% for mapimage in map.mapimages %}
+                <img src="{{ mapimage.imagefile }}" alt="{{ map.bookpage }}">
                 {% endfor %}
               </div>
-              {% endfor %}
-            </div>
-            {% endif %}
-            <h4 class="list-group-item-heading">{{ map.heading }}</h4>
-            <p class="list-group-item-text">{{ map.line1 }}</p>
-            {% if map.line2 %}
-            <p class="list-group-item-text">{{ map.line2 }}</p>
-            {% endif %}
-            <p class="list-group-item-text">{{ map.line3 }}</p>
-            {% if map.certs|length > 0 %}
-            {%  set comma = joiner(", ") %}
-            <p class="list-group-item-text">Certificates of Correction:
-            {% for cc in map.certs %}{{ comma() }}{{ cc.doc_number }}{% endfor %}
-            </p>
-            {% endif %}
-          </a>
-          {% endfor %}
+              {% endif %}
+              {% if map.certs|length > 0 %}
+              <div class="certs" style="display: none;">
+                {% for cc in map.certs %}
+                <div class="cc" data-doc="{{ cc.doc_number }}" style="display: none">
+                  {% for ccimage in cc.ccimages %}
+                  <img src="{{ ccimage.imagefile }}" alt="{{ cc.doc_number }}">
+                  {% endfor %}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+              <h4 class="list-group-item-heading">{{ map.heading }}</h4>
+              <p class="list-group-item-text">{{ map.line1 }}</p>
+              {% if map.line2 %}
+              <p class="list-group-item-text">{{ map.line2 }}</p>
+              {% endif %}
+              <p class="list-group-item-text">{{ map.line3 }}</p>
+              {% if map.certs|length > 0 %}
+              {%  set comma = joiner(", ") %}
+              <p class="list-group-item-text">Certificates of Correction:
+              {% for cc in map.certs %}{{ comma() }}{{ cc.doc_number }}{% endfor %}
+              </p>
+              {% endif %}
+            </a>
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>
+    <div id="map-frame">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="blank">
+    </div>
   </div>
-
-  <div class="container-fluid map-frame" style="height: 90vh; overflow: hidden; margin-top: 60px;">
-    <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="blank">
-  </div>
-
-{%- endif -%}
-{%- endwith %} <!-- end flashed messages -->
-
-
 
 <!-- end content block -->
-
 {%- endblock content -%}
 
 {%- block scripts %}
 {{- super() }}
-  <script>
-
-  var $target = null;   // current map list item
-  var page;             // current page
-  var maplist = true;   // map list is displayed
-  var zoomed = false;   // map image is zoomed
-  var down = false;     // mouse button is down
-  var moved = 0;        // how far mouse has moved while down
-  var lastX;            // last mouse x while down
-  var lastY;            // last mouse y while down
-
-  function show_maplist() {
-    $("div.map-frame").hide();
-    $("div.map-list").show();
-    maplist = true;
-  }
-
-  function show_map() {
-    // swap in and display the current map image
-    if ($target) {
-      $target.find("div.map-images img").eq(page - 1).clone().replaceAll("div.map-frame img");
-      $("div.map-list").hide();
-      $("div.map-frame img").css('height', '100%').parent().show();
-      $("div.map-frame").show();
-      maplist = false;
-    }
-  }
-
-  function next_map() {
-    if ($target) {
-      var $item = $target.next();
-      if ($item.length && ! $item.hasClass("disabled")) {
-        $target.removeClass("active");
-        $target = $item.addClass("active");
-        page = 1;
-        if (maplist)
-          show_maplist();
-        else
-          show_map();
-      }
-    }
-  }
-
-  function next_page() {
-    if ($target) {
-      $mapimages = $target.find("div.map-images img");
-      if (page == $mapimages.length)
-        next_map();
-      else {
-        page += 1;
-        show_map();
-      }
-    }
-  }
-
-  function prev_map() {
-    if ($target) {
-      var $item = $target.prev();
-      if ($item.length && ! $item.hasClass("disabled")) {
-        $target.removeClass("active");
-        $target = $item.addClass("active");
-        page = $target.find("div.map-images img").length;
-        if (maplist) {
-          page = 1;
-          show_maplist();
-        } else {
-          page = $target.find("div.map-images img").length;
-          show_map();
-        }
-      }
-    }
-  }
-
-  function prev_page() {
-    if ($target) {
-      if (page == 1)
-        prev_map();
-      else {
-        page -= 1;
-        show_map();
-      }
-    }
-  }
-
-  $(document).ready(function(){
-
-    show_maplist();
-
-    $(".map-list").click(function(e) {
-      e.preventDefault();
-
-      // get the map list item
-      var $item = $(e.target).closest("a.map-item");
-
-      if ($item.hasClass("disabled")) return;
-      if ($target) $target.removeClass('active');
-
-      $target = $item.addClass('active');
-      page = 1;
-      show_map();
-    });
-
-    $("#show-maps").click(function(e) {
-      e.preventDefault();
-
-      if (maplist)
-        show_map();
-      else
-        show_maplist()
-    });
-
-    $("#next").click(function(e) {
-      e.preventDefault();
-      if (maplist)
-        next_map();
-      else
-        next_page();
-    });
-
-    $("#prev").click(function(e) {
-      e.preventDefault();
-      if ($target) {
-        if (maplist)
-          prev_map();
-        else
-          prev_page();
-      }
-    });
-
-    $(".map-frame").mousedown(function(e) {
-      e.preventDefault();
-      lastX = e.clientX;
-      lastY = e.clientY;
-      mdown = true;
-      moved = 0;
-    });
-
-    $(".map-frame").mouseup(function(e) {
-      e.preventDefault();
-      mdown = false;
-      if (moved > 10) {
-        // moved a little too much
-      } else if (zoomed) {
-        $(".map-frame img").css("height", "100%");
-        zoomed = false;
-      } else {
-        $(".map-frame img").css("height", "auto");
-        zoomed = true;
-      }
-    });
-
-    $(".map-frame").mouseleave(function(e) {
-      e.preventDefault();
-      mdown = false;
-    });
-
-    // $('.map-frame').bind('mousewheel', function(e){
-    //   if (e.originalEvent.wheelDelta / 120 > 0) {
-    //     console.log('scrolling up !');
-    //   } else {
-    //     console.log('scrolling down !');
-    //   }
-    // });
-
-    $(".map-frame").mousemove(function(e) {
-      e.preventDefault();
-      var accel = 2;
-      var dx = lastX - e.clientX;
-      var dy = lastY - e.clientY;
-      moved += Math.abs(dx) + Math.abs(dy);
-      if (zoomed && mdown) {
-        $(".map-frame").scrollLeft($(".map-frame").scrollLeft() + dx * accel);
-        $(".map-frame").scrollTop($(".map-frame").scrollTop() + dy * accel);
-        lastX = e.clientX;
-        lastY = e.clientY;
-      }
-    });
-  });
-
-  </script>
+  <script src="{{ url_for('static', filename='js/hummaps.js') }}"></script>
 {%- endblock scripts -%}
