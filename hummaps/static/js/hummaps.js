@@ -134,13 +134,13 @@ function zoom_map(scale, origin_x, origin_y) {
   img_x = $img.outerWidth();
   img_y = $img.outerHeight();
 
-  rel_x = (origin_x - offset_x + scroll_x) / img_x;
-  rel_y = (origin_y - offset_y + scroll_y) / img_y;
-
   nat_x = $img[0].naturalWidth;
   nat_y = $img[0].naturalHeight;
 
   // calculate new image size and scroll positions
+  rel_x = (origin_x - offset_x + scroll_x) / img_x;
+  rel_y = (origin_y - offset_y + scroll_y) / img_y;
+
   img_x = Math.round(zoom_scale * nat_x);
   img_y = Math.round(zoom_scale * nat_y);
 
