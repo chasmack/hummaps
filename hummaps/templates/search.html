@@ -157,5 +157,6 @@
 
 {%- block scripts %}
 {{- super() }}
+  <script src="{{ url_for('static', filename='js/jquery.mousewheel.js') }}"></script>
   <script src="{{ url_for('static', filename='js/hummaps.js') }}"></script>
 {%- endblock scripts -%}

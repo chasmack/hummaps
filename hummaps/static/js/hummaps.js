@@ -150,7 +150,7 @@ function zoom_map(scale, origin_x, origin_y) {
   $img.css("width", img_x).css("height", img_y);
   $frame.scrollLeft(scroll_x).scrollTop(scroll_y);
 
-  console.log('zoom scale: ' + zoom_scale);
+  console.log('zoom scale: ' + zoom_scale.toFixed(3));
 }
 
 $(document).ready(function(){
@@ -246,7 +246,7 @@ $(document).ready(function(){
 
       // moved a too much to trigger zoom
 
-    } else if (!zoomed) {
+    } else if (zoom_scale < 0.75) {
       zoom_map(0.75, e.clientX, e.clientY);
 
     } else if (zoom_scale < 1.0) {
@@ -267,14 +267,12 @@ $(document).ready(function(){
     e.preventDefault();
   });
 
-  $('#map-frame').bind('mousewheel', function(e){
+  $('#map-frame').mousewheel(function(e){
 
     var bump = 1.5;
-    if (e.originalEvent.wheelDelta / 120 > 0) {
-      console.log('scrolling up !');
+    if (e.deltaY > 0) {
       zoom_map(zoom_scale * bump, e.clientX, e.clientY);
     } else {
-      console.log('scrolling down !');
       zoom_map(zoom_scale / bump, e.clientX, e.clientY);
     }
 
