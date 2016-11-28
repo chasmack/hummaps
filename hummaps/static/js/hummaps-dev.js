@@ -250,8 +250,8 @@ $(document).ready(function(){
     $("#map-frame").mousedown(function(e) {
 
         // start monitoring mouse movements
-        lastX = e.clientX;
-        lastY = e.clientY;
+        lastX = e.pageX;
+        lastY = e.pageY;
         mousedown = true;
         moved = 0;
 
@@ -267,10 +267,10 @@ $(document).ready(function(){
             // moved a too much to trigger zoom
 
         } else if (zoom_scale < 0.75) {
-            zoom_map(0.75, e.clientX, e.clientY);
+            zoom_map(0.75, e.pageX, e.pageY);
 
         } else if (zoom_scale < 1.0) {
-            zoom_map(1.0, e.clientX, e.clientY);
+            zoom_map(1.0, e.pageX, e.pageY);
 
         } else {
             zoom_map(0.0, 0, 0);
@@ -291,9 +291,9 @@ $(document).ready(function(){
 
         var bump = 1.5;
         if (e.deltaY > 0) {
-            zoom_map(zoom_scale * bump, e.clientX, e.clientY);
+            zoom_map(zoom_scale * bump, e.pageX, e.pageY);
         } else {
-            zoom_map(zoom_scale / bump, e.clientX, e.clientY);
+            zoom_map(zoom_scale / bump, e.pageX, e.pageY);
         }
 
         e.preventDefault();
@@ -303,14 +303,14 @@ $(document).ready(function(){
 
         // scroll the map image
         var accel = 2;
-        var dx = lastX - e.clientX;
-        var dy = lastY - e.clientY;
+        var dx = lastX - e.pageX;
+        var dy = lastY - e.pageY;
         moved += Math.abs(dx) + Math.abs(dy);
         if (zoomed && mousedown) {
             $("#map-frame").scrollLeft($("#map-frame").scrollLeft() + dx * accel);
             $("#map-frame").scrollTop($("#map-frame").scrollTop() + dy * accel);
-            lastX = e.clientX;
-            lastY = e.clientY;
+            lastX = e.pageX;
+            lastY = e.pageY;
         }
 
         e.preventDefault();

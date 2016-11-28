@@ -4,19 +4,20 @@
 
 {%- block styles %}
 {{- super() }}
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"
-        xmlns:position="http://www.w3.org/1999/xhtml">
-  <style>
-
-  </style>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 {%- endblock styles -%}
 
-{% block body_attribs %}{% endblock body_attribs %}
+{%- block head %}
+{{- super() }}
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+{%- endblock head %}
+
+{%- block body_attribs %}{% endblock body_attribs %}
 
 {%- block navbar %}
 <!-- begin navbar block -->
   <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
+    <div class="container-fluid">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
           <span class="icon-bar"></span>
@@ -158,5 +159,5 @@
 {%- block scripts %}
 {{- super() }}
   <script src="{{ url_for('static', filename='js/jquery.mousewheel.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/hummaps.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/hummaps-dev.js') }}"></script>
 {%- endblock scripts -%}
