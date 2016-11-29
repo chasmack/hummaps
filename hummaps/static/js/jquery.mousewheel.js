@@ -42,9 +42,9 @@
             } else {
                 this.onmousewheel = handler;
             }
-            // Store the line height and page height for this particular element
+            // Store the line height and mapPage height for this particular element
             $.data(this, 'mousewheel-line-height', special.getLineHeight(this));
-            $.data(this, 'mousewheel-page-height', special.getPageHeight(this));
+            $.data(this, 'mousewheel-mapPage-height', special.getPageHeight(this));
         },
 
         teardown: function() {
@@ -130,7 +130,7 @@
             deltaY *= lineHeight;
             deltaX *= lineHeight;
         } else if ( orgEvent.deltaMode === 2 ) {
-            var pageHeight = $.data(this, 'mousewheel-page-height');
+            var pageHeight = $.data(this, 'mousewheel-mapPage-height');
             delta  *= pageHeight;
             deltaY *= pageHeight;
             deltaX *= pageHeight;

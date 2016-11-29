@@ -158,10 +158,10 @@ class Map(Base):
         h = '%d of %ss' % (self.book, self.maptype.maptype)
         if self.npages > 1:
             h += ' %d-%d' % (self.page, self.page + self.npages - 1)
-            # h += ' Pages %d-%d' % (self.page, self.page + self.npages - 1)
+            # h += ' Pages %d-%d' % (self.mapPage, self.mapPage + self.npages - 1)
         else:
             h += ' %d' % (self.page)
-            # h += ' Page %d' % (self.page)
+            # h += ' Page %d' % (self.mapPage)
         return h
 
     @hybrid_property

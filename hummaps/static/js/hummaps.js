@@ -2,319 +2,417 @@
  * Created by Charlie on 11/27/2016.
  */
 
-var $target;        // current map list item
-var page;           // current page
-var maplist;        // map list is displayed
-var zoomed;         // map image is zoomed
-var zoom_scale;     // scale factor for map image
-var mousedown;      // mouse button is down
-var moved = 0;      // how far mouse has moved while down
-var lastX;          // last mouse x while down
-var lastY;          // last mouse y while down
+var $target;          // current map list item
+var mapList;          // map list is displayed
+var mapPage;          // current map mapPage
+var shiftPressed;     // shift key is down
+var ctrlPressed;      // ctrl key is down
+var altPressed;       // alt key is down
 
-function show_maplist() {
-    $("#map-frame").hide();
-    $("#map-list").show();
-    maplist = true;
+// hide content if there are messages
+
+if ($("div.flashed-messages").length) {
+
+  $("#map-list").hide();
+  $("#map-frame").hide();
+
+} else {
+
+  // select the first map in the list
+  $target = $("#map-list a.map-item:not(.disabled)").first();
+  if ($target.length) {
+    $target.addClass("active");
+    mapPage = 1;
+  } else {
+    $target = null;
+  }
+  showMapList();
 }
 
-function show_map() {
+$(window).resize(function (e) {
+
+  // setup frame heights
+  var win = $(window).height();
+  var pad = 6;
+  var nav = $("nav").outerHeight(false) + pad;
+  var content = win - nav - pad;
+  $("#content-frame").height(content).css("margin-top", nav + 'px');
+  $("#map-list").height(content).css("overflow-y", "auto");
+  $("#map-frame").height(content).css("overflow", "hidden");
+  if (!mapList) {
+    zoomMap(0);
+  }
+
+}).trigger("resize");
+
+function showMapList() {
+
+  $("#map-frame").hide();
+  $("#map-list").show();
+  mapList = true;
+}
+
+function showMap() {
+
+  if ($target) {
     // swap in and display the current map image
-    if ($target) {
+    $target.find("div.map-images img").eq(mapPage - 1).clone().replaceAll("#map-frame img");
+    $("#map-list").hide();
+    $("#map-frame").show();
+    zoomMap(0);
+    mapList = false;
+  }
+}
 
-        $target.find("div.map-images img").eq(page - 1).clone().replaceAll("#map-frame img");
-        $("#map-list").hide();
-        $("#map-frame img").parent().show();
-        zoom_map(0.0, 0, 0);
-        maplist = false;
+function nextMap() {
+
+  if ($target) {
+    var $item = $target.nextAll("a.map-item:not(.disabled)").first();
+    if ($item.length) {
+      $target.removeClass("active");
+      $target = $item.addClass("active");
+      mapPage = 1;
+      if (!mapList) {
+        showMap();
+      }
     }
+  }
 }
 
-function next_map() {
-    if ($target) {
-        var $item = $target.next(":not([class~='disabled'])");
-        if ($item.length) {
-            $target.removeClass("active");
-            $target = $item.addClass("active");
-            page = 1;
-            if (maplist)
-                show_maplist();
-            else
-                show_map();
-        }
-    }
-}
-
-function next_page() {
-    if ($target) {
-        $mapimages = $target.find("div.map-images img");
-        if (page == $mapimages.length)
-            next_map();
-        else {
-            page += 1;
-            show_map();
-        }
-    }
-}
-
-function prev_map() {
-    if ($target) {
-        var $item = $target.prev(":not([class~='disabled'])");
-        if ($item.length) {
-            $target.removeClass("active");
-            $target = $item.addClass("active");
-            page = $target.find("div.map-images img").length;
-            if (maplist) {
-                page = 1;
-                show_maplist();
-            } else {
-                page = $target.find("div.map-images img").length;
-                show_map();
-            }
-        }
-    }
-}
-
-function prev_page() {
-    if ($target) {
-        if (page == 1) {
-            prev_map();
-        } else {
-            page -= 1;
-            show_map();
-        }
-    }
-}
-
-function setup_frames() {
-
-    // setup frame heights
-    var win = $(window).height();
-    var pad = 6;
-    var nav = $("nav").outerHeight(false) + pad;
-    var content = win - nav - pad;
-    $("#content-frame").height(content).css("margin-top", nav + 'px');
-    $("#map-list").height(content).css("overflow-y", "auto");
-    $("#map-frame").height(content).css("overflow", "hidden");
-}
-
-function zoom_map(scale, origin_x, origin_y) {
-
-    // Scale the map image holding the origin fixed.
-    // Special case where scale == 0.0 is zoom image to 100% height.
-
-    var nat_x, nat_y;             // native image size
-    var img_x, img_y;             // scaled image size
-    var offset_x, offset_y;       // offset of img/frame in viewport
-    var rel_x, rel_y;             // relative position of mouse in image (1.0, 1.0) => lower-right corner
-    var scroll_left, scroll_top;  // scroll offset of img in frame
-
-    var $img = $("#map-frame img");
-    var $frame = $img.parent();
-
-    // minimum scale is image height == frame height
-    var min_scale = $frame.height() / $img[0].naturalHeight;
-
-    if (scale < min_scale) {
-
-        zoom_scale = min_scale;
-        zoomed = false;
-
+function nextPage() {
+  if ($target) {
+    $mapimages = $target.find("div.map-images img");
+    if (mapPage < $mapimages.length) {
+      mapPage += 1;
+      showMap();
     } else {
-
-        zoom_scale = scale;
-        zoomed = true;
+      nextMap();
     }
-
-    offset_x = $frame.offset().left;
-    offset_y = $frame.offset().top;
-
-    scroll_x = $frame.scrollLeft();
-    scroll_y = $frame.scrollTop();
-
-    img_x = $img.outerWidth();
-    img_y = $img.outerHeight();
-
-    nat_x = $img[0].naturalWidth;
-    nat_y = $img[0].naturalHeight;
-
-    // calculate new image size and scroll positions
-    rel_x = (origin_x - offset_x + scroll_x) / img_x;
-    rel_y = (origin_y - offset_y + scroll_y) / img_y;
-
-    img_x = Math.round(zoom_scale * nat_x);
-    img_y = Math.round(zoom_scale * nat_y);
-
-    scroll_x = Math.round(img_x * rel_x - origin_x + offset_x);
-    scroll_y = Math.round(img_y * rel_y - origin_y + offset_y);
-
-    $img.css("width", img_x).css("height", img_y);
-    $frame.scrollLeft(scroll_x).scrollTop(scroll_y);
-
-    console.log('zoom scale: ' + zoom_scale.toFixed(3));
+  }
 }
 
-function findBootstrapEnvironment() {
-    var envs = ['xs', 'sm', 'md', 'lg'];
-
-    var $el = $('<div>');
-    $el.appendTo($('body'));
-
-    for (var i = envs.length - 1; i >= 0; i--) {
-        var env = envs[i];
-
-        $el.addClass('hidden-'+env);
-        if ($el.is(':hidden')) {
-            $el.remove();
-            return env;
-        }
+function prevMap() {
+  if ($target) {
+    var $item = $target.prevAll("a.map-item:not(.disabled)").first();
+    if ($item.length) {
+      $target.removeClass("active");
+      $target = $item.addClass("active");
+      mapPage = 1;
+      if (!mapList) {
+        showMap();
+      }
     }
+  }
 }
 
-$(document).ready(function(){
-
-    setup_frames();
-    $(window).resize(setup_frames);
-
-    if ($("div.flashed-messages").length) {
-
-        // hide map content if there are messages
-        $("#map-list").hide();
-        $("#map-frame").hide();
-
+function prevPage() {
+  if ($target) {
+    if (mapPage == 1) {
+      prevMap();
     } else {
-
-        // select the first map in the list
-        $target = $("#map-list a.map-item:not([class~='disabled'])").first();
-        if ($target.length) {
-            $target.addClass('active');
-            page = 1;
-        } else {
-            $target = null;
-        }
-        show_maplist();
+      mapPage -= 1;
+      showMap();
     }
+  }
+}
 
-    $("#map-list").click(function(e) {
+var mapZoomed = false;  // map image is zoomed
+var zoomScale = 0.0;    // scale factor for map image
 
-        // get the map list item
-        var $item = $(e.target).closest("a.map-item");
+function zoomMap(increment, pageX, pageY) {
 
-        if ($item.length == 0 || $item.hasClass("disabled"))
-            return;
-        if ($target)
-            $target.removeClass('active');
+  // Scale the map image holding the origin fixed.
+  // If increment is zero zoom image to minimum scale.
+  // Mimimum scale is smaller of 100% height and 100% width.
+  var zoomFactor = 1.5;     // change in zoom per zoom increment
 
-        $target = $item.addClass('active');
-        page = 1;
-        show_map();
+  var $frame = $("#map-frame");
+  var $img = $frame.find("img");
 
+  if (increment < 0) {
+    // negative increment means zoom out
+    zoomScale /= zoomFactor * Math.abs(increment);
+  } else {
+    // positive or zero increment, zero means minimum scale
+    zoomScale *= zoomFactor * increment;
+  }
+
+  // natural size of the image
+  var natX = $img[0].naturalWidth;
+  var natY = $img[0].naturalHeight;
+  // console.log('natural size X/Y: ' + natX + '/' + natY);
+
+  // fit entire image into the frame
+  var minScale = Math.min($frame.width() / natX, $frame.height() / natY);
+
+  if (!zoomScale || zoomScale < minScale) {
+    zoomScale = minScale;
+    mapZoomed = false;
+  } else {
+    mapZoomed = true;
+  }
+  // console.log('zoom scale: ' + zoomScale.toFixed(3));
+
+  // top-left corner of frame relative to the viewport
+  var offsetX = $frame.offset().left;
+  var offsetY = $frame.offset().top;
+  // console.log('offset X/Y: ' + offsetX + '/' + offsetY);
+
+  // origin relative frame corner, parameter is optional
+  var originX = pageX ? (pageX - offsetX) : 0.0;
+  var originY = pageY ? (pageY - offsetY) : 0.0;
+  // console.log('origin X/Y: ' + originX + '/' + originY);
+
+  // image size
+  var imgX = $img.outerWidth();
+  var imgY = $img.outerHeight();
+  console.log('img size X/Y: ' + imgX + '/' + imgY);
+
+  // top-left corner frame relative to the image
+  var scrollX = $frame.scrollLeft();
+  var scrollY = $frame.scrollTop();
+  console.log('scroll X/Y: ' + scrollX + '/' + scrollY);
+
+  // zoom origin relative to the image
+  // 0.0, 0.0 => top-left corner, 1.0, 1.0 => bottom-right corner
+  var relX = (originX + scrollX) / imgX;
+  var relY = (originY + scrollY) / imgY;
+  console.log('rel X/Y: ' + relX.toFixed(3) + '/' + relY.toFixed(3));
+
+  // scaled image size
+  imgX = Math.round(zoomScale * natX);
+  imgY = Math.round(zoomScale * natY);
+  console.log('scaled img X/Y: ' + imgX + '/' + imgY);
+
+  // new scroll offsets
+  scrollX = Math.round(imgX * relX - originX);
+  scrollY = Math.round(imgY * relY - originY);
+  console.log('new scroll X/Y: ' + scrollX + '/' + scrollY);
+
+  // set new image size and frame scroll
+  $img.css("width", imgX).css("height", imgY);
+  $frame.scrollLeft(scrollX).scrollTop(scrollY);
+}
+
+function findBootstrapEnv() {
+  var envs = ['xs', 'sm', 'md', 'lg'];
+
+  var $el = $('<div>');
+  $el.appendTo($('body'));
+
+  for (var i = envs.length - 1; i >= 0; i--) {
+    var env = envs[i];
+
+    $el.addClass('hidden-' + env);
+    if ($el.is(':hidden')) {
+      $el.remove();
+      return env;
+    }
+  }
+}
+
+$("#show-maps").click(function (e) {
+
+  // toggle display of map list/image
+  if (mapList)
+    showMap();
+  else
+    showMapList()
+
+  e.preventDefault();
+});
+
+$("#next").click(function (e) {
+
+  // next map/page
+  if (mapList)
+    nextMap();
+  else
+    nextPage();
+
+  e.preventDefault();
+});
+
+$("#prev").click(function (e) {
+
+  // previous map/page
+  if (mapList)
+    prevMap();
+  else
+    prevPage();
+
+  e.preventDefault();
+});
+
+// callback for map-item click events
+
+$("#map-list").on("click", "a.map-item:not(.disabled)", function (e) {
+
+  $target.removeClass('active');
+  $target = $(this).addClass('active');
+  mapPage = 1;
+  showMap();
+
+  e.preventDefault();
+});
+
+// keypress related stuff
+
+var arrorLockout = false;     // prevent keydown repeat for arrows
+
+$(window).keydown(function (e) {
+
+  console.log('keydown: ' + e.which);
+  switch (e.which) {
+    case 13:  // enter
+      // if (mapList) {
+      //   showMap();
+      //   e.preventDefault();
+      // }
+      break;
+    case 16:  // shift
+      shiftPressed = true;
+      break;
+    case 17:  // ctrl
+      ctrlPressed = true;
+      break;
+    case 18:  // alt
+      altPressed = true;
+      break;
+    case 27:  // esc
+      if (!mapList) {
+        showMapList();
+      }
+      break;
+    case 37:  // left arrow
+      if (!mapList) {
+        prevPage();
+        arrowLockout = true;
         e.preventDefault();
-    });
-
-    $("#show-maps").click(function(e) {
-
-        // toggle display of map list/image
-        if (maplist)
-            show_map();
-        else
-            show_maplist()
-
+      }
+      break;
+    case 38:  // up arrow
+      prevMap();
+      arrowLockout = true;
+      e.preventDefault();
+      break;
+    case 39:  // right arrow
+      if (!mapList) {
+        nextPage();
+        arrowLockout = true;
         e.preventDefault();
-    });
+      }
+      break;
+    case 40:  // down arrow
+      nextMap();
+      arrowLockout = true;
+      e.preventDefault();
+      break;
+  }
+}).keyup(function (e) {
 
-    $("#next").click(function(e) {
+  console.log('keyup: ' + e.which);
+  switch (e.which) {
+    case 16:  // shift
+      shiftPressed = false;
+      break;
+    case 17:  // ctrl
+      ctrlPressed = false;
+      break;
+    case 18:  // alt
+      altPressed = false;
+      break;
+    case 37:  // left arrow
+    case 38:  // up arrow
+    case 39:  // right arrow
+    case 40:  // down arrow
+      arrowLockout = false;
+      break;
+  }
+}).keypress(function(e) {
 
-        // next page/map
-        if (maplist)
-            next_map();
-        else
-            next_page();
+  console.log('keypress: ' + e.which);
+  switch (e.which) {
+    case 32:  // space bar
+      if (!mapList) {
+        // spacebar in map view will zoom to minimum
+        zoomMap(0);
+      }
+      break;
+  }
+});
 
-        e.preventDefault();
-    });
+// mouse related stuff
 
-    $("#prev").click(function(e) {
+var mouseDown;        // mouse button is down
+var mouseMove;        // accumulate absolute X/Y mouse movements while mouse down
+var lastX;            // last mouse x while down
+var lastY;            // last mouse y while down
 
-        // previous page/map
-        if ($target) {
-            if (maplist)
-                prev_map();
-            else
-                prev_page();
-        }
+$("#map-frame").on("mousedown", "img", function (e) {
 
-        e.preventDefault();
-    });
+  // start monitoring mouse movements
+  // console.log('mousedown: ' + e.which);
+  if (e.which == 1) {
 
-    $("#map-frame").mousedown(function(e) {
+    lastX = e.pageX;
+    lastY = e.pageY;
+    mouseDown = true;
+    mouseMove = 0;
+  }
 
-        // start monitoring mouse movements
-        lastX = e.clientX;
-        lastY = e.clientY;
-        mousedown = true;
-        moved = 0;
+  e.preventDefault();
+});
 
-        e.preventDefault();
-    });
+$("#map-frame").on("mouseup", "img", function (e) {
 
-    $("#map-frame").mouseup(function(e) {
+  // zoom if accumulated mouse movements are small
+  // console.log('mouseup: ' + e.which);
+  if (mouseDown && mouseMove < 10) {
+    if (shiftPressed) {
+      zoomMap(-1, e.pageX, e.pageY);  // zoom out
+    } else {
+      zoomMap(+1, e.pageX, e.pageY);  // zoom in
+    }
+  }
+  mouseDown = false;
 
-        // mouse up
-        mousedown = false;
-        if (moved > 10) {
+  e.preventDefault();
+});
 
-            // moved a too much to trigger zoom
+$("#map-frame").on("mousemove", "img", function (e) {
 
-        } else if (zoom_scale < 0.75) {
-            zoom_map(0.75, e.clientX, e.clientY);
+  var accel = 2;
+  var dx = lastX - e.pageX;
+  var dy = lastY - e.pageY;
+  mouseMove += Math.abs(dx) + Math.abs(dy);
+  if (mapZoomed && mouseDown) {
 
-        } else if (zoom_scale < 1.0) {
-            zoom_map(1.0, e.clientX, e.clientY);
+    // scroll the map image
+    $("#map-frame").scrollLeft($("#map-frame").scrollLeft() + dx * accel);
+    $("#map-frame").scrollTop($("#map-frame").scrollTop() + dy * accel);
+    lastX = e.pageX;
+    lastY = e.pageY;
+  }
 
-        } else {
-            zoom_map(0.0, 0, 0);
+  e.preventDefault();
+});
 
-        }
-        e.preventDefault();
-    });
+$("#map-frame").on("mouseleave", "img", function (e) {
 
-    $("#map-frame").mouseleave(function(e) {
+  // stop accumulating mouse movements
+  mouseDown = false;
 
-        // stop monitoring mouse movements
-        mousedown = false;
+  e.preventDefault();
+});
 
-        e.preventDefault();
-    });
+$('#map-frame').on("mousewheel", "img", function (e) {
 
-    $('#map-frame').mousewheel(function(e){
+  if (e.deltaY < 0) {
+    zoomMap(-1, e.pageX, e.pageY);
+  } else {
+    zoomMap(+1, e.pageX, e.pageY);
+  }
 
-        var bump = 1.5;
-        if (e.deltaY > 0) {
-            zoom_map(zoom_scale * bump, e.clientX, e.clientY);
-        } else {
-            zoom_map(zoom_scale / bump, e.clientX, e.clientY);
-        }
-
-        e.preventDefault();
-    });
-
-    $("#map-frame").mousemove(function(e) {
-
-        // scroll the map image
-        var accel = 2;
-        var dx = lastX - e.clientX;
-        var dy = lastY - e.clientY;
-        moved += Math.abs(dx) + Math.abs(dy);
-        if (zoomed && mousedown) {
-            $("#map-frame").scrollLeft($("#map-frame").scrollLeft() + dx * accel);
-            $("#map-frame").scrollTop($("#map-frame").scrollTop() + dy * accel);
-            lastX = e.clientX;
-            lastY = e.clientY;
-        }
-
-        e.preventDefault();
-    });
-
-});  /* document ready */
-
+  e.preventDefault();
+});

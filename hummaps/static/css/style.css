@@ -2,7 +2,8 @@ html {
   height: 100%;
 }
 body {
-  background: #fafdfd;
+  /*background: #fafdfd;*/
+  background: #f6f6f6;
   color: #333666;
 }
 section {
