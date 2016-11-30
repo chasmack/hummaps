@@ -2,32 +2,12 @@
  * Created by Charlie on 11/27/2016.
  */
 
-var $target;          // current map list item
-var mapList;          // map list is displayed
+var $target = null;   // current map list item
+var mapList = true;   // map list is displayed
 var mapPage;          // current map mapPage
 var shiftPressed;     // shift key is down
 var ctrlPressed;      // ctrl key is down
 var altPressed;       // alt key is down
-
-// hide content if there are messages
-
-if ($("div.flashed-messages").length) {
-
-  $("#map-list").hide();
-  $("#map-frame").hide();
-
-} else {
-
-  // select the first map in the list
-  $target = $("#map-list a.map-item:not(.disabled)").first();
-  if ($target.length) {
-    $target.addClass("active");
-    mapPage = 1;
-  } else {
-    $target = null;
-  }
-  showMapList();
-}
 
 $(window).resize(function (e) {
 
@@ -45,10 +25,33 @@ $(window).resize(function (e) {
 
 }).trigger("resize");
 
+// hide content if there are messages
+
+if ($("div.flashed-messages").length) {
+
+  $("#map-list").hide();
+  $("#map-frame").hide();
+
+} else {
+
+  // select the first map in the list
+  $target = $("#map-list").find("a.map-item:not(.disabled)").first();
+  if ($target.length) {
+    $target.addClass("active");
+    mapPage = 1;
+  } else {
+    $target = null;
+  }
+  showMapList();
+}
+
 function showMapList() {
 
   $("#map-frame").hide();
   $("#map-list").show();
+  if ($target) {
+    $target.focus();
+  }
   mapList = true;
 }
 
@@ -69,8 +72,24 @@ function nextMap() {
   if ($target) {
     var $item = $target.nextAll("a.map-item:not(.disabled)").first();
     if ($item.length) {
-      $target.removeClass("active");
-      $target = $item.addClass("active");
+      $target.removeClass('active');
+      $target = $item.addClass('active');
+      $target.focus();
+      mapPage = 1;
+      if (!mapList) {
+        showMap();
+      }
+    }
+  }
+}
+
+function prevMap() {
+  if ($target) {
+    var $item = $target.prevAll("a.map-item:not(.disabled)").first();
+    if ($item.length) {
+      $target.removeClass('active');
+      $target = $item.addClass('active');
+      $target.focus();
       mapPage = 1;
       if (!mapList) {
         showMap();
@@ -91,20 +110,6 @@ function nextPage() {
   }
 }
 
-function prevMap() {
-  if ($target) {
-    var $item = $target.prevAll("a.map-item:not(.disabled)").first();
-    if ($item.length) {
-      $target.removeClass("active");
-      $target = $item.addClass("active");
-      mapPage = 1;
-      if (!mapList) {
-        showMap();
-      }
-    }
-  }
-}
-
 function prevPage() {
   if ($target) {
     if (mapPage == 1) {
@@ -116,6 +121,59 @@ function prevPage() {
   }
 }
 
+// nav buttons
+
+$("#show-maps").click(function (e) {
+
+  // toggle display of map list/image
+  if (mapList) {
+    showMap();
+  } else {
+    showMapList()
+  }
+  e.preventDefault();
+});
+
+$("#next").click(function (e) {
+
+  // next map/page
+  if (mapList) {
+    nextMap();
+  } else {
+    nextPage();
+  }
+  e.preventDefault();
+});
+
+$("#prev").click(function (e) {
+
+  // previous map/page
+  if (mapList) {
+    prevMap();
+  } else {
+    prevPage();
+  }
+  e.preventDefault();
+});
+
+// callbacks for map-item click and focus events
+
+$("#map-list").on("click", "a.map-item:not(.disabled)", function (e) {
+
+  $target = $(this).focus();
+  showMap();
+
+}).on("focus", "a.map-item", function (e) {
+
+  if ($(this)[0] != $target[0]) {
+
+    // update the target
+    $target.removeClass('active');
+    $target = $(this).addClass('active');
+    mapPage = 1;
+  }
+});
+
 var mapZoomed = false;  // map image is zoomed
 var zoomScale = 0.0;    // scale factor for map image
 
@@ -124,25 +182,23 @@ function zoomMap(increment, pageX, pageY) {
   // Scale the map image holding the origin fixed.
   // If increment is zero zoom image to minimum scale.
   // Mimimum scale is smaller of 100% height and 100% width.
+
   var zoomFactor = 1.5;     // change in zoom per zoom increment
 
   var $frame = $("#map-frame");
   var $img = $frame.find("img");
 
   if (increment < 0) {
-    // negative increment means zoom out
+    // negative increment to zoom out
     zoomScale /= zoomFactor * Math.abs(increment);
   } else {
-    // positive or zero increment, zero means minimum scale
+    // positive increment to zoom in, zero means minimum scale
     zoomScale *= zoomFactor * increment;
   }
 
-  // natural size of the image
+  // calculate min scale to fit entire image into the frame
   var natX = $img[0].naturalWidth;
   var natY = $img[0].naturalHeight;
-  // console.log('natural size X/Y: ' + natX + '/' + natY);
-
-  // fit entire image into the frame
   var minScale = Math.min($frame.width() / natX, $frame.height() / natY);
 
   if (!zoomScale || zoomScale < minScale) {
@@ -151,43 +207,35 @@ function zoomMap(increment, pageX, pageY) {
   } else {
     mapZoomed = true;
   }
-  // console.log('zoom scale: ' + zoomScale.toFixed(3));
 
   // top-left corner of frame relative to the viewport
   var offsetX = $frame.offset().left;
   var offsetY = $frame.offset().top;
-  // console.log('offset X/Y: ' + offsetX + '/' + offsetY);
 
   // origin relative frame corner, parameter is optional
   var originX = pageX ? (pageX - offsetX) : 0.0;
   var originY = pageY ? (pageY - offsetY) : 0.0;
-  // console.log('origin X/Y: ' + originX + '/' + originY);
 
   // image size
   var imgX = $img.outerWidth();
   var imgY = $img.outerHeight();
-  console.log('img size X/Y: ' + imgX + '/' + imgY);
 
   // top-left corner frame relative to the image
   var scrollX = $frame.scrollLeft();
   var scrollY = $frame.scrollTop();
-  console.log('scroll X/Y: ' + scrollX + '/' + scrollY);
 
-  // zoom origin relative to the image
-  // 0.0, 0.0 => top-left corner, 1.0, 1.0 => bottom-right corner
+  // zoom origin relative to the top-left corner of the image
+  // top-left corner is (0.0, 0.0), bottom-right corner is (1.0, 1.0)
   var relX = (originX + scrollX) / imgX;
   var relY = (originY + scrollY) / imgY;
-  console.log('rel X/Y: ' + relX.toFixed(3) + '/' + relY.toFixed(3));
 
   // scaled image size
   imgX = Math.round(zoomScale * natX);
   imgY = Math.round(zoomScale * natY);
-  console.log('scaled img X/Y: ' + imgX + '/' + imgY);
 
   // new scroll offsets
   scrollX = Math.round(imgX * relX - originX);
   scrollY = Math.round(imgY * relY - originY);
-  console.log('new scroll X/Y: ' + scrollX + '/' + scrollY);
 
   // set new image size and frame scroll
   $img.css("width", imgX).css("height", imgY);
@@ -211,65 +259,14 @@ function findBootstrapEnv() {
   }
 }
 
-$("#show-maps").click(function (e) {
-
-  // toggle display of map list/image
-  if (mapList)
-    showMap();
-  else
-    showMapList()
-
-  e.preventDefault();
-});
-
-$("#next").click(function (e) {
-
-  // next map/page
-  if (mapList)
-    nextMap();
-  else
-    nextPage();
-
-  e.preventDefault();
-});
-
-$("#prev").click(function (e) {
-
-  // previous map/page
-  if (mapList)
-    prevMap();
-  else
-    prevPage();
-
-  e.preventDefault();
-});
-
-// callback for map-item click events
-
-$("#map-list").on("click", "a.map-item:not(.disabled)", function (e) {
-
-  $target.removeClass('active');
-  $target = $(this).addClass('active');
-  mapPage = 1;
-  showMap();
-
-  e.preventDefault();
-});
-
 // keypress related stuff
 
-var arrorLockout = false;     // prevent keydown repeat for arrows
+var arrowLockout = false;     // prevent keydown repeat for arrows
 
 $(window).keydown(function (e) {
 
-  console.log('keydown: ' + e.which);
+  // console.log('keydown: ' + e.which);
   switch (e.which) {
-    case 13:  // enter
-      // if (mapList) {
-      //   showMap();
-      //   e.preventDefault();
-      // }
-      break;
     case 16:  // shift
       shiftPressed = true;
       break;
@@ -280,9 +277,7 @@ $(window).keydown(function (e) {
       altPressed = true;
       break;
     case 27:  // esc
-      if (!mapList) {
-        showMapList();
-      }
+      showMapList();
       break;
     case 37:  // left arrow
       if (!mapList) {
@@ -309,9 +304,10 @@ $(window).keydown(function (e) {
       e.preventDefault();
       break;
   }
+
 }).keyup(function (e) {
 
-  console.log('keyup: ' + e.which);
+  // console.log('keyup: ' + e.which);
   switch (e.which) {
     case 16:  // shift
       shiftPressed = false;
@@ -329,9 +325,10 @@ $(window).keydown(function (e) {
       arrowLockout = false;
       break;
   }
+
 }).keypress(function(e) {
 
-  console.log('keypress: ' + e.which);
+  // console.log('keypress: ' + e.which);
   switch (e.which) {
     case 32:  // space bar
       if (!mapList) {
@@ -360,7 +357,6 @@ $("#map-frame").on("mousedown", "img", function (e) {
     mouseDown = true;
     mouseMove = 0;
   }
-
   e.preventDefault();
 });
 
@@ -376,7 +372,6 @@ $("#map-frame").on("mouseup", "img", function (e) {
     }
   }
   mouseDown = false;
-
   e.preventDefault();
 });
 
@@ -394,15 +389,12 @@ $("#map-frame").on("mousemove", "img", function (e) {
     lastX = e.pageX;
     lastY = e.pageY;
   }
-
   e.preventDefault();
 });
 
 $("#map-frame").on("mouseleave", "img", function (e) {
 
-  // stop accumulating mouse movements
   mouseDown = false;
-
   e.preventDefault();
 });
 
@@ -413,6 +405,5 @@ $('#map-frame').on("mousewheel", "img", function (e) {
   } else {
     zoomMap(+1, e.pageX, e.pageY);
   }
-
   e.preventDefault();
 });

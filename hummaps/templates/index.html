@@ -24,14 +24,10 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="{{ url_for('index') }}"><span class="glyphicon glyphicon-tree-conifer"></span> Humboldt Map Index</a>
+        <a class="navbar-brand" href="{{ url_for('index') }}" tabindex="1"><span class="glyphicon glyphicon-tree-conifer"></span> Humboldt Map Index</a>
       </div>
 
       <div class="collapse navbar-collapse" id="searchbar">
-
-        <ul class="nav navbar-nav navbar-left">
-        </ul>
-
         <ul class="nav navbar-nav navbar-right">
           <li>
             <form class="navbar-form" role="search" action="{{ url_for('index') }}" method="post">
@@ -39,21 +35,19 @@
               <div class="form-group">
                 <div class="input-group">
                   <span class="input-group-btn">
-                    <button class="btn btn-secondary" type="submit">
+                    <button class="btn btn-secondary" type="submit" tabindex="2">
                       <span class="glyphicon glyphicon-search"></span>
                     </button>
                   </span>
-                  {{ form.description(class='form-control', autofocus=True, placeholder="Search for...") }}
+                  {{ form.description(class='form-control', autofocus=True, tabindex="3", placeholder="Search for...") }}
                 </div>
               </div>
             </form>
           </li>
-          <li><a id="show-maps" href="#">maps</a></li>
-{#          <li><a id="prev-map" href="#">&lsaquo;&lsaquo;</a></li>#}
-          <li><a id="prev" href="#">prev</a></li>
-          <li><a id="next" href="#">next</a></li>
-{#          <li><a id="next-map" href="#">&rsaquo;&rsaquo;</a></li>#}
-          <li><a href="https://github.com/chasmack/hummaps" target="_blank">about</a></li>
+          <li><a id="show-maps" href="#" tabindex="4">maps</a></li>
+          <li><a id="prev" href="#" tabindex="5">prev</a></li>
+          <li><a id="next" href="#" tabindex="6">next</a></li>
+          <li><a href="https://github.com/chasmack/hummaps" target="_blank" tabindex="7">about</a></li>
         </ul>
       </div> <!--/.nav-collapse -->
     </div>
@@ -111,7 +105,11 @@
           {% endif %}
           <div class="list-group">
             {% for map in results %}
-            <a href="#" class="list-group-item map-item{% if map.mapimages|length == 0 %} disabled {% endif %}">
+            {% if map.mapimages|length > 0 %}
+            <a href="#" class="list-group-item map-item">
+            {% else %}
+            <a href="#" class="list-group-item map-item disabled" tabindex="-1">
+            {% endif %}
               {% if map.mapimages|length > 0 or map.certs|length > 0 %}
               <div class="map-images" style="display: none;">
                 {% for mapimage in map.mapimages %}

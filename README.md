@@ -8,7 +8,7 @@ Hummaps is currently hosted at [hummaps.com](https://hummaps.com).
 
 #### Basic search
 
-Searches are text based and must conform to a relatively strict format.
+Searches are text based. Type your search into the search box at the top of the page.
 
 A basic search looks like this: `s36 t2n r5e`
 
@@ -27,8 +27,7 @@ To search in more than one township: `s36 t2n r5e + s1 t1n r5e`
 
 #### User Interface
 
-The user interface is still under development and will change over time.
-Generally, there are two main screens: the map list and the map view.
+Generally, there are two main screens: the *map list* and the *map view*.
 
 Search results are displayed in the map list. Maps with no map image 
 are shown in gery. Selecting a map from the map list opens the map view.
@@ -40,16 +39,24 @@ The four buttons in the top bar -
 * **next** moves to the next page or map
 * **about** links to the GitHub help page
 
+In the map list -
+
+* up and down arrows move through maps in the list
+* mouse click or enter selects a map and opens the map view
+* tab and shift tab circulate through the user interface
+
 In the map view -
 
 * mouse click increases the zoom
 * shift mouse click decreases zoom
+* mouse wheel increases and decreases zoom
 * space bar zooms out to show the entire map
 * dragging with the mouse button down pans
 * right arrow displays the next page
 * left arrow displays the previous page
 * down arrow displays the next map
 * up arrow displays the previous map
+* escape returns to the map list
 
 #### Mobile Friendly
 
