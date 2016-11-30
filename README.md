@@ -33,23 +33,23 @@ Generally, there are two main screens: the map list and the map view.
 Search results are displayed in the map list. Maps with no map image 
 are shown in gery. Selecting a map from the map list opens the map view.
 
-The four buttons -
+The four buttons in the top bar -
 
-* **maps** switches between the map list and the map viewer
+* **maps** switches between the map list and the map view
 * **prev** moves to the previous page or map
 * **next** moves to the next page or map
 * **about** links to the GitHub help page
 
 In the map view -
 
-* A mouse click increases the zoom
-* A shift mouse click decreases zoom
-* Space bar zooms out to show the entire map
-* Dragging with the mouse button down pans
-* Right arrow displays the next page
-* Left arrow displays the previous page
-* Down arrow displays the next map in the map list
-* Up arrow displays the previous map in the map list
+* mouse click increases the zoom
+* shift mouse click decreases zoom
+* space bar zooms out to show the entire map
+* dragging with the mouse button down pans
+* right arrow displays the next page
+* left arrow displays the previous page
+* down arrow displays the next map
+* up arrow displays the previous map
 
 #### Mobile Friendly
 
