@@ -42,8 +42,8 @@ There are four buttons in the top bar -
 In the map list -
 
 * up and down arrows move through maps in the list
-* mouse click or enter selects a map and opens the map view
 * tab and shift tab circulate through the user interface
+* mouse click or enter to select a map and open the map view
 
 In the map view -
 
@@ -61,6 +61,7 @@ In the map view -
 #### Mobile Friendly
 
 Not quite but the user interface is built on mobile friendly technology.
+Search and the map list work well, the map view still has problems.
 Stay tuned.
 
 #### Subsection search
