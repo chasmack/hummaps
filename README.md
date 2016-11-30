@@ -43,7 +43,7 @@ In the map list -
 
 * up and down arrows move through maps in the list
 * tab and shift tab circulate through the user interface
-* mouse click or enter to select a map and open the map view
+* mouse click or enter select a map and open the map view
 
 In the map view -
 
