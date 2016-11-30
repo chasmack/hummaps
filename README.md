@@ -25,6 +25,37 @@ Or more succinctly: `s35 s36 2n 5e`
 
 To search in more than one township: `s36 t2n r5e + s1 t1n r5e`
 
+#### User Interface
+
+The user interface is still under development and will change over time.
+Generally, there are two main screens: a map list and a map viewer.
+
+Search results are displayed in a map list. Maps with no map image 
+are shown in gery. Selecting a map from the map list opens the map viewer.
+
+The four buttons -
+
+* **maps** switches between the map list and the map viewer
+* **prev** moves to the previous page or map
+* **next** moves to the next page or map
+* **about** links to the GitHub help page
+
+In the map viewer -
+
+* A mouse click increases the zoom
+* A shift mouse click decreases zoom
+* Space bar zooms out to show the entire map
+* Dragging with the mouse button down pans
+* Right arrow displays the next page
+* Left arrow displays the previous page
+* Down arrow displays the next map in the map list
+* Up arrow displays the previous map in the map list
+
+#### Mobile Friendly
+
+Not quite yet but the user interface is built on mobile friendly
+technology. Stay tuned.
+
 #### Subsection search
 
 A recent addition to the Hollins Index was the inclusion of subsection

@@ -32,7 +32,7 @@ def index():
     return render_template('index.html', form=form, count=count, results=results)
 
 
-@app.route('/dev', methods=['GET', 'POST'])
+@app.route('/dev-test', methods=['GET', 'POST'])
 def dev():
     form = SearchForm()
 
@@ -47,13 +47,13 @@ def dev():
             flash('Search error: <strong>%s</strong>' % str(e), 'error')
 
     else:
-        return render_template('dev.html', form=form, count=0, results=[])
+        return render_template('dev-test.html', form=form, count=0, results=[])
 
     count = len(results)
     if count > 200:
         results = results[0:200]
 
-    return render_template('dev.html', form=form, count=count, results=results)
+    return render_template('dev-test.html', form=form, count=count, results=results)
 
 #
 # HTTP error handlers
