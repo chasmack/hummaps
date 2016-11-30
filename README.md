@@ -28,10 +28,10 @@ To search in more than one township: `s36 t2n r5e + s1 t1n r5e`
 #### User Interface
 
 The user interface is still under development and will change over time.
-Generally, there are two main screens: a map list and a map viewer.
+Generally, there are two main screens: the map list and the map view.
 
-Search results are displayed in a map list. Maps with no map image 
-are shown in gery. Selecting a map from the map list opens the map viewer.
+Search results are displayed in the map list. Maps with no map image 
+are shown in gery. Selecting a map from the map list opens the map view.
 
 The four buttons -
 
@@ -40,7 +40,7 @@ The four buttons -
 * **next** moves to the next page or map
 * **about** links to the GitHub help page
 
-In the map viewer -
+In the map view -
 
 * A mouse click increases the zoom
 * A shift mouse click decreases zoom
@@ -53,8 +53,8 @@ In the map viewer -
 
 #### Mobile Friendly
 
-Not quite yet but the user interface is built on mobile friendly
-technology. Stay tuned.
+Not quite but the user interface is built on mobile friendly technology.
+Stay tuned.
 
 #### Subsection search
 
