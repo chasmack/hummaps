@@ -296,9 +296,9 @@ if __name__ == '__main__':
     #
     # exit(0)
 
-    srch = 'by:ls9153'
+    srch = 's30 1n 5e by:ls9153'
     results = do_search(srch)
-    print('\nsearch: \'%s\'' % srch)
+    print('\nsearch: \'%s\' => %s' % (srch, results))
     if results:
         n = len(results)
 
@@ -311,7 +311,7 @@ if __name__ == '__main__':
                 mapimages = 'None'
 
             certs = []
-            for cc in map.cc:
+            for cc in map.certs:
                 imagefiles = ', '.join([ccimage.imagefile for ccimage in cc.ccimage])
                 if imagefiles == '':
                     imagefiles = 'None'

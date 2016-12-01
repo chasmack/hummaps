@@ -47,6 +47,7 @@ In the map list -
 
 In the map view -
 
+* + and - zoom in and out
 * mouse click increases the zoom
 * shift mouse click decreases zoom
 * mouse wheel increases and decreases zoom

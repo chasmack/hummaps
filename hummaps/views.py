@@ -1,59 +1,54 @@
-from flask import redirect, url_for, make_response
-from flask import abort, render_template, flash
-from flask.ext.login import login_user, logout_user, current_user, login_required
+from flask import request
+from flask import render_template, flash
 
 from hummaps import app
-from hummaps.database import db_session
-from hummaps.forms import SearchForm
 from hummaps.search import do_search, ParseError
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def index():
-    form = SearchForm()
+
+    q = request.args.get('q', '')
+    if q == '':
+        return render_template('index.html', query='', results=[])
 
     results = []
-    if form.validate_on_submit():
-        try:
-            results = do_search(form.description.data)
-        except ParseError as e:
-            term = ' (%s)' % e.term if e.term else ''
-            flash('Search error%s: <strong>%s</strong>' % (term, e.err), 'error')
-        except Exception as e:
-            flash('Search error: <strong>%s</strong>' % str(e), 'error')
+    try:
+        results = do_search(q)
+    except ParseError as e:
+        term = ' (%s)' % e.term if e.term else ''
+        flash('Search error%s: <strong>%s</strong>' % (term, e.err), 'error')
+    except Exception as e:
+        flash('Search error: <strong>%s</strong>' % str(e), 'error')
 
-    else:
-        return render_template('index.html', form=form, count=0, results=[])
+    total = len(results)
+    if total > 100:
+        results = results[0:100]
 
-    count = len(results)
-    if count > 200:
-        results = results[0:200]
-
-    return render_template('index.html', form=form, count=count, results=results)
+    return render_template('index.html', query=q, results=results, total=total)
 
 
-@app.route('/dev-test', methods=['GET', 'POST'])
+@app.route('/dev-test', methods=['GET'])
 def dev():
-    form = SearchForm()
+
+    q = request.args.get('q', '')
+    if q == '':
+        return render_template('dev-test.html', query='', results=[])
 
     results = []
-    if form.validate_on_submit():
-        try:
-            results = do_search(form.description.data)
-        except ParseError as e:
-            term = ' (%s)' % e.term if e.term else ''
-            flash('Search error%s: <strong>%s</strong>' % (term, e.err), 'error')
-        except Exception as e:
-            flash('Search error: <strong>%s</strong>' % str(e), 'error')
+    try:
+        results = do_search(q)
+    except ParseError as e:
+        term = ' (%s)' % e.term if e.term else ''
+        flash('Search error%s: <strong>%s</strong>' % (term, e.err), 'error')
+    except Exception as e:
+        flash('Search error: <strong>%s</strong>' % str(e), 'error')
 
-    else:
-        return render_template('dev-test.html', form=form, count=0, results=[])
+    total = len(results)
+    if total > 100:
+        results = results[0:100]
 
-    count = len(results)
-    if count > 200:
-        results = results[0:200]
-
-    return render_template('dev-test.html', form=form, count=count, results=results)
+    return render_template('dev-test.html', query=q, results=results, total=total)
 
 #
 # HTTP error handlers

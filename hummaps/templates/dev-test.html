@@ -24,30 +24,28 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="{{ url_for('dev') }}" tabindex="1"><span class="glyphicon glyphicon-tree-conifer"></span> Humboldt Map Index</a>
+        <a class="navbar-brand" href="{{ url_for('dev') }}"><span class="glyphicon glyphicon-tree-conifer"></span> Humboldt Map Index</a>
       </div>
-
-      <div class="collapse navbar-collapse" id="searchbar">
+      <div id="searchbar" class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
           <li>
-            <form class="navbar-form" role="search" action="{{ url_for('dev') }}" method="post">
-              {{ form.hidden_tag() }}
+            <form class="navbar-form" role="search" action="{{ url_for('dev') }}" method="get">
               <div class="form-group">
                 <div class="input-group">
                   <span class="input-group-btn">
-                    <button class="btn btn-secondary" type="submit" tabindex="2">
+                    <button class="btn btn-secondary" type="submit">
                       <span class="glyphicon glyphicon-search"></span>
                     </button>
                   </span>
-                  {{ form.description(class='form-control', autofocus=True, tabindex="3", placeholder="Search for...") }}
+                  <input class="form-control" type="text" name="q" value="{{ query }}" placeholder="Search for..." autofocus autocomplete="off">
                 </div>
               </div>
             </form>
           </li>
-          <li><a id="show-maps" href="#" tabindex="4">maps</a></li>
-          <li><a id="next" href="#" tabindex="6">next</a></li>
-          <li><a id="prev" href="#" tabindex="5">prev</a></li>
-          <li><a href="https://github.com/chasmack/hummaps" target="_blank" tabindex="7">about</a></li>
+          <li><a id="show-maps" href="#">maps</a></li>
+          <li><a id="next" href="#">next</a></li>
+          <li><a id="prev" href="#">prev</a></li>
+          <li><a href="https://github.com/chasmack/hummaps" target="_blank">about</a></li>
         </ul>
       </div> <!--/.nav-collapse -->
     </div>
@@ -57,8 +55,6 @@
 
 {%- block content %}
   <div id="content-frame" class="container-fluid">
-
-<!-- begin flashed messages -->
     {%- with messages = get_flashed_messages(with_categories=True), transform = {
       'critical': 'danger',
       'error': 'danger',
@@ -75,6 +71,7 @@
       'success': 'ok',
     } -%}
     {%- if messages %}
+<!-- begin flashed messages -->
     <div class="container flashed-messages">
       {%- for cat, msg in messages %}
       <div class="row">
@@ -86,22 +83,23 @@
       </div>
       {% endfor %}
     </div>
+<!-- end flashed messages -->
     {%- endif -%}
     {%- endwith %}
-<!-- end flashed messages -->
 
 <!-- begin content block -->
     <div id="map-list" class="container-fluid">
       <div class="row">
         <div class="col-md-offset-3 col-md-6">
-          {% if count > results|length %}
-          <h3 class="text-center">Showing 1-{{ results|count }} of {{ count }}</h3>
-          {% elif count > 1 %}
-          <h3 class="text-center">{{ count }} maps</h3>
-          {% elif count == 1 %}
-          <h3 class="text-center">1 map</h3>
-          {% else %}
+          {% if not results %}
           <h3 class="text-center">No maps</h3>
+          {% else %}
+          {% if total > results|length %}
+          <h3 class="text-center">Showing 1-{{ results|count }} of {{ total }}</h3>
+          {% elif total > 1 %}
+          <h3 class="text-center">{{ results|count }} maps</h3>
+          {% else %}
+          <h3 class="text-center">1 map</h3>
           {% endif %}
           <div class="list-group">
             {% for map in results %}
@@ -137,6 +135,7 @@
             </a>
             {% endfor %}
           </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -144,7 +143,6 @@
       <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="blank">
     </div>
   </div>
-
 <!-- end content block -->
 {%- endblock content -%}
 

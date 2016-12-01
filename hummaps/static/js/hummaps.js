@@ -208,13 +208,13 @@ function zoomMap(increment, pageX, pageY) {
     mapZoomed = true;
   }
 
-  // top-left corner of frame relative to the viewport
+  // top-left corner of frame relative to the viewport+++++
   var offsetX = $frame.offset().left;
   var offsetY = $frame.offset().top;
 
   // origin relative frame corner, parameter is optional
-  var originX = pageX ? (pageX - offsetX) : 0.0;
-  var originY = pageY ? (pageY - offsetY) : 0.0;
+  var originX = pageX ? (pageX - offsetX) : Math.round($frame.width() / 2);
+  var originY = pageY ? (pageY - offsetY) : Math.round($frame.height() / 2);
 
   // image size
   var imgX = $img.outerWidth();
@@ -330,6 +330,16 @@ $(window).keydown(function (e) {
 
   // console.log('keypress: ' + e.which);
   switch (e.which) {
+    case '+'.charCodeAt():
+      if (!mapList) {
+        zoomMap(1);
+      }
+      break;
+    case '-'.charCodeAt():
+      if (!mapList) {
+        zoomMap(-1);
+      }
+      break;
     case 32:  // space bar
       if (!mapList) {
         // spacebar in map view will zoom to minimum
