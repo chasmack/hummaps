@@ -87,14 +87,14 @@ the search while excluding previous results.
 
 The narrow search: `sw/4 s15, nw/4 s22 t6n r5e`
 
-A broader search still using subsections: `1/1 s15 1/1 s22 t6n r5e`
+A broader search still using subsections: `1/1 s15, 1/1 s22 t6n r5e`
 
 And finally the full search: `s15 s22 t6n r5e - 1/1 s15 1/1 s22 t6n r5e`
 
 The term `1/1` does a subsection search for an entire section.
 It is equalivent to searching both the `n/2` and `s/2` of a section.
 The last search adds the original Hollins results but excludes
-results from the previous searches. Commas shown are optional.
+results from the previous searches. Commas are optional.
 
 #### Individual maps
 
@@ -103,11 +103,11 @@ To get individual maps: `27pm85 24rm59 21rs85`
 #### Key name terms
 
 Map type, surveyor, client, description and recording dates can
-be included in a search using key name terms.
+be included in a search using *key name terms*.
 
 Key names are: `type:` `by:` `for:` `desc:` `date:`
 
-Or without the shift: `type=` `by=` `for=` `desc=` `date=`
+Or without pressing shift: `type=` `by=` `for=` `desc=` `date=`
 
 To search for parcel maps by a surveyor: `type:pm by:crivelli`
 
