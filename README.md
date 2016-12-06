@@ -47,9 +47,7 @@ In the map list -
 
 In the map view -
 
-* + and - zoom in and out
-* mouse click increases the zoom
-* shift mouse click decreases zoom
+* + and - increase and decrease zoom
 * mouse wheel increases and decreases zoom
 * space bar zooms out to show the entire map
 * dragging with the mouse button down pans
@@ -58,12 +56,6 @@ In the map view -
 * down arrow displays the next map
 * up arrow displays the previous map
 * escape returns to the map list
-
-#### Mobile Friendly
-
-Not quite but the user interface is built on mobile friendly technology.
-Search and the map list work well, the map view still has problems.
-Stay tuned.
 
 #### Subsection search
 

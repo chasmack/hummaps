@@ -160,7 +160,7 @@ def do_search(search):
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for single word surveyor, client, date, desc & maptype without quotes
-        pat = '((BY|FOR|DATE|DESC|TYPE)[=:](\S+))'
+        pat = '((BY|FOR|DATE|DESC|TYPE|ID)[=:](\S+))'
         subterms += re.findall(pat, term, flags=re.I)
         term = re.sub(pat, '', term, flags=re.I)
 
@@ -244,6 +244,8 @@ def do_search(search):
                 try: re.compile(v)
                 except: raise ParseError(v, term)
                 and_terms.append(and_(MapType.abbrev.op('~*')(v)))
+            elif k == 'ID':
+                and_terms.append(and_(Map.id == v))
             elif k == 'MAP':
                 book, maptype, page = v
                 or_terms.append(
@@ -296,7 +298,7 @@ if __name__ == '__main__':
     #
     # exit(0)
 
-    srch = 's30 1n 5e by:ls9153'
+    srch = 'id:15833'
     results = do_search(srch)
     print('\nsearch: \'%s\' => %s' % (srch, results))
     if results:

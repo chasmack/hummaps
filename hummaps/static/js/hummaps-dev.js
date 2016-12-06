@@ -163,7 +163,7 @@ $("#map-list").on("click", "a.map-item:not(.disabled)", function (e) {
   $target = $(this).focus();
   showMap();
 
-}).on("focus", "a.map-item", function (e) {
+}).on("focus", "a.map-item:not(.disabled)", function (e) {
 
   if ($(this)[0] != $target[0]) {
 
@@ -331,13 +331,20 @@ $(window).keydown(function (e) {
   // console.log('keypress: ' + e.which);
   switch (e.which) {
     case '+'.charCodeAt():
-      if (!mapList) {
-        zoomMap(1);
-      }
-      break;
     case '-'.charCodeAt():
       if (!mapList) {
-        zoomMap(-1);
+        // if mouse pointer is in the map frame use pointer as zoom origin
+        var $frame = $("#map-frame");
+        var left = $frame.offset().left;
+        var top = $frame.offset().top;
+        var right = left + $frame.width();
+        var bottom = top + $frame.height();
+        var zf = e.which == '+'.charCodeAt() ? +1 : -1;
+        if (mouseX > left && mouseY < right && mouseY > top && mouseY < bottom) {
+          zoomMap(zf, mouseX, mouseY);
+        } else {
+          zoomMap(zf);
+        }
       }
       break;
     case 32:  // space bar
@@ -352,9 +359,9 @@ $(window).keydown(function (e) {
 // mouse related stuff
 
 var mouseDown;        // mouse button is down
+var mouseX;           // last mouse x while down
+var mouseY;           // last mouse y while down
 var mouseMove;        // accumulate absolute X/Y mouse movements while mouse down
-var lastX;            // last mouse x while down
-var lastY;            // last mouse y while down
 
 $("#map-frame").on("mousedown", "img", function (e) {
 
@@ -362,8 +369,8 @@ $("#map-frame").on("mousedown", "img", function (e) {
   // console.log('mousedown: ' + e.which);
   if (e.which == 1) {
 
-    lastX = e.pageX;
-    lastY = e.pageY;
+    mouseX = e.pageX;
+    mouseY = e.pageY;
     mouseDown = true;
     mouseMove = 0;
   }
@@ -374,13 +381,13 @@ $("#map-frame").on("mouseup", "img", function (e) {
 
   // zoom if accumulated mouse movements are small
   // console.log('mouseup: ' + e.which);
-  if (mouseDown && mouseMove < 10) {
-    if (shiftPressed) {
-      zoomMap(-1, e.pageX, e.pageY);  // zoom out
-    } else {
-      zoomMap(+1, e.pageX, e.pageY);  // zoom in
-    }
-  }
+  // if (mouseDown && mouseMove < 10) {
+  //   if (shiftPressed) {
+  //     zoomMap(-1, e.pageX, e.pageY);  // zoom out
+  //   } else {
+  //     zoomMap(+1, e.pageX, e.pageY);  // zoom in
+  //   }
+  // }
   mouseDown = false;
   e.preventDefault();
 });
@@ -388,17 +395,20 @@ $("#map-frame").on("mouseup", "img", function (e) {
 $("#map-frame").on("mousemove", "img", function (e) {
 
   var accel = 2;
-  var dx = lastX - e.pageX;
-  var dy = lastY - e.pageY;
-  mouseMove += Math.abs(dx) + Math.abs(dy);
+  var dx, dy;
+  var dx = mouseX - e.pageX;
+  var dy = mouseY - e.pageY;
   if (mapZoomed && mouseDown) {
 
     // scroll the map image
+    dx = mouseX - e.pageX;
+    dy = mouseY - e.pageY;
     $("#map-frame").scrollLeft($("#map-frame").scrollLeft() + dx * accel);
     $("#map-frame").scrollTop($("#map-frame").scrollTop() + dy * accel);
-    lastX = e.pageX;
-    lastY = e.pageY;
   }
+  mouseX = e.pageX;
+  mouseY = e.pageY;
+  mouseMove += Math.abs(dx) + Math.abs(dy);
   e.preventDefault();
 });
 
