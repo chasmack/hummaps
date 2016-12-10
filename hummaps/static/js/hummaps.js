@@ -90,8 +90,11 @@ function prevMap() {
       $target.removeClass('active');
       $target = $item.addClass('active');
       $target.focus();
-      mapPage = 1;
-      if (!mapList) {
+      if (mapList) {
+        mapPage = 1;
+      } else {
+        // go to the last page of the previous map
+        mapPage = $target.find("div.map-images img").length;
         showMap();
       }
     }

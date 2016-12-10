@@ -28,12 +28,12 @@ def index():
     return render_template('index.html', query=q, results=results, total=total)
 
 
-@app.route('/dev-test', methods=['GET'])
+@app.route('/hummaps-dev', methods=['GET'])
 def dev():
 
     q = request.args.get('q', '')
     if q == '':
-        return render_template('dev-test.html', query='', results=[])
+        return render_template('hummaps-dev.html', query='', results=[])
 
     results = []
     try:
@@ -48,7 +48,7 @@ def dev():
     if total > 100:
         results = results[0:100]
 
-    return render_template('dev-test.html', query=q, results=results, total=total)
+    return render_template('hummaps-dev.html', query=q, results=results, total=total)
 
 #
 # HTTP error handlers
