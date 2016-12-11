@@ -153,14 +153,14 @@ def do_search(search):
         subterms = []
 
         # parse for surveyor, client, date, desc & maptype in double quotes
-        pat = '((BY|FOR|DATE|DESC|TYPE)[=:]"(.*?)(?<!")"(?!"))'
+        pat = '((BY|FOR|DATE|DESC|TYPE|ID|ANY)[=:]"(.*?)(?<!")"(?!"))'
         dquotes = re.findall(pat, term, flags=re.I)
         # replace two consecutive double quotes with a single double quote
         subterms += [(s[0], s[1], re.sub('""', '"', s[2])) for s in dquotes]
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for single word surveyor, client, date, desc & maptype without quotes
-        pat = '((BY|FOR|DATE|DESC|TYPE|ID)[=:](\S+))'
+        pat = '((BY|FOR|DATE|DESC|TYPE|ID|ANY)[=:](\S+))'
         subterms += re.findall(pat, term, flags=re.I)
         term = re.sub(pat, '', term, flags=re.I)
 
@@ -172,8 +172,9 @@ def do_search(search):
         # parse township/range/sections
         ss_pat = '(?:[NS][WE]/4|[NSEW]/2|1/1)'
         sec_pat = '(?:(?:{ss_pat}\s+)?{ss_pat}\s+)?S\d{{1,2}}'.format(ss_pat=ss_pat)
-        trs_pat = '((?:{sec_pat},?\s*)+)(T\d{{1,2}}[NS])\s+(R\d{{1}}[EW])'.format(sec_pat=sec_pat)
-        trs_pat = '((?:{sec_pat},?\s*)+)T?(\d{{1,2}}[NS])(?:,\s*|\s+)R?(\d{{1,2}}[EW])'.format(sec_pat=sec_pat)
+        # trs_pat = '((?:{sec_pat},?\s*)+)(T\d{{1,2}}[NS])\s+(R\d{{1}}[EW])'.format(sec_pat=sec_pat)
+        # trs_pat = '((?:{sec_pat},?\s*)+)T?(\d{{1,2}}[NS])(?:,\s*|\s+)R?(\d{{1,2}}[EW])'.format(sec_pat=sec_pat)
+        trs_pat = '((?:{sec_pat},?\s*)*)T?(\d{{1,2}}[NS])(?:,\s*|\s+)R?(\d{{1,2}}[EW])'.format(sec_pat=sec_pat)
         m = re.search(trs_pat, term, flags=re.I)
         if m:
             term = term[:m.start()] + term[m.end():]
@@ -197,12 +198,17 @@ def do_search(search):
             subterms.append((trs_str, 'TRS', trs))
 
         # shouldn't be anything left at this point
+        # term = term.strip()
+        # if term:
+        #     if term == search.strip():
+        #         raise ParseError(search)
+        #     else:
+        #         raise ParseError(term, search)
+
+        # anything left at this point throw into an ANY term
         term = term.strip()
         if term:
-            if term == search.strip():
-                raise ParseError(search)
-            else:
-                raise ParseError(term, search)
+            subterms.append([term, 'ANY', re.sub('\s+', '.*', term)])
 
         # lists of 'OR' and 'AND' elements
         or_terms = []
@@ -229,17 +235,25 @@ def do_search(search):
                 else:
                     # pattern search fullname
                     and_terms.append(and_(Surveyor.fullname.op('~*')(v)))
+            elif k == 'DATE':
+                dates = parse_dates(v)
+                and_terms.append(between(Map.recdate, *dates))
             elif k == 'FOR':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
                 and_terms.append(and_(Map.client.op('~*')(v)))
-            elif k == 'DATE':
-                dates = parse_dates(v)
-                and_terms.append(between(Map.recdate, *dates))
             elif k == 'DESC':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
                 and_terms.append(and_(Map.description.op('~*')(v)))
+            elif k == 'ANY':
+                try:
+                    re.compile(v)
+                except:
+                    raise ParseError(v, term)
+                and_terms.append(
+                    or_(Map.client.op('~*')(v), Map.description.op('~*')(v))
+                )
             elif k == 'TYPE':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
@@ -299,8 +313,9 @@ if __name__ == '__main__':
     # exit(0)
 
     srch = 'id:15833'
+    srch = '1n 5e'
     results = do_search(srch)
-    print('\nsearch: \'%s\' => %s' % (srch, results))
+    # print('\nsearch: \'%s\' => %s' % (srch, results))
     if results:
         n = len(results)
 
@@ -314,20 +329,20 @@ if __name__ == '__main__':
 
             certs = []
             for cc in map.certs:
-                imagefiles = ', '.join([ccimage.imagefile for ccimage in cc.ccimage])
+                imagefiles = ', '.join([ccimage.imagefile for ccimage in cc.ccimages])
                 if imagefiles == '':
                     imagefiles = 'None'
                 certs.append('CC=%s (%s)' % (cc.doc_number, imagefiles))
             certs = ', '.join(certs)
 
             print('%2d %6d %s %s %s' % (i + 1, map.id, map.maptype.abbrev.upper(), map.bookpage, map.description))
-            print(map.heading)
-            print(map.line1)
-            print(map.line2)
-            print(map.url())
-            for mapimage in map.mapimages:
-                print(mapimage.imagefile)
-            print()
+            # print(map.heading)
+            # print(map.line1)
+            # print(map.line2)
+            # print(map.url())
+            # for mapimage in map.mapimages:
+            #     print(mapimage.imagefile)
+            # print()
 
         print('results: %d maps found.' % (n))
     else:
@@ -337,6 +352,7 @@ if __name__ == '__main__':
 
     print()
     search = [
+        ('1n 5e', 129),
         ('s36 t2n r5e', 26),
         ('s36 t2n,r5e', 26),
         ('s36 t2n, r5e', 26),
@@ -376,9 +392,12 @@ if __name__ == '__main__':
         ('type=rm ne/4 s5 t6n r1e 11rm5 69rs30 69rs11 34rs58', 38),
         ('5cr45 2hm90 1mm100 45rs100 16pm10 19rm30 1ur150', 7),
         ('5cr45, 2hm90, 1mm100, 45rs100, 16pm10, 19rm30, 1ur150', 7),
-        ('5cr45 2hm90 1mm100 45rs100 16pm10 19rn30 1ur150', ParseError),
+        ('5cr45 2hm90 1mm100 45rs100 16pm10 19rn30 1ur150', 6),
         ('desc:\d{5}', 100),
-        ('nothing', ParseError),
+        ('any=deerfield.ranch', 6),
+        ('any=along.hwy.36', 9),
+        ('deerfield ranch', 6),
+        ('nothing', 0),
         ('desc:?', ParseError),
     ]
 

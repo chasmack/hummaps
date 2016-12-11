@@ -23,6 +23,8 @@ To search in more than one section: `s36 t2n r5e + s35 t2n r5e`
 
 Or more succinctly: `s35 s36 2n 5e`
 
+To search an entire township: `2n 5e`
+
 To search in more than one township: `s36 t2n r5e + s1 t1n r5e`
 
 #### User Interface

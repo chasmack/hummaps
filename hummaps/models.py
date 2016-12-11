@@ -183,7 +183,10 @@ class Map(Base):
         else:
             surveyors = '(UNKNOWN)'
 
-        recdate =self.recdate.strftime(' %m/ %d/%Y').replace(' 0', '').replace(' ', '')
+        if self.recdate:
+            recdate = self.recdate.strftime(' %m/ %d/%Y').replace(' 0', '').replace(' ', '')
+        else:
+            recdate = '(UNKNOWN)'
 
         return 'Recorded %s by %s' % (recdate, surveyors)
 
