@@ -200,7 +200,8 @@ class Map(Base):
 
     @hybrid_property
     def bookpage(self):
-        return '%03d%s%03d' % (self.book, self.maptype.abbrev.upper(), self.page)
+        return '%d%s%d' % (self.book, self.maptype.abbrev.upper(), self.page)
+        # return '%03d%s%03d' % (self.book, self.maptype.abbrev.upper(), self.page)
 
     @hybrid_method
     def url(self, page=1):

@@ -156,12 +156,18 @@ def do_search(search):
         pat = '((BY|FOR|DATE|DESC|TYPE|ID|ANY)[=:]"(.*?)(?<!")"(?!"))'
         dquotes = re.findall(pat, term, flags=re.I)
         # replace two consecutive double quotes with a single double quote
-        subterms += [(s[0], s[1], re.sub('""', '"', s[2])) for s in dquotes]
+        kwterms = [(s[0], s[1], re.sub('""', '"', s[2])) for s in dquotes]
+        # empty search "" becomes a double quote which is a valid search
+        subterms += kwterms
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for single word surveyor, client, date, desc & maptype without quotes
-        pat = '((BY|FOR|DATE|DESC|TYPE|ID|ANY)[=:](\S+))'
-        subterms += re.findall(pat, term, flags=re.I)
+        pat = '((BY|FOR|DATE|DESC|TYPE|ID|ANY)[=:](\S*))'
+        kwterms = re.findall(pat, term, flags=re.I)
+        for t, k, v in kwterms:
+            if v == '':
+                raise ParseError(t)
+        subterms += kwterms
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for individual maps
@@ -398,6 +404,8 @@ if __name__ == '__main__':
         ('any=along.hwy.36', 9),
         ('deerfield ranch', 6),
         ('nothing', 0),
+        ('2n 5e by=', ParseError),
+        ('for: deerfield', ParseError),
         ('desc:?', ParseError),
     ]
 

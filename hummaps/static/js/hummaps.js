@@ -16,7 +16,11 @@ $(window).resize(function (e) {
   var pad = 6;
   var nav = $("nav").outerHeight(false) + pad;
   var content = win - nav - pad;
-  $("#content-frame").height(content).css("margin-top", nav + 'px');
+  $("#content-frame").height(content).css({
+    position: "relative",
+    top: nav,
+    left: 0
+  });
   $("#map-list").height(content).css("overflow-y", "auto");
   $("#map-frame").height(content).css("overflow", "hidden");
   if (!mapList) {
@@ -60,6 +64,7 @@ function showMap() {
   if ($target) {
     // swap in and display the current map image
     $target.find("div.map-images img").eq(mapPage - 1).clone().replaceAll("#map-frame img");
+    $("#map-name span").text($("#map-frame img").attr("alt"))
     $("#map-list").hide();
     $("#map-frame").show();
     zoomMap(0);
