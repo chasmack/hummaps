@@ -73,11 +73,12 @@
               {%- endif %}
               <h4 class="list-group-item-heading">{{ map.heading }}</h4>
               <p class="list-group-item-text">{{ map.line1 }}</p>
-              {% if map.line2 -%}
               <p class="list-group-item-text">{{ map.line2 }}</p>
-              {%- endif %}
               {% if map.line3 -%}
               <p class="list-group-item-text">{{ map.line3 }}</p>
+              {% endif %}
+              {% if map.line4 -%}
+              <p class="list-group-item-text">{{ map.line4 }}</p>
               {% endif %}
               {%- if map.certs|length > 0 -%}
               {%-  set comma = joiner(", ") -%}

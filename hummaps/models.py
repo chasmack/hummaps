@@ -182,26 +182,28 @@ class Map(Base):
             surveyors = ', '.join(surveyors)
         else:
             surveyors = '(UNKNOWN)'
+        return 'By ' + surveyors
 
+    @hybrid_property
+    def line2(self):
         if self.recdate:
             recdate = self.recdate.strftime(' %m/ %d/%Y').replace(' 0', '').replace(' ', '')
         else:
             recdate = '(UNKNOWN)'
-
-        return 'Recorded %s by %s' % (recdate, surveyors)
-
-    @hybrid_property
-    def line2(self):
-        return 'For ' + self.client if self.client else None
+        return 'Rec ' + recdate
 
     @hybrid_property
     def line3(self):
+        return 'For ' + self.client if self.client else None
+
+    @hybrid_property
+    def line4(self):
         return self.description
 
     @hybrid_property
     def bookpage(self):
-        return '%d%s%d' % (self.book, self.maptype.abbrev.upper(), self.page)
         # return '%03d%s%03d' % (self.book, self.maptype.abbrev.upper(), self.page)
+        return '%d%s%d' % (self.book, self.maptype.abbrev.upper(), self.page)
 
     @hybrid_method
     def url(self, page=1):

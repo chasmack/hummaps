@@ -50,6 +50,13 @@ def dev():
 
     return render_template('hummaps-dev.html', query=q, results=results, total=total)
 
+
+@app.route('/gpx', methods=['GET', 'POST'])
+def gpx():
+
+    return render_template('gpx.html')
+
+
 #
 # HTTP error handlers
 #

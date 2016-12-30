@@ -162,7 +162,7 @@ def do_search(search):
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for single word surveyor, client, date, desc & maptype without quotes
-        pat = '((BY|FOR|DATE|DESC|TYPE|ID|ANY)[=:](\S*))'
+        pat = '((BY|FOR|REC|DATE|DESC|TYPE|ID|ANY)[=:](\S*))'
         kwterms = re.findall(pat, term, flags=re.I)
         for t, k, v in kwterms:
             if v == '':
@@ -241,7 +241,7 @@ def do_search(search):
                 else:
                     # pattern search fullname
                     and_terms.append(and_(Surveyor.fullname.op('~*')(v)))
-            elif k == 'DATE':
+            elif k == 'DATE' or k == 'REC':
                 dates = parse_dates(v)
                 and_terms.append(between(Map.recdate, *dates))
             elif k == 'FOR':
@@ -390,6 +390,7 @@ if __name__ == '__main__':
         ('by:ls9153', 1),
         ('by:9153', 1),
         ('by:rce62665', 1),
+        ('by=4829 rec=2/2015', 3),
         ('type=rm ne/4 s5 t6n r1e by=schillinger', 6),
         ('type=rm ne/4 s5 t6n r1e', 34),
         ('11rm5 69rs30 69rs11 34rs58', 4),
