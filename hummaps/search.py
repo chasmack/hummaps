@@ -153,7 +153,7 @@ def do_search(search):
         subterms = []
 
         # parse for surveyor, client, date, desc & maptype in double quotes
-        pat = '((BY|FOR|DATE|DESC|TYPE|ID|ANY)[=:]"(.*?)(?<!")"(?!"))'
+        pat = '((BY|FOR|REC|DATE|DESC|TYPE|ID|ANY)[=:]"(.*?)(?<!")"(?!"))'
         dquotes = re.findall(pat, term, flags=re.I)
         # replace two consecutive double quotes with a single double quote
         kwterms = [(s[0], s[1], re.sub('""', '"', s[2])) for s in dquotes]
@@ -171,8 +171,14 @@ def do_search(search):
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for individual maps
-        pat = '((\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+),?)'
-        subterms += [(m[0], 'MAP', m[1:]) for m in re.findall(pat, term, flags=re.I)]
+        # pat = '((\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+),?)'  # no more commas
+        pat = '(\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+)'
+        subterms += [(m[0], 'MAP', m[0:]) for m in re.findall(pat, term, flags=re.I)]
+        term = re.sub(pat, '', term, flags=re.I)
+
+        # parse for parcel maps
+        pat = 'PM\d+'
+        subterms += [(m, 'PM', m) for m in re.findall(pat, term, flags=re.I)]
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse township/range/sections
@@ -273,6 +279,8 @@ def do_search(search):
                         Map.book == int(book), MapType.abbrev == maptype.upper(),
                         Map.page <= int(page), Map.page + Map.npages > int(page))
                 )
+            elif k == 'PM':
+                or_terms.append(Map.client.op('~*')('%s(\s\w+)*$' % v))
             elif k == 'TRS':
                 secs = []
                 for sec in v['secs']:
@@ -304,7 +312,7 @@ def do_search(search):
         for q in subq_except:
             subq = subq.except_(q)
         query = query.filter(Map.id.in_(subq))
-        query = query.order_by(MapType.maptype, Map.recdate.desc(), Map.page.desc())
+        query = query.order_by(MapType.maptype, Map.recdate.desc(), Map.book.desc(), Map.page.desc())
 
         return query.all()
     else:
@@ -320,6 +328,7 @@ if __name__ == '__main__':
 
     srch = 'id:15833'
     srch = '1n 5e'
+    srch = 'pm1 pm16 pm165 pm1656'
     results = do_search(srch)
     # print('\nsearch: \'%s\' => %s' % (srch, results))
     if results:
@@ -341,7 +350,7 @@ if __name__ == '__main__':
                 certs.append('CC=%s (%s)' % (cc.doc_number, imagefiles))
             certs = ', '.join(certs)
 
-            print('%2d %6d %s %s %s' % (i + 1, map.id, map.maptype.abbrev.upper(), map.bookpage, map.description))
+            print('%2d %6d %s %s %s' % (i + 1, map.id, map.maptype.abbrev.upper(), map.bookpage, map.client))
             # print(map.heading)
             # print(map.line1)
             # print(map.line2)
@@ -398,8 +407,10 @@ if __name__ == '__main__':
         ('type=rm ne/4 s5 t6n r1e + 11rm5 69rs30 69rs11 34rs58', 38),
         ('type=rm ne/4 s5 t6n r1e 11rm5 69rs30 69rs11 34rs58', 38),
         ('5cr45 2hm90 1mm100 45rs100 16pm10 19rm30 1ur150', 7),
-        ('5cr45, 2hm90, 1mm100, 45rs100, 16pm10, 19rm30, 1ur150', 7),
+        # ('5cr45, 2hm90, 1mm100, 45rs100, 16pm10, 19rm30, 1ur150', 7),
         ('5cr45 2hm90 1mm100 45rs100 16pm10 19rn30 1ur150', 6),
+        ('pm165', 2),
+        ('pm1 pm16 pm165 pm1656', 5),
         ('desc:\d{5}', 100),
         ('any=deerfield.ranch', 6),
         ('any=along.hwy.36', 9),

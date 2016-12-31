@@ -88,7 +88,7 @@ function nextMap() {
   }
 }
 
-function prevMap() {
+function prevMap(lastpage) {
   if ($target) {
     var $item = $target.prevAll("a.map-item:not(.disabled)").first();
     if ($item.length) {
@@ -98,8 +98,7 @@ function prevMap() {
       if (mapList) {
         mapPage = 1;
       } else {
-        // go to the last page of the previous map
-        mapPage = $target.find("div.map-images img").length;
+        mapPage = lastpage ? $target.find("div.map-images img").length : 1;
         showMap();
       }
     }
@@ -121,7 +120,7 @@ function nextPage() {
 function prevPage() {
   if ($target) {
     if (mapPage == 1) {
-      prevMap();
+      prevMap(true);
     } else {
       mapPage -= 1;
       showMap();
