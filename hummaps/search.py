@@ -181,6 +181,11 @@ def do_search(search):
         subterms += [(m, 'PM', m) for m in re.findall(pat, term, flags=re.I)]
         term = re.sub(pat, '', term, flags=re.I)
 
+        # parse for tract maps
+        pat = 'TR\d+'
+        subterms += [(m, 'TR', m) for m in re.findall(pat, term, flags=re.I)]
+        term = re.sub(pat, '', term, flags=re.I)
+
         # parse township/range/sections
         ss_pat = '(?:[NS][WE]/4|[NSEW]/2|1/1)'
         sec_pat = '(?:(?:{ss_pat}\s+)?{ss_pat}\s+)?S\d{{1,2}}'.format(ss_pat=ss_pat)
@@ -281,6 +286,8 @@ def do_search(search):
                 )
             elif k == 'PM':
                 or_terms.append(Map.client.op('~*')('%s(\s\w+)*$' % v))
+            elif k == 'TR':
+                or_terms.append(Map.client.op('~*')('%s(\s\w+)*$' % v))
             elif k == 'TRS':
                 secs = []
                 for sec in v['secs']:
@@ -329,6 +336,7 @@ if __name__ == '__main__':
     srch = 'id:15833'
     srch = '1n 5e'
     srch = 'pm1 pm16 pm165 pm1656'
+    srch = 'tr9 tr95'
     results = do_search(srch)
     # print('\nsearch: \'%s\' => %s' % (srch, results))
     if results:
@@ -409,6 +417,8 @@ if __name__ == '__main__':
         ('5cr45 2hm90 1mm100 45rs100 16pm10 19rm30 1ur150', 7),
         # ('5cr45, 2hm90, 1mm100, 45rs100, 16pm10, 19rm30, 1ur150', 7),
         ('5cr45 2hm90 1mm100 45rs100 16pm10 19rn30 1ur150', 6),
+        ('tr95', 3),
+        ('tr9 tr95', 4),
         ('pm165', 2),
         ('pm1 pm16 pm165 pm1656', 5),
         ('desc:\d{5}', 100),
