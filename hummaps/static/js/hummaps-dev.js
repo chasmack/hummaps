@@ -51,24 +51,44 @@ if ($("div.flashed-messages").length) {
 
 function showMapList() {
 
-  $("#map-frame").hide();
-  $("#map-list").show();
+  $('#map-frame').hide();
+  $('#map-list').show();
   if ($target) {
     $target.focus();
   }
+  $('#map-frame img.map-image').remove();
   mapList = true;
 }
 
 function showMap() {
 
   if ($target) {
-    // swap in and display the current map image
-    $target.find("div.map-images img").eq(mapPage - 1).clone().replaceAll("#map-frame img");
-    $("#map-name span").text($("#map-frame img").attr("alt"))
-    $("#map-list").hide();
-    $("#map-frame").show();
-    zoomMap(0);
-    mapList = false;
+
+    if (mapList) {
+      $("#map-list").hide();
+      $("#map-frame").show();
+      mapList = false;
+    }
+
+    // swap in the target map image
+    var $img = $target.find('.map-image-list .map-image').eq(mapPage - 1);
+    if ($img.is('div')) {
+      // replace div with an img element, this starts the image download
+      var src = $img.attr('data-src');
+      var alt = $img.attr('data-alt');
+      $img = $('<img class="map-image">').attr({src: src, alt: alt}).replaceAll($img);
+      $img.bind('load', function() {
+        $('#map-frame img.map-image').remove();
+        $('#map-frame').prepend($img.clone());
+        zoomMap(0);
+      });
+    } else {
+      // image should be ready to to display
+      $('#map-frame img.map-image').remove();
+      $('#map-frame').prepend($img.clone());
+      zoomMap(0);
+    }
+    $("#map-name span").text($img.attr("alt"));
   }
 }
 
@@ -98,7 +118,7 @@ function prevMap(lastpage) {
       if (mapList) {
         mapPage = 1;
       } else {
-        mapPage = lastpage ? $target.find("div.map-images img").length : 1;
+        mapPage = lastpage ? $target.find(".map-image-list .map-image").length : 1;
         showMap();
       }
     }
@@ -107,7 +127,7 @@ function prevMap(lastpage) {
 
 function nextPage() {
   if ($target) {
-    $mapimages = $target.find("div.map-images img");
+    $mapimages = $target.find(".map-image-list .map-image");
     if (mapPage < $mapimages.length) {
       mapPage += 1;
       showMap();
