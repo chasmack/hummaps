@@ -82,26 +82,22 @@ function showMap() {
     var $img = $target.find('.map-image-list .map-image').eq(mapPage - 1);
     if ($img.is('div')) {
 
-      // replace div with an img element, this starts the image download
-      var src = $img.attr('data-src');
-      var alt = $img.attr('data-alt');
-      $img = $('<img class="map-image">').attr({
-        src: $img.attr('data-src'),
-        alt: $img.attr('data-alt')
-      }).replaceAll($img);
-
-      // display a loader if the image is slow to download
+      // display a loader if the image is slow to load
       loaderTimeout = window.setTimeout(function() {
-        console.log('timeout: ' + loaderTimeout);
         if (loaderTimeout) {
           $loader = $('#loader-frame').show();
           loaderTimeout = null;
         }
       }, 750);
 
+      // replace div with an img element, this starts the image download
+      $img = $('<img class="map-image">').attr({
+        src: $img.attr('data-src'),
+        alt: $img.attr('data-alt')
+      }).replaceAll($img);
+
       // set a callback to swap in image once it is loaded
       $img.bind('load', function() {
-        console.log('load: ' + loaderTimeout);
         if (loaderTimeout) {
           window.clearTimeout(loaderTimeout);
           loaderTimeout = null;
