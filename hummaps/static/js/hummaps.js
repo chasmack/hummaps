@@ -9,6 +9,9 @@ var shiftPressed;     // shift key is down
 var ctrlPressed;      // ctrl key is down
 var altPressed;       // alt key is down
 
+var $loader = null;       // map view loader
+var loaderTimeout = null; // setTimeout ID for delayed loader display
+
 $(window).resize(function (e) {
 
   // setup frame heights
@@ -51,12 +54,15 @@ if ($("div.flashed-messages").length) {
 
 function showMapList() {
 
+  if ($loader) {
+    $loader.hide();
+    $loader = null;
+  }
   $('#map-frame').hide();
   $('#map-list').show();
   if ($target) {
     $target.focus();
   }
-  $('#map-frame img.map-image').remove();
   mapList = true;
 }
 
@@ -64,30 +70,66 @@ function showMap() {
 
   if ($target) {
 
+    // remove any previous image and show the map view
+    $('#map-frame img.map-image').remove();
     if (mapList) {
       $("#map-list").hide();
       $("#map-frame").show();
       mapList = false;
     }
 
-    // swap in the target map image
+    // get the current map image from the image list
     var $img = $target.find('.map-image-list .map-image').eq(mapPage - 1);
     if ($img.is('div')) {
+
       // replace div with an img element, this starts the image download
       var src = $img.attr('data-src');
       var alt = $img.attr('data-alt');
-      $img = $('<img class="map-image">').attr({src: src, alt: alt}).replaceAll($img);
+      $img = $('<img class="map-image">').attr({
+        src: $img.attr('data-src'),
+        alt: $img.attr('data-alt')
+      }).replaceAll($img);
+
+      // display a loader if the image is slow to download
+      loaderTimeout = window.setTimeout(function() {
+        console.log('timeout: ' + loaderTimeout);
+        if (loaderTimeout) {
+          $loader = $('#loader-frame').show();
+          loaderTimeout = null;
+        }
+      }, 750);
+
+      // set a callback to swap in image once it is loaded
       $img.bind('load', function() {
-        $('#map-frame img.map-image').remove();
+        console.log('load: ' + loaderTimeout);
+        if (loaderTimeout) {
+          window.clearTimeout(loaderTimeout);
+          loaderTimeout = null;
+        }
+        if ($loader) {
+          $loader.hide();
+          $loader = null;
+        }
         $('#map-frame').prepend($img.clone());
         zoomMap(0);
       });
+
     } else {
-      // image is ready to to display
-      $('#map-frame img.map-image').remove();
+      // image should be ready to to display
+      // clear any loader or loader timeout
+      if (loaderTimeout) {
+        window.clearTimeout(loaderTimeout);
+        loaderTimeout = null;
+      }
+      if ($loader) {
+        $loader.hide();
+        $loader = null;
+      }
       $('#map-frame').prepend($img.clone());
       zoomMap(0);
     }
+
+    // update the map name lable
     $("#map-name span").text($img.attr("alt"));
   }
 }

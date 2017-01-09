@@ -14,6 +14,49 @@ section {
   margin: 0 auto;
 }
 
+#map-name {
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+  border-radius: 4px;
+  padding: 2px 8px;
+  color: rgba(0, 0, 0, 0.8);
+  background: #f6f6f6;
+  opacity: 0.8;"
+}
+
+#loader-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 200px;
+  height: 200px;
+  margin: -100px 0 0 -100px;
+  z-index: 1;
+  text-align: center;
+}
+
+#loader {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 8px;
+  border: 12px solid #f0f0f0;
+  border-top: 12px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite;
+  -webkit-animation: spin 1.5s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .g-recaptcha {
   position: relative;
   margin-top: 10px;
