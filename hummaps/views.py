@@ -22,8 +22,8 @@ def index():
         flash('Search error: <strong>%s</strong>' % str(e), 'error')
 
     total = len(results)
-    if total > 100:
-        results = results[0:100]
+    if total > 200:
+        results = results[0:200]
 
     return render_template('index.html', query=q, results=results, total=total)
 
@@ -45,8 +45,8 @@ def dev():
         flash('Search error: <strong>%s</strong>' % str(e), 'error')
 
     total = len(results)
-    if total > 100:
-        results = results[0:100]
+    if total > 250:
+        results = results[0:250]
 
     return render_template('hummaps-dev.html', query=q, results=results, total=total)
 
