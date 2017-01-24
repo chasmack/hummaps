@@ -285,9 +285,9 @@ def do_search(search):
                         Map.page <= int(page), Map.page + Map.npages > int(page))
                 )
             elif k == 'PM':
-                or_terms.append(Map.client.op('~*')('%s(\s\w+)*$' % v))
+                or_terms.append(Map.client.op('~*')('\(%s\)(\s\w+)*$' % v))
             elif k == 'TR':
-                or_terms.append(Map.client.op('~*')('%s(\s\w+)*$' % v))
+                or_terms.append(Map.client.op('~*')('\(%s\)(\s\w+)*$' % v))
             elif k == 'TRS':
                 secs = []
                 for sec in v['secs']:
