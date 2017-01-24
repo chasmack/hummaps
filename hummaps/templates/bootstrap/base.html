@@ -12,7 +12,8 @@
 
     {%- block styles %}
     <!-- Bootstrap -->
-    <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">
+    <!-- <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet"> -->
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
     {%- endblock styles %}
     {%- endblock head %}
   </head>
@@ -24,8 +25,10 @@
     {%- endblock content %}
 
     {% block scripts %}
-    <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
-    <script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
+    <!-- <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script> -->
+    <!-- <script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script> -->
+    <script src="{{ url_for('static', filename='js/jquery-3.1.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
     {%- endblock scripts %}
     {%- endblock body %}
   </body>

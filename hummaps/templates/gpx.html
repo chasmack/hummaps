@@ -4,13 +4,15 @@
 
 {%- block styles %}
 {{- super() }}
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
-{%- endblock styles -%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fileupload.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fileupload-ui.css') }}">
+<!-- CSS adjustments for browsers with JavaScript disabled -->
+<noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fileupload-noscript.css') }}"></noscript>
+<noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fileupload-ui-noscript.css') }}"></noscript>
+<style>
 
-{%- block head %}
-{{- super() }}
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
-{%- endblock head %}
+</style>
+{%- endblock styles -%}
 
 {%- block navigation %}
 <!-- begin navigation controls block -->
@@ -19,10 +21,29 @@
 
 {% block page %}
 <!-- begin page content block -->
-  <div class="jumbotron">
-    <h1>GPX Tools</h1>
-    <p>...</p>
-    <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p>
+  <div class="container" style="margin-top: 75px">
+    <div class="row">
+      <div class="col-lg-6 col-sm-6 col-12">
+        <div class="jumbotron">
+          <h2>GPX Tools</h2>
+          <p>Convert points and lines into GPX waypoints, tracks and routes.</p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-6 col-sm-6 col-12">
+        <h4>Select Files</h4>
+        <div class="input-group">
+          <label class="input-group-btn">
+            <span class="btn btn-primary">
+              Browse&hellip; <input type="file" style="display: none;" multiple>
+            </span>
+          </label>
+          <input type="text" class="form-control" readonly>
+        </div>
+
+      </div>
+    </div>
   </div>
 <!-- end page content block -->
 {%- endblock page -%}
@@ -30,5 +51,17 @@
 {% block scripts %}
 <!-- begin scripts block -->
     {{- super() }}
+  <!-- The jQuery UI widget factory -->
+  <script src="{{ url_for('static', filename='js/jquery.ui.widget.js') }}"></script>
+  <!-- The basic File Upload plugin -->
+  <script src="{{ url_for('static', filename='js/jquery.fileupload.js') }}"></script>
+  <!-- The File Upload processing plugin -->
+  <script src="{{ url_for('static', filename='js/jquery.fileupload-process.js') }}"></script>
+  <!-- The File Upload validation plugin -->
+  <script src="{{ url_for('static', filename='js/jquery.fileupload-validate.js') }}"></script>
+  <!-- The File Upload user interface plugin -->
+  <script src="{{ url_for('static', filename='js/jquery.fileupload-ui.js') }}"></script>
+  <!-- The main application script -->
+  <script src="{{ url_for('static', filename='js/gpx.js') }}"></script>
 <!-- end scripts block -->
 {% endblock scripts %}
