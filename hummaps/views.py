@@ -53,6 +53,11 @@ def dev():
 
 @app.route('/gpx', methods=['GET', 'POST'])
 def gpx():
+    if request.method == 'POST':
+        datatype = request.form['datatype']
+        srid = request.form['srid']
+        files = request.files.getlist('file')
+        return 'type: ' + datatype + ', srid: ' + srid + ', files: ' + ', '.join([f.filename for f in files])
 
     return render_template('gpx.html')
 

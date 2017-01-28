@@ -5,12 +5,13 @@
 {%- block styles %}
 {{- super() }}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fileupload.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fileupload-ui.css') }}">
-<!-- CSS adjustments for browsers with JavaScript disabled -->
-<noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fileupload-noscript.css') }}"></noscript>
-<noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fileupload-ui-noscript.css') }}"></noscript>
 <style>
-
+span.fileinput-button, button.start-button {
+  width: 22%;
+}
+span.fileinput-button span, button.start-button span {
+  margin: 0 0  0 5px;
+}
 </style>
 {%- endblock styles -%}
 
@@ -22,28 +23,70 @@
 {% block page %}
 <!-- begin page content block -->
   <div class="container" style="margin-top: 75px">
-    <div class="row">
-      <div class="col-lg-6 col-sm-6 col-12">
-        <div class="jumbotron">
-          <h2>GPX Tools</h2>
-          <p>Convert points and lines into GPX waypoints, tracks and routes.</p>
+    <h1>GPX conversions</h1>
+    <h2 class="lead">Convert between PNEZD points, DXF lines and GPX.</h2>
+    <form id="fileupload" method="post" action="{{  url_for('gpx') }}" enctype="multipart/form-data">
+      <div class="row">
+        <div class="col-sm-8">
+          <span class="btn btn-success fileinput-button">
+            <i class="glyphicon glyphicon-plus"></i>
+            <span>Add files</span>
+            <input type="file" name="file" multiple/>
+          </span>
+          <button class="btn btn-primary start-button" value="pnts">
+            <i class="glyphicon glyphicon-file"></i>
+            <span>Get pnts</span>
+          </button>
+          <button class="btn btn-primary start-button" value="dxf">
+            <i class="glyphicon glyphicon-file"></i>
+            <span>Get dxf</span>
+          </button>
+          <button class="btn btn-primary start-button" value="gpx">
+            <i class="glyphicon glyphicon-file"></i>
+            <span>Get gpx</span>
+          </button>f
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-6 col-sm-6 col-12">
-        <h4>Select Files</h4>
-        <div class="input-group">
-          <label class="input-group-btn">
-            <span class="btn btn-primary">
-              Browse&hellip; <input type="file" style="display: none;" multiple>
-            </span>
-          </label>
-          <input type="text" class="form-control" readonly>
+      <div class="row" style="margin-top: 10px;">
+        <div class="col-sm-7">
+          <div class="form-group">
+            <select class="form-control" name="srid">
+              <option value="2225" selected>2225 - NAD83 / California zone 1 (ftUS)</option>
+              <option value="2226">2226 - NAD83 / California zone 2 (ftUS)</option>
+              <option value="2227">2227 - NAD83 / California zone 3 (ftUS)</option>
+              <option value="2228">2228 - NAD83 / California zone 4 (ftUS)</option>
+              <option value="2229">2229 - NAD83 / California zone 5 (ftUS)</option>
+              <option value="26941">26941 - NAD83 / California zone 1</option>
+              <option value="26942">26942 - NAD83 / California zone 2</option>
+              <option value="26943">26943 - NAD83 / California zone 3</option>
+              <option value="26944">26944 - NAD83 / California zone 4</option>
+              <option value="26945">26945 - NAD83 / California zone 5</option>
+              <option value="32609">32609 - WGS 84 / UTM zone 9N</option>
+              <option value="32610">32610 - WGS 84 / UTM zone 10N</option>
+              <option value="32611">32611 - WGS 84 / UTM zone 11N</option>
+            </select>
+          </div>
         </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-7">
+          <!-- The table listing the files to upload -->
+          <table role="presentation" class="table table-striped">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Date</th>
+                <th>Size</th>
+                <th style="width: 15%; text-align: center;"><a class="removeall" href="#">Remove</a></th>
+              </tr>
+            </thead>
+            <tbody class="files">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </form>
 
-      </div>
-    </div>
   </div>
 <!-- end page content block -->
 {%- endblock page -%}
@@ -51,17 +94,86 @@
 {% block scripts %}
 <!-- begin scripts block -->
     {{- super() }}
-  <!-- The jQuery UI widget factory -->
   <script src="{{ url_for('static', filename='js/jquery.ui.widget.js') }}"></script>
-  <!-- The basic File Upload plugin -->
   <script src="{{ url_for('static', filename='js/jquery.fileupload.js') }}"></script>
-  <!-- The File Upload processing plugin -->
-  <script src="{{ url_for('static', filename='js/jquery.fileupload-process.js') }}"></script>
-  <!-- The File Upload validation plugin -->
-  <script src="{{ url_for('static', filename='js/jquery.fileupload-validate.js') }}"></script>
-  <!-- The File Upload user interface plugin -->
-  <script src="{{ url_for('static', filename='js/jquery.fileupload-ui.js') }}"></script>
-  <!-- The main application script -->
-  <script src="{{ url_for('static', filename='js/gpx.js') }}"></script>
+  <script>
+
+  $(function () {
+    $('#fileupload').fileupload({
+      dataType: 'text',
+      autoUpload: false,
+      singleFileUploads: false
+    })
+    .on('fileuploadadd', function (e, data) {
+      console.log('Add:');
+      var d = $(this).data('data');
+      if (d){
+        data.files = d.files.concat(data.files);
+      }
+      $(this).data('data', data);
+      updateFileList(data);
+    })
+    .on('fileuploadsubmit', function(e, data) {
+      console.log('Submit:');
+      return true;
+    })
+    .on('fileuploadsend', function(e, data) {
+      console.log('Send:');
+      return true;
+    })
+    .on('fileuploaddone', function(e, data) {
+      console.log('Done: ' + data.result);
+    })
+    .on('fileuploadalways', function(e, data) {
+      console.log('Always:');
+    })
+    .on('click', 'button.start-button', function(e) {
+      e.preventDefault();
+      console.log('Start:');
+      var data = $('#fileupload').data('data');
+      if (data) {
+        $.each(data.files, function (index, file) { console.log(file.name) });
+        // add button value to form data
+        buttonData = [{name: 'datatype', value: $(this).val()}];
+        data.formData = $('#fileupload').serializeArray().concat(buttonData);
+        data.submit();
+      }
+    })
+    .on('click', 'tbody.files button.remove', function(e) {
+      e.preventDefault();
+      var i = $('tbody.files tr').index($(this).closest('tr'));
+      var data = $('#fileupload').data('data');
+      data.files.splice(i, 1);
+      updateFileList(data);
+      if (data.files.length == 0) {
+        $('#fileupload').removeData('data');
+      }
+    })
+    .on('click', 'a.removeall', function(e) {
+      e.preventDefault();
+      var data = $('#fileupload').data('data');
+      if (data) {
+        data.files = [];
+        updateFileList(data);
+        $('#fileupload').removeData('data');
+      }
+    })
+  });
+
+  function updateFileList(data) {
+    var files = data.files;
+    files.sort(function(a, b){return a.name > b.name ? 1 : -1});
+    var rows = [];
+    $.each(files, function (index, file) {
+      var d = new Date(file.lastModified);
+      rows.push($('<tr\>')
+          .append(('<td>' + file.name + '</td>'))
+          .append(('<td>' + d.toString().replace(/ \(.*/, '') + '</td>'))
+          .append(('<td>' + file.size + '</td>'))
+          .append(('<td style="text-align: center;"><button class="btn btn-xs btn-danger remove"><i class="glyphicon glyphicon-remove"></i></button></td>')));
+    });
+    $('tbody.files').find('tr').remove().end().append(rows);
+  }
+  </script>
 <!-- end scripts block -->
 {% endblock scripts %}

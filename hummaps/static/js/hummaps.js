@@ -230,6 +230,7 @@ $('#map-list').on('click', 'a.map-item:not(.disabled)', function (e) {
 
   $target = $(this).focus();
   showMap();
+  e.preventDefault();
 
 }).on('focus', 'a.map-item:not(.disabled)', function (e) {
 

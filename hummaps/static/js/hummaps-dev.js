@@ -228,6 +228,7 @@ $('#prev').click(function (e) {
 
 $('#map-list').on('click', 'a.map-item:not(.disabled)', function (e) {
 
+  e.preventDefault();
   $target = $(this).focus();
   showMap();
 
