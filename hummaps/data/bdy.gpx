@@ -1,0 +1,1296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gpx creator="Python pyloc" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <link href="https://cmack.org/">
+      <text>Charlie</text>
+    </link>
+    <time>2017-01-20T18:30:25+00:00</time>
+  </metadata>
+  <wpt lat="40.28903473" lon="-123.65616476">
+    <ele>486.3146</ele>
+    <name>001</name>
+    <cmt>PROP-CORNER</cmt>
+    <desc>PROP-CORNER</desc>
+    <sym>Flag, Red</sym>
+  </wpt>
+  <wpt lat="40.28913913" lon="-123.65002872">
+    <ele>426.7209</ele>
+    <name>002</name>
+    <cmt>PROP-CORNER</cmt>
+    <desc>PROP-CORNER</desc>
+    <sym>Flag, Red</sym>
+  </wpt>
+  <wpt lat="40.28879436" lon="-123.64988881">
+    <ele>426.7209</ele>
+    <name>003</name>
+    <cmt>PROP-LINE-BC</cmt>
+    <desc>PROP-LINE-BC</desc>
+    <sym>Flag, Red</sym>
+  </wpt>
+  <wpt lat="40.28663149" lon="-123.64861598">
+    <ele>438.9129</ele>
+    <name>004</name>
+    <cmt>PROP-CORNER</cmt>
+    <desc>PROP-CORNER</desc>
+    <sym>Flag, Red</sym>
+  </wpt>
+  <wpt lat="40.28650435" lon="-123.65609124">
+    <ele>513.4221</ele>
+    <name>005</name>
+    <cmt>PROP-CORNER</cmt>
+    <desc>PROP-CORNER</desc>
+    <sym>Flag, Red</sym>
+  </wpt>
+  <rte>
+    <name>SUBDIVISIONAL-001</name>
+    <rtept lat="40.29144073" lon="-123.65065799">
+      <name>SUBDIVISIONAL-001.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29140323" lon="-123.64093128">
+      <name>SUBDIVISIONAL-001.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-002</name>
+    <rtept lat="40.28392226" lon="-123.64093164">
+      <name>SUBDIVISIONAL-002.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29140323" lon="-123.64093128">
+      <name>SUBDIVISIONAL-002.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-003</name>
+    <rtept lat="40.28392226" lon="-123.64093164">
+      <name>SUBDIVISIONAL-003.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28386889" lon="-123.63104704">
+      <name>SUBDIVISIONAL-003.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-004</name>
+    <rtept lat="40.29140323" lon="-123.64093128">
+      <name>SUBDIVISIONAL-004.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29136490" lon="-123.63120458">
+      <name>SUBDIVISIONAL-004.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-005</name>
+    <rtept lat="40.29142208" lon="-123.64579463">
+      <name>SUBDIVISIONAL-005.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28399961" lon="-123.64572938">
+      <name>SUBDIVISIONAL-005.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-006</name>
+    <rtept lat="40.28766275" lon="-123.64093146">
+      <name>SUBDIVISIONAL-006.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28775874" lon="-123.65059248">
+      <name>SUBDIVISIONAL-006.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-007</name>
+    <rtept lat="40.28386888" lon="-123.63104703">
+      <name>SUBDIVISIONAL-007.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29136490" lon="-123.63120458">
+      <name>SUBDIVISIONAL-007.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-008</name>
+    <rtept lat="40.29136490" lon="-123.63120458">
+      <name>SUBDIVISIONAL-008.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29061654" lon="-123.62189604">
+      <name>SUBDIVISIONAL-008.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-009</name>
+    <rtept lat="40.29061654" lon="-123.62189604">
+      <name>SUBDIVISIONAL-009.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28302152" lon="-123.62180031">
+      <name>SUBDIVISIONAL-009.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-010</name>
+    <rtept lat="40.28302152" lon="-123.62180031">
+      <name>SUBDIVISIONAL-010.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28386889" lon="-123.63104704">
+      <name>SUBDIVISIONAL-010.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-011</name>
+    <rtept lat="40.28401901" lon="-123.64693510">
+      <name>SUBDIVISIONAL-011.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28399961" lon="-123.64572938">
+      <name>SUBDIVISIONAL-011.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-012</name>
+    <rtept lat="40.28399961" lon="-123.64572938">
+      <name>SUBDIVISIONAL-012.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28392226" lon="-123.64093164">
+      <name>SUBDIVISIONAL-012.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-013</name>
+    <rtept lat="40.28407674" lon="-123.65052698">
+      <name>SUBDIVISIONAL-013.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29144073" lon="-123.65065799">
+      <name>SUBDIVISIONAL-013.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-014</name>
+    <rtept lat="40.29144073" lon="-123.65065799">
+      <name>SUBDIVISIONAL-014.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29880472" lon="-123.65078903">
+      <name>SUBDIVISIONAL-014.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-015</name>
+    <rtept lat="40.28407674" lon="-123.65052698">
+      <name>SUBDIVISIONAL-015.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29144073" lon="-123.65065799">
+      <name>SUBDIVISIONAL-015.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>SUBDIVISIONAL-016</name>
+    <rtept lat="40.29144073" lon="-123.65065799">
+      <name>SUBDIVISIONAL-016.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29880472" lon="-123.65078903">
+      <name>SUBDIVISIONAL-016.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-001</name>
+    <rtept lat="40.28400249" lon="-123.64590856">
+      <name>ROAD-001.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28409857" lon="-123.64593454">
+      <name>ROAD-001.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28433448" lon="-123.64604608">
+      <name>ROAD-001.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28453661" lon="-123.64624016">
+      <name>ROAD-001.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28578405" lon="-123.64784302">
+      <name>ROAD-001.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28596384" lon="-123.64803634">
+      <name>ROAD-001.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28616689" lon="-123.64818531">
+      <name>ROAD-001.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28883948" lon="-123.64975808">
+      <name>ROAD-001.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28899606" lon="-123.64983560">
+      <name>ROAD-001.009</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28915870" lon="-123.64988764">
+      <name>ROAD-001.010</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28937489" lon="-123.64991597">
+      <name>ROAD-001.011</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28959179" lon="-123.64989940">
+      <name>ROAD-001.012</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29073177" lon="-123.64969315">
+      <name>ROAD-001.013</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29123747" lon="-123.64970403">
+      <name>ROAD-001.014</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29171680" lon="-123.64991478">
+      <name>ROAD-001.015</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29213197" lon="-123.65019629">
+      <name>ROAD-001.016</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29251821" lon="-123.65038247">
+      <name>ROAD-001.017</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29292773" lon="-123.65043774">
+      <name>ROAD-001.018</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-002</name>
+    <rtept lat="40.28400486" lon="-123.64605562">
+      <name>ROAD-002.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28407631" lon="-123.64607494">
+      <name>ROAD-002.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28428273" lon="-123.64617254">
+      <name>ROAD-002.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28445959" lon="-123.64634236">
+      <name>ROAD-002.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28570703" lon="-123.64794522">
+      <name>ROAD-002.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28590180" lon="-123.64815465">
+      <name>ROAD-002.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28612177" lon="-123.64831603">
+      <name>ROAD-002.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28650550" lon="-123.64854184">
+      <name>ROAD-002.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-003</name>
+    <rtept lat="40.28868373" lon="-123.62866554">
+      <name>ROAD-003.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28885174" lon="-123.62852688">
+      <name>ROAD-003.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28891579" lon="-123.62829792">
+      <name>ROAD-003.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28889187" lon="-123.62741591">
+      <name>ROAD-003.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28870605" lon="-123.62651488">
+      <name>ROAD-003.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28838744" lon="-123.62587465">
+      <name>ROAD-003.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28799906" lon="-123.62551353">
+      <name>ROAD-003.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28792061" lon="-123.62522262">
+      <name>ROAD-003.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28793795" lon="-123.62500405">
+      <name>ROAD-003.009</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28827038" lon="-123.62424633">
+      <name>ROAD-003.010</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28844795" lon="-123.62377434">
+      <name>ROAD-003.011</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28869330" lon="-123.62282245">
+      <name>ROAD-003.012</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-004</name>
+    <rtept lat="40.28359557" lon="-123.63295034">
+      <name>ROAD-004.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28382556" lon="-123.63241593">
+      <name>ROAD-004.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28427861" lon="-123.63186861">
+      <name>ROAD-004.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28453913" lon="-123.63125746">
+      <name>ROAD-004.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28471413" lon="-123.63074609">
+      <name>ROAD-004.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28517063" lon="-123.62986025">
+      <name>ROAD-004.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28563600" lon="-123.62950140">
+      <name>ROAD-004.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28600355" lon="-123.62889456">
+      <name>ROAD-004.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28622673" lon="-123.62869175">
+      <name>ROAD-004.009</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28693000" lon="-123.62856393">
+      <name>ROAD-004.010</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28719065" lon="-123.62860156">
+      <name>ROAD-004.011</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28752412" lon="-123.62895871">
+      <name>ROAD-004.012</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28779828" lon="-123.62905021">
+      <name>ROAD-004.013</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28810596" lon="-123.62899137">
+      <name>ROAD-004.014</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28846375" lon="-123.62876082">
+      <name>ROAD-004.015</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28868373" lon="-123.62866554">
+      <name>ROAD-004.016</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-005</name>
+    <rtept lat="40.28868373" lon="-123.62866554">
+      <name>ROAD-005.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28913990" lon="-123.62880521">
+      <name>ROAD-005.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28989973" lon="-123.62876331">
+      <name>ROAD-005.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29005409" lon="-123.62860662">
+      <name>ROAD-005.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29038396" lon="-123.62780947">
+      <name>ROAD-005.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29036025" lon="-123.62755836">
+      <name>ROAD-005.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29032596" lon="-123.62715475">
+      <name>ROAD-005.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29023946" lon="-123.62681718">
+      <name>ROAD-005.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29028970" lon="-123.62660960">
+      <name>ROAD-005.009</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29071955" lon="-123.62616455">
+      <name>ROAD-005.010</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29129633" lon="-123.62502175">
+      <name>ROAD-005.011</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29212597" lon="-123.62529209">
+      <name>ROAD-005.012</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-006</name>
+    <rtept lat="40.29137561" lon="-123.64974315">
+      <name>ROAD-006.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29101387" lon="-123.65007305">
+      <name>ROAD-006.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29095551" lon="-123.65032939">
+      <name>ROAD-006.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29098942" lon="-123.65051798">
+      <name>ROAD-006.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29107331" lon="-123.65098444">
+      <name>ROAD-006.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29100983" lon="-123.65122497">
+      <name>ROAD-006.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29078672" lon="-123.65161507">
+      <name>ROAD-006.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29055559" lon="-123.65219672">
+      <name>ROAD-006.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29053149" lon="-123.65249371">
+      <name>ROAD-006.009</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29059489" lon="-123.65299728">
+      <name>ROAD-006.010</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29081567" lon="-123.65351162">
+      <name>ROAD-006.011</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29111108" lon="-123.65387768">
+      <name>ROAD-006.012</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29110619" lon="-123.65416034">
+      <name>ROAD-006.013</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29059373" lon="-123.65474898">
+      <name>ROAD-006.014</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-007</name>
+    <rtept lat="40.29111108" lon="-123.65387768">
+      <name>ROAD-007.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29163741" lon="-123.65417343">
+      <name>ROAD-007.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29200759" lon="-123.65427632">
+      <name>ROAD-007.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29247114" lon="-123.65386842">
+      <name>ROAD-007.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-008</name>
+    <rtept lat="40.28312157" lon="-123.65510465">
+      <name>ROAD-008.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28351274" lon="-123.65509725">
+      <name>ROAD-008.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28383483" lon="-123.65524216">
+      <name>ROAD-008.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28432290" lon="-123.65465994">
+      <name>ROAD-008.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28476619" lon="-123.65449714">
+      <name>ROAD-008.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28515140" lon="-123.65417683">
+      <name>ROAD-008.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28564816" lon="-123.65429051">
+      <name>ROAD-008.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28587340" lon="-123.65475821">
+      <name>ROAD-008.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28621378" lon="-123.65474905">
+      <name>ROAD-008.009</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28662718" lon="-123.65490052">
+      <name>ROAD-008.010</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28709863" lon="-123.65436171">
+      <name>ROAD-008.011</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28748942" lon="-123.65433741">
+      <name>ROAD-008.012</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28777178" lon="-123.65412982">
+      <name>ROAD-008.013</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28799688" lon="-123.65415408">
+      <name>ROAD-008.014</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28843609" lon="-123.65439055">
+      <name>ROAD-008.015</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28855456" lon="-123.65425879">
+      <name>ROAD-008.016</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28860974" lon="-123.65364597">
+      <name>ROAD-008.017</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28827788" lon="-123.65334560">
+      <name>ROAD-008.018</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28824449" lon="-123.65289806">
+      <name>ROAD-008.019</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28873392" lon="-123.65249255">
+      <name>ROAD-008.020</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28876779" lon="-123.65226831">
+      <name>ROAD-008.021</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28846922" lon="-123.65154582">
+      <name>ROAD-008.022</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28827106" lon="-123.65124158">
+      <name>ROAD-008.023</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28832953" lon="-123.65103859">
+      <name>ROAD-008.024</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28873007" lon="-123.65105709">
+      <name>ROAD-008.025</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28921208" lon="-123.65092029">
+      <name>ROAD-008.026</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28955710" lon="-123.65108080">
+      <name>ROAD-008.027</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28996654" lon="-123.65156005">
+      <name>ROAD-008.028</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29029618" lon="-123.65134167">
+      <name>ROAD-008.029</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29066901" lon="-123.65093585">
+      <name>ROAD-008.030</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29098947" lon="-123.65051799">
+      <name>ROAD-008.031</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-009</name>
+    <rtept lat="40.28662718" lon="-123.65490052">
+      <name>ROAD-009.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28613062" lon="-123.65485468">
+      <name>ROAD-009.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28558067" lon="-123.65509370">
+      <name>ROAD-009.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28513589" lon="-123.65526630">
+      <name>ROAD-009.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28467228" lon="-123.65575261">
+      <name>ROAD-009.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28448497" lon="-123.65561102">
+      <name>ROAD-009.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28434242" lon="-123.65583636">
+      <name>ROAD-009.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28439949" lon="-123.65617745">
+      <name>ROAD-009.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-010</name>
+    <rtept lat="40.29425950" lon="-123.64989260">
+      <name>ROAD-010.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29492351" lon="-123.64980517">
+      <name>ROAD-010.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29552891" lon="-123.65017198">
+      <name>ROAD-010.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-011</name>
+    <rtept lat="40.29552891" lon="-123.65017198">
+      <name>ROAD-011.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29705570" lon="-123.65185773">
+      <name>ROAD-011.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ROAD-012</name>
+    <rtept lat="40.28400012" lon="-123.64576150">
+      <name>ROAD-012.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28412083" lon="-123.64579413">
+      <name>ROAD-012.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28438623" lon="-123.64591963">
+      <name>ROAD-012.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28461362" lon="-123.64613796">
+      <name>ROAD-012.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28586106" lon="-123.64774083">
+      <name>ROAD-012.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28602587" lon="-123.64791803">
+      <name>ROAD-012.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28621200" lon="-123.64805458">
+      <name>ROAD-012.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28888459" lon="-123.64962735">
+      <name>ROAD-012.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28902865" lon="-123.64969867">
+      <name>ROAD-012.009</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28917828" lon="-123.64974655">
+      <name>ROAD-012.010</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28937717" lon="-123.64977261">
+      <name>ROAD-012.011</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28957672" lon="-123.64975737">
+      <name>ROAD-012.012</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29071670" lon="-123.64955111">
+      <name>ROAD-012.013</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29125611" lon="-123.64956272">
+      <name>ROAD-012.014</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29176740" lon="-123.64978751">
+      <name>ROAD-012.015</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29218257" lon="-123.65006903">
+      <name>ROAD-012.016</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29254306" lon="-123.65024279">
+      <name>ROAD-012.017</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29292528" lon="-123.65029438">
+      <name>ROAD-012.018</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-001</name>
+    <rtept lat="40.28490548" lon="-123.64573734">
+      <name>ADJACENT-001.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28766275" lon="-123.64093146">
+      <name>ADJACENT-001.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-002</name>
+    <rtept lat="40.28407674" lon="-123.65052698">
+      <name>ADJACENT-002.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28401901" lon="-123.64693510">
+      <name>ADJACENT-002.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-003</name>
+    <rtept lat="40.29074684" lon="-123.64983518">
+      <name>ADJACENT-003.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29121883" lon="-123.64984534">
+      <name>ADJACENT-003.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29166620" lon="-123.65004204">
+      <name>ADJACENT-003.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-004</name>
+    <rtept lat="40.28650435" lon="-123.65609124">
+      <name>ADJACENT-004.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28398325" lon="-123.65601799">
+      <name>ADJACENT-004.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-005</name>
+    <rtept lat="40.28787948" lon="-123.65613120">
+      <name>ADJACENT-005.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28780444" lon="-123.66052992">
+      <name>ADJACENT-005.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-006</name>
+    <rtept lat="40.28903473" lon="-123.65616476">
+      <name>ADJACENT-006.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29177547" lon="-123.65624441">
+      <name>ADJACENT-006.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-007</name>
+    <rtept lat="40.28398325" lon="-123.65601799">
+      <name>ADJACENT-007.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28407669" lon="-123.65052695">
+      <name>ADJACENT-007.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-008</name>
+    <rtept lat="40.29177547" lon="-123.65624441">
+      <name>ADJACENT-008.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29187855" lon="-123.65018603">
+      <name>ADJACENT-008.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-009</name>
+    <rtept lat="40.29177547" lon="-123.65624441">
+      <name>ADJACENT-009.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29170042" lon="-123.66064339">
+      <name>ADJACENT-009.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-010</name>
+    <rtept lat="40.29170042" lon="-123.66064339">
+      <name>ADJACENT-010.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28780444" lon="-123.66052992">
+      <name>ADJACENT-010.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-011</name>
+    <rtept lat="40.28780444" lon="-123.66052992">
+      <name>ADJACENT-011.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28390822" lon="-123.66041646">
+      <name>ADJACENT-011.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-012</name>
+    <rtept lat="40.28390822" lon="-123.66041646">
+      <name>ADJACENT-012.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28398325" lon="-123.65601799">
+      <name>ADJACENT-012.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-013</name>
+    <rtept lat="40.28407674" lon="-123.65052698">
+      <name>ADJACENT-013.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28401901" lon="-123.64693510">
+      <name>ADJACENT-013.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-014</name>
+    <rtept lat="40.28960686" lon="-123.65004143">
+      <name>ADJACENT-014.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28937261" lon="-123.65005933">
+      <name>ADJACENT-014.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28913913" lon="-123.65002873">
+      <name>ADJACENT-014.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-015</name>
+    <rtept lat="40.28960686" lon="-123.65004143">
+      <name>ADJACENT-015.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29074684" lon="-123.64983518">
+      <name>ADJACENT-015.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-016</name>
+    <rtept lat="40.29074684" lon="-123.64983518">
+      <name>ADJACENT-016.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29121883" lon="-123.64984534">
+      <name>ADJACENT-016.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29166620" lon="-123.65004204">
+      <name>ADJACENT-016.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-017</name>
+    <rtept lat="40.29166620" lon="-123.65004204">
+      <name>ADJACENT-017.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29208137" lon="-123.65032355">
+      <name>ADJACENT-017.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-018</name>
+    <rtept lat="40.29293018" lon="-123.65058111">
+      <name>ADJACENT-018.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29249335" lon="-123.65052215">
+      <name>ADJACENT-018.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29208137" lon="-123.65032355">
+      <name>ADJACENT-018.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-019</name>
+    <rtept lat="40.29293018" lon="-123.65058111">
+      <name>ADJACENT-019.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29299646" lon="-123.65084013">
+      <name>ADJACENT-019.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-020</name>
+    <rtept lat="40.29299646" lon="-123.65084013">
+      <name>ADJACENT-020.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29329810" lon="-123.65083611">
+      <name>ADJACENT-020.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-021</name>
+    <rtept lat="40.29329810" lon="-123.65083611">
+      <name>ADJACENT-021.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29328783" lon="-123.65113368">
+      <name>ADJACENT-021.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-022</name>
+    <rtept lat="40.29328783" lon="-123.65113368">
+      <name>ADJACENT-022.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29345192" lon="-123.65098135">
+      <name>ADJACENT-022.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-023</name>
+    <rtept lat="40.29345192" lon="-123.65098135">
+      <name>ADJACENT-023.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29344161" lon="-123.65078026">
+      <name>ADJACENT-023.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-024</name>
+    <rtept lat="40.29344161" lon="-123.65078026">
+      <name>ADJACENT-024.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29351411" lon="-123.65071423">
+      <name>ADJACENT-024.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-025</name>
+    <rtept lat="40.29351411" lon="-123.65071423">
+      <name>ADJACENT-025.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29398636" lon="-123.65087851">
+      <name>ADJACENT-025.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-026</name>
+    <rtept lat="40.29398636" lon="-123.65087851">
+      <name>ADJACENT-026.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29405247" lon="-123.65102745">
+      <name>ADJACENT-026.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-027</name>
+    <rtept lat="40.29405247" lon="-123.65102745">
+      <name>ADJACENT-027.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29416280" lon="-123.65099837">
+      <name>ADJACENT-027.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-028</name>
+    <rtept lat="40.29416280" lon="-123.65099837">
+      <name>ADJACENT-028.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29424660" lon="-123.65091473">
+      <name>ADJACENT-028.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-029</name>
+    <rtept lat="40.29424660" lon="-123.65091473">
+      <name>ADJACENT-029.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29432078" lon="-123.65059283">
+      <name>ADJACENT-029.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-030</name>
+    <rtept lat="40.29432078" lon="-123.65059283">
+      <name>ADJACENT-030.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.29425952" lon="-123.64989261">
+      <name>ADJACENT-030.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-031</name>
+    <rtept lat="40.28650550" lon="-123.64854184">
+      <name>ADJACENT-031.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28663149" lon="-123.64861598">
+      <name>ADJACENT-031.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>ADJACENT-032</name>
+    <rtept lat="40.28401901" lon="-123.64693510">
+      <name>ADJACENT-032.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28420082" lon="-123.64702023">
+      <name>ADJACENT-032.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28456928" lon="-123.64742005">
+      <name>ADJACENT-032.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28484816" lon="-123.64765221">
+      <name>ADJACENT-032.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28492361" lon="-123.64773686">
+      <name>ADJACENT-032.005</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28524276" lon="-123.64814961">
+      <name>ADJACENT-032.006</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28563610" lon="-123.64870261">
+      <name>ADJACENT-032.007</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28571215" lon="-123.64877887">
+      <name>ADJACENT-032.008</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28587010" lon="-123.64888103">
+      <name>ADJACENT-032.009</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28609891" lon="-123.64894601">
+      <name>ADJACENT-032.010</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28650550" lon="-123.64854184">
+      <name>ADJACENT-032.011</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>PARCEL-001</name>
+    <rtept lat="40.28663149" lon="-123.64861598">
+      <name>PARCEL-001.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28650435" lon="-123.65609124">
+      <name>PARCEL-001.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>PARCEL-002</name>
+    <rtept lat="40.28650435" lon="-123.65609124">
+      <name>PARCEL-002.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28903473" lon="-123.65616476">
+      <name>PARCEL-002.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>PARCEL-003</name>
+    <rtept lat="40.28903473" lon="-123.65616476">
+      <name>PARCEL-003.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28913913" lon="-123.65002872">
+      <name>PARCEL-003.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+  <rte>
+    <name>PARCEL-004</name>
+    <rtept lat="40.28663149" lon="-123.64861598">
+      <name>PARCEL-004.001</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28879436" lon="-123.64988881">
+      <name>PARCEL-004.002</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28896347" lon="-123.64997253">
+      <name>PARCEL-004.003</name>
+      <sym>Waypoint</sym>
+    </rtept>
+    <rtept lat="40.28913913" lon="-123.65002873">
+      <name>PARCEL-004.004</name>
+      <sym>Waypoint</sym>
+    </rtept>
+  </rte>
+</gpx>

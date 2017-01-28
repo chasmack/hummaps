@@ -4,6 +4,10 @@ from flask import render_template, flash
 from hummaps import app
 from hummaps.search import do_search, ParseError
 
+from hummaps.gpx import gpx_read, gpx_out
+from hummaps.gpx import dxf_read, dxf_out
+from hummaps.gpx import pnts_read, pnts_out
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -55,9 +59,29 @@ def dev():
 def gpx():
     if request.method == 'POST':
         datatype = request.form['datatype']
-        srid = request.form['srid']
+        srid = int(request.form['srid'])
         files = request.files.getlist('file')
-        return 'type: ' + datatype + ', srid: ' + srid + ', files: ' + ', '.join([f.filename for f in files])
+        headers = 'type: ' + datatype + ', srid: ' + str(srid) + ', files: ' + ', '.join([f.filename for f in files]) + '\n'
+        geom = []
+        for f in request.files.getlist('file'):
+            filename = f.filename
+            ext = filename.lower().rsplit('.', 1)[-1]
+            if ext == 'txt':
+                geom += pnts_read(f.stream, srid)
+            elif ext == 'dxf':
+                geom += dxf_read(f.stream, srid)
+            elif ext == 'gpx':
+                geom += gpx_read(f.stream)
+        data = headers
+        if datatype == 'pnts':
+            data += pnts_out(geom, srid)
+        elif datatype == 'dxf':
+            data += dxf_out(geom, srid)
+        elif datatype == 'gpx':
+            data += gpx_out(geom)
+        else:
+            data += 'Unknown data type: ' + datatype
+        return data
 
     return render_template('gpx.html')
 
