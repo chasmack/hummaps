@@ -172,7 +172,7 @@ def do_search(search):
 
         # parse for individual maps
         # pat = '((\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+),?)'  # no more commas
-        pat = '(\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+)'
+        pat = '(\d+)(CR|HM|MM|PM|RM|SM|MAPS|RS|UR)(\d+)'
         subterms += [(m[0], 'MAP', m[0:]) for m in re.findall(pat, term, flags=re.I)]
         term = re.sub(pat, '', term, flags=re.I)
 
@@ -279,9 +279,12 @@ def do_search(search):
                 and_terms.append(and_(Map.id == v))
             elif k == 'MAP':
                 book, maptype, page = v
+                maptype = maptype.upper()
+                if maptype == 'SM' or maptype == 'MAPS':
+                    maptype = 'RM'
                 or_terms.append(
                     and_(
-                        Map.book == int(book), MapType.abbrev == maptype.upper(),
+                        Map.book == int(book), MapType.abbrev == maptype,
                         Map.page <= int(page), Map.page + Map.npages > int(page))
                 )
             elif k == 'PM':
@@ -420,6 +423,8 @@ if __name__ == '__main__':
         ('tr95', 3),
         ('tr9 tr95', 4),
         ('pm165', 2),
+        ('14maps56', 1),
+        ('14sm56', 1),
         ('pm1 pm16 pm165 pm1656', 5),
         ('desc:\d{5}', 100),
         ('any=deerfield.ranch', 6),

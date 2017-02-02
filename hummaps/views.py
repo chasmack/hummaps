@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, make_response
 from flask import render_template, flash
 
 from hummaps import app
@@ -60,8 +60,15 @@ def gpx():
     if request.method == 'POST':
         datatype = request.form['datatype']
         srid = int(request.form['srid'])
-        files = request.files.getlist('file')
-        headers = 'type: ' + datatype + ', srid: ' + str(srid) + ', files: ' + ', '.join([f.filename for f in files]) + '\n'
+        outfile = request.form['filename']
+        if outfile:
+            i = outfile.rfind('.')
+            if i > 0:
+                outfile = outfile[0:i]  # strip extension
+        else:
+            outfile = 'results'
+        # files = request.files.getlist('file')
+        # headers = 'type: ' + datatype + ', srid: ' + str(srid) + ', files: ' + ', '.join([f.filename for f in files]) + '\n'
         geom = []
         for f in request.files.getlist('file'):
             filename = f.filename
@@ -72,16 +79,21 @@ def gpx():
                 geom += dxf_read(f.stream, srid)
             elif ext == 'gpx':
                 geom += gpx_read(f.stream)
-        data = headers
         if datatype == 'pnts':
-            data += pnts_out(geom, srid)
+            resp = make_response(pnts_out(geom, srid))
+            outfile += '.txt'
         elif datatype == 'dxf':
-            data += dxf_out(geom, srid)
+            resp = make_response(dxf_out(geom, srid))
+            outfile += '.dxf'
         elif datatype == 'gpx':
-            data += gpx_out(geom)
+            resp = make_response(gpx_out(geom))
+            outfile += '.gpx'
         else:
-            data += 'Unknown data type: ' + datatype
-        return data
+            return('Bad type: %s' % datatype, 400)
+
+        resp.headers['Content-Disposition'] = 'attachment; filename="%s"' % outfile
+        resp.mimetype = 'application/octet-stream'
+        return resp
 
     return render_template('gpx.html')
 
