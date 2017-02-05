@@ -250,8 +250,15 @@ def do_search(search):
                     else:
                         and_terms.append(and_(Surveyor.rce.op('~*')(number)))
                 else:
-                    # pattern search fullname
-                    and_terms.append(and_(Surveyor.fullname.op('~*')(v)))
+                    # replace spaces with wildcards and pattern search fullname
+                    if v.strip().find(' ') < 0:
+                        # pattern search full name
+                        and_terms.append(and_(Surveyor.fullname.op('~*')(v)))
+                    else:
+                        # assume each non-space fragment starts a word
+                        # add wildcards and word boundary qualifiers
+                        vqual = '\m' + re.sub('\s+', '.*\m', v)
+                        and_terms.append(and_(Surveyor.fullname.op('~*')(vqual)))
             elif k == 'DATE' or k == 'REC':
                 dates = parse_dates(v)
                 and_terms.append(between(Map.recdate, *dates))
@@ -407,6 +414,8 @@ if __name__ == '__main__':
         ('+s5 t6n r1e type:(?!cr|hm|ur).. -ne/4 s5 t6n r1e', 180),
         ('date:2015 by:crivelli + date:2015 by:pulley', 23),
         ('date:2015 by:CrIveLLi|PuLLey', 23),
+        ('by="b kolstad"', 81),
+        ('by="d a c"', 119),
         ('by:ls9153', 1),
         ('by:9153', 1),
         ('by:rce62665', 1),
