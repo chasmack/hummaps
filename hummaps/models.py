@@ -1,6 +1,7 @@
 from sqlalchemy.orm import relationship
 from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+import re
 
 from hummaps.database import Base
 
@@ -204,6 +205,12 @@ class Map(Base):
     def bookpage(self):
         # return '%03d%s%03d' % (self.book, self.maptype.abbrev.upper(), self.page)
         return '%d%s%d' % (self.book, self.maptype.abbrev.upper(), self.page)
+
+    @hybrid_property
+    def pdf(self):
+        if len(self.mapimages) == 0:
+            return None
+        return re.sub('/maps/(.*)-001.*', '/pdf/\\1.pdf', self.mapimages[0].imagefile)
 
     @hybrid_method
     def url(self, page=1):

@@ -2,7 +2,7 @@
  * Created by Charlie on 11/27/2016.
  */
 
-var $target = null;   // current map list item
+var $target = null;   // current a.map-info
 var mapList = true;   // map list is displayed
 var mapPage;          // current map mapPage
 var shiftPressed;     // shift key is down
@@ -11,6 +11,8 @@ var altPressed;       // alt key is down
 
 var $loader = null;       // map view loader
 var loaderTimeout = null; // setTimeout ID for delayed loader display
+
+// handler for window resize
 
 $(window).resize(function (e) {
 
@@ -29,20 +31,20 @@ $(window).resize(function (e) {
   if (!mapList) {
     zoomMap(0);
   }
-
 }).trigger('resize');
 
-// hide content if there are messages
+// initialize the contents
 
 if ($('div.flashed-messages').length) {
 
+  // hide content if there are messages
   $('#map-list').hide();
   $('#map-frame').hide();
 
 } else {
 
   // select the first map in the list
-  $target = $('#map-list').find('a.map-item:not(.disabled)').first();
+  $target = $('#map-list').find('.map-info:not(.disabled)').first();
   if ($target.length) {
     $target.addClass('active');
     mapPage = 1;
@@ -91,8 +93,7 @@ function showMap() {
         }
       }, 750);
 
-      // replace div with an img element,
-      // this starts the image download
+      // replace div with an img element, this starts the download
       $img = $('<img class="map-image">').attr({
         src: $img.attr('data-src'),
         alt: $img.attr('data-alt')
@@ -136,7 +137,7 @@ function showMap() {
 function nextMap() {
 
   if ($target) {
-    var $item = $target.nextAll('a.map-item:not(.disabled)').first();
+    var $item = $target.parent().nextAll().children('.map-info:not(.disabled)').first();
     if ($item.length) {
       $target.removeClass('active');
       $target = $item.addClass('active');
@@ -151,7 +152,7 @@ function nextMap() {
 
 function prevMap(lastpage) {
   if ($target) {
-    var $item = $target.prevAll('a.map-item:not(.disabled)').first();
+    var $item = $target.parent().prevAll().children('.map-info:not(.disabled)').first();
     if ($item.length) {
       $target.removeClass('active');
       $target = $item.addClass('active');
@@ -226,13 +227,13 @@ $('#prev').click(function (e) {
 
 // callbacks for map-item click and focus events
 
-$('#map-list').on('click', 'a.map-item:not(.disabled)', function (e) {
+$('#map-list').on('click', 'a.map-info:not(.disabled)', function (e) {
 
+  e.preventDefault();
   $target = $(this).focus();
   showMap();
-  e.preventDefault();
 
-}).on('focus', 'a.map-item:not(.disabled)', function (e) {
+}).on('focus', 'a.map-info:not(.disabled)', function (e) {
 
   if ($(this)[0] != $target[0]) {
 

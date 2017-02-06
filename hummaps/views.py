@@ -102,6 +102,10 @@ def gpx():
 # HTTP error handlers
 #
 
+@app.errorhandler(400)
+def bad_request(e):
+    return render_template('400.html'), 400
+
 @app.errorhandler(403)
 def forbidden(e):
     return render_template('403.html'), 403

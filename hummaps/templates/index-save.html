@@ -1,22 +1,6 @@
 {% extends 'base.html' %}
 
 {%- block title %}Humboldt Map Index{% endblock title %}
-{%- block styles %}
-{{- super() }}
-<style>
-.map-item {
-  position: relative;
-  z-index: 0;
-}
-.pdf-button {
-  display: block;
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  z-index: 10;
-}
-</style>
-{%- endblock styles -%}
 
 {%- block navigation %}
 <!-- begin navigation controls block -->
@@ -60,41 +44,37 @@
           {%- endif %}
           <div class="list-group">
             {%- for map in results %}
-            <div class="map-item">
-              <!-- map item -->
-              <a href="#" class="list-group-item map-info{%- if map.mapimages|length == 0 %} disabled{%- endif -%}" data-toggle="tooltip" title="map id: {{ map.id }}">
-                <h4 class="list-group-item-heading">{{ map.heading }}</h4>
-                <p class="list-group-item-text">{{ map.line1 }}</p>
-                <p class="list-group-item-text">{{ map.line2 }}</p>
-                {% if map.line3 -%}
-                <p class="list-group-item-text">{{ map.line3 }}</p>
-                {% endif %}
-                {% if map.line4 -%}
-                <p class="list-group-item-text">{{ map.line4 }}</p>
-                {% endif %}
-                {%- if map.certs|length > 0 -%}
-                {%-  set comma = joiner(", ") -%}
-                <p class="list-group-item-text">Certificates of Correction: {% for cc in map.certs %}{{ comma() }}{{ cc.doc_number }}{% endfor %}</p>
-                {%- endif %}
-                {%- if map.mapimages|length > 0 or map.certs|length > 0 %}
-                <!-- list of map images -->
-                <div class="map-image-list" style="display: none;">
-                  {% for mapimage in map.mapimages -%}
-                  <div class="map-image" data-src="{{ mapimage.imagefile }}" data-alt="{{ map.bookpage }} {{ mapimage.page }}/{{ map.mapimages|length }}"></div>
-                  {% endfor -%}
-                  {%- for cc in map.certs -%}
-                  {% for ccimage in cc.ccimages -%}
-                  <div class="map-image" data-src="{{ ccimage.imagefile }}" data-alt="{{ cc.doc_number }}"></div>
-                  {% endfor -%}
-                  {%- endfor %}
-                </div>
-                {%- endif %}
-              </a>
-              {% if map.pdf %}
-              <!-- link to the pdf -->
-              <a href="{{ map.pdf }}" download="{{ map.bookpage|lower }}.pdf"><button class="btn btn-default btn-xs pdf-button" style="padding: 2px 8px;"><strong>PDF</strong></button></a>
+            {%- if map.mapimages|length > 0 %}
+            <a href="#" class="list-group-item map-item" data-toggle="tooltip" title="map id: {{ map.id }}">
+            {%- else -%}
+            <a href="#" class="list-group-item map-item disabled" data-toggle="tooltip" title="map id: {{ map.id }}">
+            {%- endif -%}
+              {%- if map.mapimages|length > 0 or map.certs|length > 0 %}
+              <div class="map-image-list" style="display: none;">
+                {% for mapimage in map.mapimages -%}
+                <div class="map-image" data-src="{{ mapimage.imagefile }}" data-alt="{{ map.bookpage }} {{ mapimage.page }}/{{ map.mapimages|length }}"></div>
+                {% endfor -%}
+                {%- for cc in map.certs -%}
+                {% for ccimage in cc.ccimages -%}
+                <div class="map-image" data-src="{{ ccimage.imagefile }}" data-alt="{{ cc.doc_number }}"></div>
+                {% endfor -%}
+                {%- endfor %}
+              </div>
+              {%- endif %}
+              <h4 class="list-group-item-heading">{{ map.heading }}</h4>
+              <p class="list-group-item-text">{{ map.line1 }}</p>
+              <p class="list-group-item-text">{{ map.line2 }}</p>
+              {% if map.line3 -%}
+              <p class="list-group-item-text">{{ map.line3 }}</p>
               {% endif %}
-            </div>
+              {% if map.line4 -%}
+              <p class="list-group-item-text">{{ map.line4 }}</p>
+              {% endif %}
+              {%- if map.certs|length > 0 -%}
+              {%-  set comma = joiner(", ") -%}
+              <p class="list-group-item-text">Certificates of Correction: {% for cc in map.certs %}{{ comma() }}{{ cc.doc_number }}{% endfor %}</p>
+              {%- endif %}
+            </a>
             {%- endfor %}
           </div>
           {%- endif %}
