@@ -49,7 +49,7 @@ In the map list -
 
 In the map view -
 
-* + and - increase and decrease zoom
+* \+ and - increase and decrease zoom
 * mouse wheel increases and decreases zoom
 * space bar zooms out to show the entire map
 * dragging with the mouse button down pans

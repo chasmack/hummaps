@@ -183,7 +183,7 @@ class Map(Base):
             surveyors = ', '.join(surveyors)
         else:
             surveyors = '(UNKNOWN)'
-        return 'By ' + surveyors
+        return 'By: ' + surveyors
 
     @hybrid_property
     def line2(self):
@@ -191,15 +191,15 @@ class Map(Base):
             recdate = self.recdate.strftime(' %m/ %d/%Y').replace(' 0', '').replace(' ', '')
         else:
             recdate = '(UNKNOWN)'
-        return 'Rec ' + recdate
+        return 'Rec: ' + recdate
 
     @hybrid_property
     def line3(self):
-        return 'For ' + self.client if self.client else None
+        return 'For: ' + self.client if self.client else None
 
     @hybrid_property
     def line4(self):
-        return self.description
+        return 'Desc: ' + self.description
 
     @hybrid_property
     def bookpage(self):

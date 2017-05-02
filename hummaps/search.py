@@ -414,6 +414,7 @@ if __name__ == '__main__':
         ('+s5 t6n r1e type:(?!cr|hm|ur).. -ne/4 s5 t6n r1e', 180),
         ('date:2015 by:crivelli + date:2015 by:pulley', 23),
         ('date:2015 by:CrIveLLi|PuLLey', 23),
+        ('rec:2/7/1975 by:bushnell', 2),
         ('by="b kolstad"', 81),
         ('by="d a c"', 119),
         ('by:ls9153', 1),
