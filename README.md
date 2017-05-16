@@ -37,11 +37,11 @@ Note there are no spaces separating the parts of an individual map name.
 
 #### Bare word search
 
-A dubious feature of the search is that any words not recognized as part of a
+A dubious feature is that any words not recognized as part of a
 normal search term get thrown into a _bare word search_ of the FOR and DESCRIPTION fields.
 This results in the ability to quickly search for any mention of a distinct word
-or pattern of words as in `lanphere` or `mad river` but can also lead to unexpected results. For instance,
-the serach:
+or pattern of words as in `lanphere` or `mad river` but can also lead to unexpected results.
+For instance, the search:
 
 __WRONG:__ `t6n r4e s5`
 
