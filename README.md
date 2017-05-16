@@ -27,6 +27,27 @@ To search an entire township: `2n 5e`
 
 To search in more than one township: `s36 t2n r5e + s1 t1n r5e`
 
+#### Individual maps
+
+To get individual maps: `27pm85 24rm59 21rs85`
+
+Parcel and tract maps can be referred to by their map number: `pm22 tr611`
+
+Note there are no spaces separating the parts of an individual map name.
+
+#### Bare word search
+
+A dubious feature of the search is that when no search pattern is recognized
+a search of the FOR and DESCRIPTION fields is performed using all unrecognized terms.
+This results in the handy ability to search quickly for any mention of a distinct word
+or pattern of words as in `lanphere` but can also lead to unexpected results. For instance,
+the serach:
+
+`t6n r4e s5`
+
+is a full township search of `t6n r4e` qualified by the bare word `s5`.
+This is not the same as doing a basic search of `s5 t6n r4e`.
+
 #### User Interface
 
 The user interface has two main screens: the *map list* and the *map view*.
@@ -89,10 +110,6 @@ The term `1/1` does a subsection search for an entire section.
 It is equalivent to searching both the `n/2` and `s/2` of a section.
 The last search adds the original Hollins results but excludes
 results from the previous searches. Commas are optional.
-
-#### Individual maps
-
-To get individual maps: `27pm85 24rm59 21rs85`
 
 #### Key name terms
 
