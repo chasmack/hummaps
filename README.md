@@ -6,6 +6,8 @@ commonly referred to as the Hollins Index.
 
 Hummaps is currently hosted at [hummaps.com](https://hummaps.com).
 
+New Feature: [In the Logs]
+
 #### Basic search
 
 Searches are text based. Type your search into the box at the top of the page.
@@ -163,6 +165,11 @@ as well as certain less common combinations of other punctuation have
 special meaning. Fortunately most of these special characters either do
 not appear in the descriptions or are so common ("." and "+") that
 including them in a search is not useful.
+
+#### In the Logs
+
+User queries are recorded in the Hummaps server logs. 
+
 
 #### Support
 
