@@ -66,3 +66,5 @@ What's needed are two [key name terms](README.md#key-name-terms):
 
 Note the two parts of the date term are separated with a space so the
 date term must be enclosed in double quotes.
+
+---
