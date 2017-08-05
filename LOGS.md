@@ -44,8 +44,10 @@ Little details make all the difference.
 216.102.9.150 03-Aug-2017 13:17:52 pm 2012-2015
 216.102.9.150 03-Aug-2017 13:18:05 pm: 2012-2015
 ```
+
 This is complicated both in what the user is trying to do and what is actually happening.
-It's assumed the user wants a list of all parcel maps for the years 2012 to 2015.
+
+It's assumed the user wants all parcel maps for the years 2012 to 2015.
 
 The first search turns up one map - PM2012. Though it's not 
 what was intended this appears to work but for all the wrong reasons.
