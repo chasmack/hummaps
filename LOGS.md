@@ -33,9 +33,9 @@ To see the difference run two searches:
 
 `32 6n 1e - s32 6n 1e `
 
-The first returns **32 maps** returned in the basic section search but missing 
+The first returns **32 maps** in the basic section search but missing 
 from the bare word search. The second returns **82 maps**
-returned in the bare word search but not returned in the section search.
+in the bare word search but not returned in the section search.
 
 Little details make all the difference.
 
