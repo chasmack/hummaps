@@ -19,13 +19,14 @@ The heartbreak of Hummaps search.
 ```
 
 The last search returns maps though it's not right. It's run as a
-[full township search](README.md#basic-search) of `t6n r1e `
-qualified by the [bare word](README.md#bare-word-search) `30 `.
+[full township search](README.md#basic-search) of `t6n r1e`
+qualified by the [bare word](README.md#bare-word-search) `30`.
 
 This is not the same as a simple search for maps in section 30:
 
-`s30 t6n r1e `
+`s30 t6n r1e`
 
+---
 ---
 
 ```
