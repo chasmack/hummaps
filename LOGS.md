@@ -1,7 +1,7 @@
 
 # Search Logs
 
-The heartbreak of Hummaps search.
+The heartbreak of the Hummaps search.
 
 ```
 47.208.65.229 05-Jul-2017 15:44:41 72SUR131
@@ -20,11 +20,23 @@ The heartbreak of Hummaps search.
 
 The last search returns maps though it's not right. It's run as a
 [full township search](README.md#basic-search) of `t6n r1e`
-qualified by the [bare word](README.md#bare-word-search) `30`.
+qualified by the [bare word](README.md#bare-word-search) `32`.
 
-This is not the same as a simple search for maps in section 30:
+This is not the same as a simple search for maps in section 32:
 
-`s30 t6n r1e`
+`s32 6n 1e`
+
+To see this run two searches:
+
+`s32 6n 1e - 32 6n 1e`
+
+`32 6n 1e - s32 6n 1e`
+
+The first returns **32 maps** in the proper section search but missing 
+from the bare word search. The second returns **82 maps**
+in the bare word search but not returned in the section search.
+
+Little details make all the difference.
 
 ---
 
