@@ -1,6 +1,33 @@
 
 # Search Logs
 
+The heartbreak of Hummaps search.
+
+```
+47.208.65.229 05-Jul-2017 15:44:41 72SUR131
+47.208.65.229 05-Jul-2017 15:44:49 72
+47.208.65.229 05-Jul-2017 15:45:02 72 SURVEYS
+47.208.65.229 05-Jul-2017 15:45:06 72 SURVEY
+47.208.65.229 05-Jul-2017 15:45:14 72 131
+47.208.65.229 05-Jul-2017 15:45:18 131
+47.208.65.229 05-Jul-2017 15:45:51 1 MAPS 1
+47.208.65.229 05-Jul-2017 15:46:24 BOOK 72 SURVEYS PAGE 131
+47.208.65.229 05-Jul-2017 15:46:32 BOOK 72 SURVEYS PAGE 1
+47.208.65.229 05-Jul-2017 15:46:43 777777
+47.208.65.229 05-Jul-2017 15:46:46 7
+47.208.65.229 05-Jul-2017 15:47:55 32 T6N R1E
+```
+
+The last search returns maps though it's not right. It's run as a
+[full township search](README.md#basic-search) of `t6n r1e`
+qualified by the [bare word](README.md#bare-word-search) `30`.
+
+This is not the same as a simple search for maps in section 30:
+
+`s30 t6n r1e`
+
+<hr>
+
 ```
 216.102.9.150 03-Aug-2017 13:17:52 pm 2012-2015
 216.102.9.150 03-Aug-2017 13:18:05 pm: 2012-2015
