@@ -27,7 +27,6 @@ This is not the same as a simple search for maps in section 30:
 `s30 t6n r1e`
 
 ---
----
 
 ```
 216.102.9.150 03-Aug-2017 13:17:52 pm 2012-2015
