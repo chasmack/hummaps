@@ -57,7 +57,7 @@ The first finds PM2012 since that text appears in the map description.
 The second removes any results containing the text 2015. To see why this
 is wrong compare the results for `PM20` and `PM 20`.
 
-The second search throws a colon into the first bare word: **No maps**
+The second search throws a colon into the first bare word term: **No maps**
 
 What's needed are two [key name terms](README.md#key-name-terms):
 
