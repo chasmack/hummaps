@@ -18,7 +18,8 @@
 47.208.65.229 05-Jul-2017 15:47:55 32 T6N R1E
 ```
 
-The last search returns **177 maps** including 72RS131 though it's not correct.
+The last search returns **177 maps** including [72RS131](README.md#individual-maps)
+though it's not correct.
 
 It runs as a [full township search](README.md#basic-search) of `t6n r1e `
 qualified by the [bare word](README.md#bare-word-search) `32 `.
