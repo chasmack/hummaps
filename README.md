@@ -31,7 +31,7 @@ To search in more than one township: `s36 t2n r5e + s1 t1n r5e`
 
 #### Individual maps
 
-To get individual maps: `27pm85 24rm59 21rs85`
+To get individual maps: `27pm85 24rm59 21rs85 1ur438`
 
 Parcel and tract maps can be referred to by their map number: `pm22 tr611`
 
