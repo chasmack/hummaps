@@ -1,4 +1,4 @@
-# hummaps
+# Hummaps
 
 Hummaps is an online version of the Humboldt County map index.
 It is offered as an alternative to the MS Access based application
