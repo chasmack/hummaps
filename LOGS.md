@@ -42,7 +42,7 @@ Little details make all the difference.
 
 ---
 
-### Date and Type
+### Type and Date
 
 ```
 216.102.9.150 03-Aug-2017 13:17:52 pm 2012-2015
@@ -65,7 +65,7 @@ The second search throws a colon into the first bare word term: **No maps**
 
 What's needed are two [key name terms](README.md#key-name-terms):
 
-`date="2012 2015" type=pm `
+`type=pm date="2012 2015" `
 
 Note the two parts of the date term are separated with a space so the
 date term must be enclosed in double quotes.
