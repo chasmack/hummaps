@@ -1,7 +1,7 @@
 
 # Search Logs
 
-#### The Heartbreak of Search
+### The Heartbreak of Search
 
 ```
 47.208.65.229 05-Jul-2017 15:44:41 72SUR131
@@ -41,7 +41,7 @@ Little details make all the difference.
 
 ---
 
-#### Date and Type
+### Date and Type
 
 ```
 216.102.9.150 03-Aug-2017 13:17:52 pm 2012-2015
