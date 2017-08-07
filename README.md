@@ -8,7 +8,7 @@ Hummaps is currently hosted at [hummaps.com](https://hummaps.com).
 
 New Feature: [Search Logs](LOGS.md)
 
-#### Basic search
+### Basic search
 
 Searches are text based. Type your search into the box at the top of the page.
 
@@ -29,7 +29,7 @@ To search an entire township: `2n 5e`
 
 To search in more than one township: `s36 t2n r5e + s1 t1n r5e`
 
-#### Individual maps
+### Individual maps
 
 To get individual maps: `27pm85 24rm59 21rs85 1ur438`
 
@@ -37,7 +37,7 @@ Parcel and tract maps can be referred to by their map number: `pm22 tr611`
 
 Note there are no spaces separating the parts of an individual map name.
 
-#### Bare word search
+### Bare word search
 
 A dubious feature is that any words not recognized as part of a
 normal search term get thrown into a _bare word search_ of the FOR and DESCRIPTION fields.
@@ -50,7 +50,7 @@ __WRONG:__ `t6n r4e s5`
 is a full township search of `t6n r4e` qualified by the bare word `s5`.
 This is not the same as doing a basic search of `s5 t6n r4e`.
 
-#### User Interface
+### User Interface
 
 The user interface has two main screens: the *map list* and the *map view*.
 
@@ -82,7 +82,7 @@ In the map view -
 * up arrow displays the previous map
 * escape returns to the map list
 
-#### Subsection search
+### Subsection search
 
 A recent addition to the Hollins Index was the inclusion of subsection
 information. Originally maps were indexed into sections adjacent
@@ -113,7 +113,7 @@ It is equalivent to searching both the `n/2` and `s/2` of a section.
 The last search adds the original Hollins results but excludes
 results from the previous searches. Commas are optional.
 
-#### Key name terms
+### Key name terms
 
 Map type, surveyor, client, description and recording dates can
 be included in a search using *key name terms*.
@@ -166,6 +166,6 @@ special meaning. Fortunately most of these special characters either do
 not appear in the descriptions or are so common ("." and "+") that
 including them in a search is not useful.
 
-#### Support
+### Support
 
 Please send your suggestions, comments and bug reports to Charlie.
