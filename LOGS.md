@@ -24,7 +24,9 @@ It runs as a [full township search](README.md#basic-search) of `t6n r1e `
 qualified by the [bare word](README.md#bare-word-search) `32 `.
 
 This is not the same as a [basic search](README.md#basic-search)
-for maps in section 32: `s32 6n 1e `
+for maps in section 32:
+
+`s32 6n 1e `
 
 To see the difference run two searches:
 
