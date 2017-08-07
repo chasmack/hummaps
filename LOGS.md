@@ -19,6 +19,7 @@
 ```
 
 The last search returns **177 maps** though it's not correct.
+
 It's run as a [full township search](README.md#basic-search) of `t6n r1e `
 qualified by the [bare word](README.md#bare-word-search) `32 `.
 
