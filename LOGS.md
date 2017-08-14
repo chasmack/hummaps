@@ -118,6 +118,6 @@ bare word search pick out map types.
 
 Almost, but not quite. 
 
-***READ THE DOCS***
+[***READ THE DOCS***](https://github.com/chasmack/hummaps/blob/master/README.md)
 
 ---
