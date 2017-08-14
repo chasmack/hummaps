@@ -116,6 +116,8 @@ The examples here almost meet the minimum threshold to make a change.
 With only a small number of map types it would be pretty easy to have the
 bare word search pick out map types.
 
-Almost, but not quite. ***READ THE DOCS***
+Almost, but not quite. 
+
+***READ THE DOCS***
 
 ---
