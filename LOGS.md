@@ -111,7 +111,7 @@ in the [key name term](README.md#key-name-terms).
 That still won't turn up any maps though.
 The `by:` key name is looking for a surveyor's name or LS/RCE number.
 
-I look at these logs to see how people think the search *should* to work.
+I look at these logs to see how people think the search *should* work.
 The examples here almost meet the minimum threshold to make a change.
 With only a small number of map types it would be pretty easy to have the
 bare word search pick out map types.
