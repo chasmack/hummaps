@@ -86,3 +86,36 @@ No you can't access Trinity.
 
 ---
 
+### Read the Docs
+
+```
+47.208.29.129 12-Aug-2017 12:59:00 s1 t3s r1w
+47.208.29.129 12-Aug-2017 13:02:36 rm by: Drake
+47.208.29.129 12-Aug-2017 13:02:51 RM by:Crivelli
+47.208.29.129 12-Aug-2017 13:03:07 RM by:Drake
+47.208.29.129 12-Aug-2017 13:03:25 RM by:Pacific Affiliates
+47.208.29.129 12-Aug-2017 17:01:03 s1 t3s r1w
+47.208.29.129 12-Aug-2017 17:01:20 RM
+```
+
+Try this:
+
+`type:rm by:crivelli`
+
+`type:rm by:drake`
+
+`type:rm by:"pacific affiliates"`
+
+The last search needs double quotes since there is a space 
+in the [key name term](README.md#key-name-terms). 
+That still won't turn up any maps though.
+The `by:` key name is looking for a surveyor's name or LS/RCE number.
+
+I look at these logs to see how people think the search *should* to work.
+The examples here almost meet the minimum threshold to make a change.
+With only a small number of map types it would be pretty easy to have the
+bare word search pick out map types.
+
+Almost, but not quite. ***READ THE DOCS***
+
+---
