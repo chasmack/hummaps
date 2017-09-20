@@ -140,7 +140,9 @@ The Hollins Index had a feature to show the newest maps for each map type in the
 You can get the same information from Hummaps by restricting your search to a map type -
 
 `type=rm`
+
 `type=pm`
+
 `type=rs`
 
 Since the map list is ordered by date recorded the newest map will be first in the list.
