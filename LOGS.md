@@ -136,7 +136,7 @@ Almost, but not quite.
 
 Poking around to find the newest tract map in the database?
 
-The Hollins Index had a feature to show the newest maps for each map type in the database.
+The Hollins Index has a feature to show the newest maps for each map type in the database.
 You can get the same information from Hummaps by restricting your search to a map type -
 
 `type=rm`
