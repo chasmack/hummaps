@@ -124,3 +124,25 @@ Almost, but not quite.
 [***READ THE DOCS***](https://github.com/chasmack/hummaps/blob/master/README.md)
 
 ---
+
+### Latest Records
+
+```
+73.15.49.110 13-Sep-2017 14:07:11 tr651
+73.15.49.110 13-Sep-2017 14:07:24 tr649
+73.15.49.110 13-Sep-2017 14:07:39 tr650
+73.15.49.110 13-Sep-2017 14:07:44 tr649
+```
+
+Poking around to find the newest tract map in the database?
+
+The Hollins Index had a feature to show the newest maps for each map type in the database.
+You can get the same information from Hummaps by restricting your search to a map type -
+
+`type=rm`
+`type=pm`
+`type=rs`
+
+Since the map list is ordered by date recorded the newest map will be first in the list.
+
+---
