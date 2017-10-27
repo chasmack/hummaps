@@ -163,8 +163,8 @@ Since the map list is ordered by date recorded the newest map will be first in t
 
 I see a lot of this. I assume the user preforms a search, picks the `maps` button 
 to look at a map then hits the search button to return to the *map list*. 
-This works but you can also use the `maps` button in the *map view*. 
-And the `maps` button keeps track at which map you were just looking at and
+This works but you can also use the `maps` button in the *map view* to get back to the list. 
+And the `maps` button keeps track of which map you were just looking at and
 returns you to that point in the list.
 
 A short description of the Hummaps user interface can be found 
