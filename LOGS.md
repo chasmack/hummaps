@@ -121,7 +121,7 @@ bare word search pick out map types.
 
 Almost, but not quite. 
 
-[***READ THE DOCS***](https://github.com/chasmack/hummaps/blob/master/README.md)
+[***READ THE DOCS***](README.md)
 
 ---
 
@@ -146,5 +146,28 @@ You can get the same information from Hummaps by restricting your search to a ma
 `type=rs`
 
 Since the map list is ordered by date recorded the newest map will be first in the list.
+
+---
+
+### Maps Button
+
+```
+69.164.173.98 20-Oct-2017 07:58:13 s10 t5n r1w
+69.164.173.98 20-Oct-2017 07:58:49 s10 t5n r1w
+69.164.173.98 20-Oct-2017 07:59:22 s10 t5n r1w
+69.164.173.98 20-Oct-2017 08:01:29 s10 t5n r1w
+69.164.173.98 20-Oct-2017 08:03:38 s10 t5n r1w
+69.164.173.98 20-Oct-2017 08:04:44 s10 t5n r1w
+69.164.173.98 20-Oct-2017 08:07:03 s10 t5n r1w
+```
+
+I see a lot of this. I assume the user preforms a search, picks the `maps` button 
+to look at a map then hits the search button to return to the *map list*. 
+This works but you can also use the `maps` button in the *map view*. 
+And the `maps` button keeps track at which map you were just looking at and
+returns you to that point in the list.
+
+A short description of the Hummaps user interface can be found 
+[here.](README.md#user-interface)
 
 ---
