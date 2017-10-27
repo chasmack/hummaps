@@ -164,8 +164,8 @@ Since the map list is ordered by date recorded the newest map will be first in t
 I see a lot of this. I assume the user preforms a search, picks a map to display 
 the map image, then hits the search button again to return to the *map list*. 
 This works fine but you can also use the `maps` button in the top bar to return to the *map list*. 
-And the `maps` button knows which map was last displayed in the *map view* and
-takes you back to that point in the list. The `Esc` key works the same way in *map view*. 
+And the `maps` button knows which map is being displayed 
+and takes you back to that point in the list. The `Esc` key works the same way in *map view*. 
 
 Check the [User Interface](README.md#user-interface) help page for all the details.
 
