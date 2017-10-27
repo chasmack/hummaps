@@ -165,9 +165,8 @@ I see a lot of this. I assume the user preforms a search, picks a map to display
 the map image, then hits the search button again to return to the *map list*. 
 This works fine but you can also use the `maps` button in the top bar to return to the list. 
 And the `maps` button knows which map was last displayed in the *map view* and
-returns to that point in the *map list*.
+returns to that point in the *map list*. You can also use the escape key. 
 
-A short description of the Hummaps User Interface can be found 
-[here.](README.md#user-interface)
+Check the [User Interface](README.md#user-interface) help page for more details.
 
 ---
