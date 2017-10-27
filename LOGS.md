@@ -170,3 +170,26 @@ and takes you back to that point in the list. The `Esc` key works the same way i
 Check the [User Interface](README.md#user-interface) help page for all the details.
 
 ---
+
+### Too Many Maps
+
+```
+73.15.49.110 27-Oct-2017 10:18:48 by=ohern
+73.15.49.110 27-Oct-2017 10:18:55 by=o'hern
+73.15.49.110 27-Oct-2017 10:19:07 by=hern
+73.15.49.110 27-Oct-2017 10:19:16 by=ls4829
+73.15.49.110 27-Oct-2017 10:19:32 by=4829
+73.15.49.110 27-Oct-2017 10:35:33 by=4829 type=rs
+73.15.49.110 27-Oct-2017 10:36:04 by=4829 type=rs date=2006
+73.15.49.110 27-Oct-2017 10:36:10 by=4829 type=rs date=2007
+73.15.49.110 27-Oct-2017 10:36:19 by=4829 type=rs date=2008
+```
+
+When a search turns up too many maps only the first 200 are displayed. This was
+a cheap and easy way to prevent users from listing all 15,000 plus maps in the index.
+If the maps you need are not being displayed you need to narrow your search.
+
+This also shows some of the ways the `by=` [key name term](README.md#key-name-terms)
+works (and doesn't work). The apostrophe in *O'Hern* should be optional but isn't. 
+
+---
