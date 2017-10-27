@@ -162,9 +162,9 @@ Since the map list is ordered by date recorded the newest map will be first in t
 ```
 
 I see a lot of this. I assume the user preforms a search, picks a map to display 
-the map image then hits the search button again to return to the *map list*. 
+the map image, then hits the search button again to return to the *map list*. 
 This works fine but you can also use the `maps` button in the top bar to return to the list. 
-And the `maps` button knows which map was being displayed in the *map view* and
+And the `maps` button knows which map was last displayed in the *map view* and
 returns to that point in the *map list*.
 
 A short description of the Hummaps User Interface can be found 
