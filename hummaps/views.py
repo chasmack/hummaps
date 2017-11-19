@@ -32,29 +32,6 @@ def index():
     return render_template('index.html', query=q, results=results, total=total)
 
 
-@app.route('/hummaps-dev', methods=['GET'])
-def dev():
-
-    q = request.args.get('q', '')
-    if q == '':
-        return render_template('hummaps-dev.html', query='', results=[])
-
-    results = []
-    try:
-        results = do_search(q)
-    except ParseError as e:
-        term = ' (%s)' % e.term if e.term else ''
-        flash('Search error%s: <strong>%s</strong>' % (term, e.err), 'error')
-    except Exception as e:
-        flash('Search error: <strong>%s</strong>' % str(e), 'error')
-
-    total = len(results)
-    if total > 250:
-        results = results[0:250]
-
-    return render_template('hummaps-dev.html', query=q, results=results, total=total)
-
-
 @app.route('/gpx', methods=['GET', 'POST'])
 def gpx():
     if request.method == 'POST':
@@ -97,6 +74,19 @@ def gpx():
 
     return render_template('gpx.html')
 
+#
+# /robots.txt
+#
+
+@app.route ('/robots.txt')
+def robots_txt():
+    txt = ''.join((
+        'User-agent: *\n',
+        'Disallow: /map/\n',
+        'Disallow: /pdf/\n',
+        'Disallow: /scan/\n'
+    ))
+    return make_response(txt)
 
 #
 # HTTP error handlers

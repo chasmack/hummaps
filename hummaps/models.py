@@ -210,7 +210,7 @@ class Map(Base):
     def pdf(self):
         if len(self.mapimages) == 0:
             return None
-        return re.sub('/maps/(.*)-001.*', '/pdf/\\1.pdf', self.mapimages[0].imagefile)
+        return re.sub('/map/(.*)-001.*', '/pdf/\\1.pdf', self.mapimages[0].imagefile)
 
     @hybrid_method
     def url(self, page=1):
