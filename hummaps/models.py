@@ -1,7 +1,6 @@
 from sqlalchemy.orm import relationship
 from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
-import re
 
 from hummaps.database import Base
 
@@ -18,6 +17,33 @@ class MapImage(Base):
 
     def __repr__(self):
         return '<MapImage(id=%d, map=%d, imagefile="%s")>' % (self.id, self.map_id, self.imagefile)
+
+
+class Pdf(Base):
+    __tablename__ = 'pdf'
+
+    id = Column(Integer, primary_key=True)
+    map_id = Column(Integer, ForeignKey('map.id'))
+    pdffile = Column(String)
+
+    map = relationship('Map', back_populates='pdf')
+
+    def __repr__(self):
+        return '<PdfFile(id=%d, map=%d, pdffile="%s")>' % (self.id, self.map_id, self.pdffile)
+
+
+class Scan(Base):
+    __tablename__ = 'scan'
+
+    id = Column(Integer, primary_key=True)
+    map_id = Column(Integer, ForeignKey('map.id'))
+    page = Column(Integer)
+    scanfile = Column(String)
+
+    map = relationship('Map', back_populates='scans')
+
+    def __repr__(self):
+        return '<Scan(id=%d, map=%d, scanfile="%s")>' % (self.id, self.map_id, self.scanfile)
 
 
 class CCImage(Base):
@@ -148,6 +174,8 @@ class Map(Base):
 
     trs = relationship('TRS', back_populates='map')
     mapimages = relationship('MapImage', order_by=MapImage.page, back_populates='map')
+    scans = relationship('Scan', order_by=Scan.page, back_populates='map')
+    pdf = relationship('Pdf', uselist=False, back_populates='map')
     maptype = relationship('MapType', back_populates='map')
     certs = relationship('CC', back_populates='map')
 
@@ -206,12 +234,6 @@ class Map(Base):
         # return '%03d%s%03d' % (self.book, self.maptype.abbrev.upper(), self.page)
         return '%d%s%d' % (self.book, self.maptype.abbrev.upper(), self.page)
 
-    @hybrid_property
-    def pdf(self):
-        if len(self.mapimages) == 0:
-            return None
-        return re.sub('/map/(.*)-001.*', '/pdf/\\1.pdf', self.mapimages[0].imagefile)
-
     @hybrid_method
     def url(self, page=1):
         nimages = len(self.mapimages)
@@ -223,7 +245,6 @@ class Map(Base):
 
     def __repr__(self):
         return '<Map(id=%d, map="%s")>' % (self.id, self.bookpage)
-
 
 
 if __name__ == '__main__':

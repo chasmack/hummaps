@@ -8,6 +8,14 @@ from hummaps.gpx import gpx_read, gpx_out
 from hummaps.gpx import dxf_read, dxf_out
 from hummaps.gpx import pnts_read, pnts_out
 
+import os.path
+
+
+# Custom filter for the Jinja2 template processor
+@app.template_filter('basename')
+def basename_filter(s):
+    return os.path.basename(s)
+
 
 @app.route('/', methods=['GET'])
 def index():

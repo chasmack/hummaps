@@ -86,14 +86,21 @@
                   {%- for cc in map.certs -%}
                   {% for ccimage in cc.ccimages -%}
                   <div class="map-image" data-src="{{ ccimage.imagefile }}" data-alt="{{ cc.doc_number }}"></div>
-                  {% endfor -%}
-                  {%- endfor %}
+                {%- endfor %}
+                {% endfor %}
+                </div>
+                {%- endif %}
+                {%  if map.scans|length > 0 -%}
+                <div class="scanfile-list" style="display: none;">
+                {%- for scan in map.scans %}
+                  <div class="scanfile" data-href="{{ scan.scanfile }}" data-alt="{{ scan.scanfile|basename|upper }}"></div>
+                {%- endfor %}
                 </div>
                 {%- endif %}
               </a>
               {% if map.pdf %}
               <!-- link to the pdf -->
-              <a href="{{ map.pdf }}" download="{{ map.bookpage|lower }}.pdf"><button class="btn btn-default btn-xs pdf-button" style="padding: 2px 8px;"><strong>PDF</strong></button></a>
+              <a href="{{ map.pdf.pdffile }}" download="{{ map.pdf.pdffile|basename }}.pdf"><button class="btn btn-default btn-xs pdf-button" style="padding: 2px 8px;"><strong>PDF</strong></button></a>
               {% endif %}
             </div>
             {%- endfor %}
@@ -110,7 +117,6 @@
       <div id="map-name">
         <span></span>
       </div>
-    </div>
 <!-- end page content block -->
 {%- endblock page -%}
 

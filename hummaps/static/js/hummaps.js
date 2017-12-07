@@ -129,9 +129,22 @@ function showMap() {
       zoomMap(0);
     }
 
-    // update the map name lable
+    // update the map name label and scan link
     $('#map-name span').text($img.attr('alt'));
+    var scan = $target.find('.scanfile-list .scanfile').eq(mapPage - 1);
+    if (scan.length == 1) {
+      $('<a>')
+          .attr('href', scan.attr('data-href'))
+          .text(scan.attr('data-alt'))
+          .appendTo('#map-name span')
+          .before('<br>');
+    }
   }
+}
+
+function scanLink() {
+
+
 }
 
 function nextMap() {

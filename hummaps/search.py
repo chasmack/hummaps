@@ -312,7 +312,7 @@ def do_search(search):
         if and_terms:
             or_terms.append(and_(*and_terms))
         if or_terms:
-            q = db_session.query(Map.id).join(TRS).join(MapType)
+            q = db_session.query(Map.id).join(MapType).outerjoin(TRS)
             q = q.outerjoin(Surveyor, Map.surveyor)
             q = q.filter(or_(*or_terms))
             if prefix == '-':
@@ -321,7 +321,7 @@ def do_search(search):
                 subq_union.append(q)
 
     if subq_union:
-        query = db_session.query(Map).join(TRS).join(MapType)
+        query = db_session.query(Map).join(MapType).outerjoin(TRS)
         query = query.outerjoin(Surveyor, Map.surveyor)
         subq = subq_union.pop(0)
         for q in subq_union:
