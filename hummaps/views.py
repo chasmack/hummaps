@@ -1,8 +1,9 @@
 from flask import request, make_response
-from flask import render_template, flash
+from flask import render_template, flash, jsonify
 
 from hummaps import app
 from hummaps.search import do_search, ParseError
+from hummaps.xhr_request import xhr_request
 
 from hummaps.gpx import gpx_read, gpx_out
 from hummaps.gpx import dxf_read, dxf_out
@@ -19,8 +20,11 @@ def basename_filter(s):
 
 @app.route('/', methods=['GET'])
 def index():
+    args = request.args
+    if request.is_xhr:
+        return jsonify(xhr_request(args.get('req', '')))
 
-    q = request.args.get('q', '')
+    q = args.get('q', '')
     if q == '':
         return render_template('index.html', query='', results=[])
 

@@ -1,8 +1,11 @@
 {% extends 'bootstrap/base.html' %}
 
 {%- block styles %}
-{{- super() }}
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <!-- styles for jquery, bootstrap, site -->
+    <link href="{{ url_for('static', filename='css/jquery-ui.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css', v='17.12.07') }}" rel="stylesheet">
 {%- endblock styles -%}
 
 {%- block head %}
@@ -10,23 +13,25 @@
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
 {%- endblock head %}
 
-{%- block navbar %}
+{% block body %}
+{% block dialog %}{% endblock dialog %}
+{% block navbar %}
 <!-- begin navbar block -->
-  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="{{ url_for('index') }}"><span class="glyphicon glyphicon-tree-conifer"></span> Humboldt Map Index</a>
-      </div>
-      <div id="searchbar" class="collapse navbar-collapse">
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{{ url_for('index') }}"><span class="glyphicon glyphicon-tree-conifer"></span> Humboldt Map Index</a>
+        </div>
+        <div id="searchbar" class="collapse navbar-collapse">
 {% block navigation %}{% endblock navigation %}
-      </div> <!--/.nav-collapse -->
-    </div>
-  </nav>
+        </div> <!--/.nav-collapse -->
+      </div>
+    </nav>
 <!-- end navbar block -->
 {%- endblock navbar -%}
 
@@ -71,5 +76,8 @@
 {% endblock content -%}
 
 {%- block scripts -%}
-{{- super() -}}
+    <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-3.3.7.custom.min.js') }}"></script>
 {%- endblock scripts -%}
+{%- endblock body -%}

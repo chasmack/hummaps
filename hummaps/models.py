@@ -146,13 +146,22 @@ class Surveyor(Base):
     def name(self):
         name = [self.firstname]
         if self.secondname:
-            name.append(self.secondname[0] + '.')
+            name.append(self.secondname[0])
         if self.thirdname:
-            name.append(self.thirdname[0] + '.')
+            name.append(self.thirdname[0])
         name.append(self.lastname)
-        name = ' '.join(name).title()
         if self.suffix:
-            name += ' ' + self.suffix
+            name.append(self.suffix)
+        name = ' '.join(name).title()
+
+        licences = []
+        if self.pls:
+            licences.append('LS' + self.pls)
+        if self.rce:
+            licences.append('RCE' + self.rce)
+        if licences:
+            name += ' (' + ', '.join(licences) + ')'
+
         return name
 
     def __repr__(self):
@@ -195,23 +204,11 @@ class Map(Base):
 
     @hybrid_property
     def line1(self):
-        surveyors = []
-        for s in self.surveyor:
-            lics = []
-            if s.pls:
-                lics.append('LS' + s.pls)
-            if s.rce:
-                lics.append('RCE' + s.rce)
-            if lics:
-                lics = ' (' + ', '.join(lics) + ')'
-            else:
-                lics = ''
-            surveyors.append(s.name + lics)
+        surveyors = list(s.name for s in self.surveyor)
         if surveyors:
-            surveyors = ', '.join(surveyors)
+            return 'By: ' + ', '.join(surveyors)
         else:
-            surveyors = '(UNKNOWN)'
-        return 'By: ' + surveyors
+            return 'By: (UNKNOWN)'
 
     @hybrid_property
     def line2(self):

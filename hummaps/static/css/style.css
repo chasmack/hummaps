@@ -25,6 +25,10 @@ section {
   opacity: 0.8;"
 }
 
+#map-name a {
+  color: rgba(0, 0, 0, 0.8);
+}
+
 #loader-frame {
   position: absolute;
   left: 50%;

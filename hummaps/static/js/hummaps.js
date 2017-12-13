@@ -2,15 +2,15 @@
  * Created by Charlie on 11/27/2016.
  */
 
-var $target = null;   // current a.map-info
-var mapList = true;   // map list is displayed
-var mapPage;          // current map mapPage
-var shiftPressed;     // shift key is down
-var ctrlPressed;      // ctrl key is down
-var altPressed;       // alt key is down
-
+var $target = null;       // current a.map-info
+var mapList = true;       // map list is displayed
+var mapPage;              // current map mapPage
+var shiftPressed;         // shift key is down
+var ctrlPressed;          // ctrl key is down
+var altPressed;           // alt key is down
 var $loader = null;       // map view loader
 var loaderTimeout = null; // setTimeout ID for delayed loader display
+var dialogOpen = false;   // need to disable arrow keys when dialog modal is open
 
 // handler for window resize
 
@@ -140,11 +140,6 @@ function showMap() {
           .before('<br>');
     }
   }
-}
-
-function scanLink() {
-
-
 }
 
 function nextMap() {
@@ -347,6 +342,8 @@ function findBootstrapEnv() {
 var arrowLockout = false;     // prevent keydown repeat for arrows
 
 $(window).keydown(function (e) {
+
+  if (dialogOpen) return;
 
   // console.log('keydown: ' + e.which);
   switch (e.which) {
