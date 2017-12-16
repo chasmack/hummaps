@@ -10,7 +10,7 @@ var ctrlPressed;          // ctrl key is down
 var altPressed;           // alt key is down
 var $loader = null;       // map view loader
 var loaderTimeout = null; // setTimeout ID for delayed loader display
-var dialogOpen = false;   // need to disable arrow keys when dialog modal is open
+var disableKeyboardNavigation = false;   // need to disable arrow keys when dialog modal is open
 
 // handler for window resize
 
@@ -343,7 +343,9 @@ var arrowLockout = false;     // prevent keydown repeat for arrows
 
 $(window).keydown(function (e) {
 
-  if (dialogOpen) return;
+  if (disableKeyboardNavigation) {
+    return;
+  }
 
   // console.log('keydown: ' + e.which);
   switch (e.which) {

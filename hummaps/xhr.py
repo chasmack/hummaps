@@ -1,5 +1,7 @@
+
 from hummaps.database import db_session
-from hummaps.models import Map, MapImage, TRS, Source, MapType, Surveyor, CC, CCImage
+from hummaps.models import Surveyor
+from hummaps.search import do_search
 
 
 def xhr_request(req):
@@ -14,4 +16,11 @@ def xhr_request(req):
 
 if __name__ == '__main__':
 
-    pass
+    from flask import Flask
+
+    app = Flask(__name__)
+    with app.app_context():
+
+        resp = xhr_request('surveyors')
+        print('length: %d' % (len(resp)))
+        print(resp)

@@ -3,7 +3,7 @@ from flask import render_template, flash, jsonify
 
 from hummaps import app
 from hummaps.search import do_search, ParseError
-from hummaps.xhr_request import xhr_request
+from hummaps.xhr import xhr_request
 
 from hummaps.gpx import gpx_read, gpx_out
 from hummaps.gpx import dxf_read, dxf_out

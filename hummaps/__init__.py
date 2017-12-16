@@ -1,6 +1,5 @@
 from flask import Flask
-from flask.ext.bootstrap import Bootstrap
-from flask.ext.login import LoginManager
+from flask_bootstrap import Bootstrap
 
 app = Flask(__name__)
 
@@ -21,12 +20,6 @@ app.config.from_object(__name__)
 
 # Bootstrap extension
 bootstrap = Bootstrap(app)
-
-# Login manager extension
-login_manager = LoginManager()
-login_manager.session_protection = 'strong'
-login_manager.login_view = 'login'
-login_manager.init_app(app)
 
 import hummaps.views
 
