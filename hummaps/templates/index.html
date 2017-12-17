@@ -467,37 +467,67 @@
 
         if (val.length > 0) {
 
-          // Check for one or more Sections consisting of an optional subsection followed
-          // by the character "S" with one or two digits. Multiple Sections are separated
-          // by either spaces or a comma followed by optional spaces.
-          var ss_pat = '(([NS][EW]/4|[NSEW]/2)\\s+)?([NS][EW]/4|[NSEW]/2|1/1)\\s+';
-          var pat = '^((SS_PAT)?S\\d{1,2}(\\s+|,\\s*))*(SS_PAT)?S\\d{1,2}$'.replace(/SS_PAT/g, ss_pat);
-          var re = new RegExp(pat, 'gi');
-          var err = null;
-          if (val.match(re)) {
-            // Check section numbers between 1 and 36 inclusive.
-            m1 = val.match(/(s\d+)/gi);
-            for (var i = 0; i < m1.length; i++) {
-              var m2 = m1[i].match(/S(\d+)/i);
-              var n = parseInt(m2[1]);
-              if (n < 1 || n > 36) {
-                err = 'Section Error: ' + val;
+          // Check for one or more Section Specs consisting of an optional
+          // subsection followed by an "S" and one or two digits. Multiple
+          // Section Specs are separated by space or a comma and optional space.
+          //
+          // Example: SW/4 SW/4 S1, E/2 S2, N/2 N/2 S12
+          //
+          // Valid subsections are -
+          //  (1) [NS][EW]/4\s+[NS][EW]/4   eg. NW/4 SE/4 (40 ac)
+          //  (2) [NSEW]/2\s+[NS][EW]/4     eg. N/2 SE/4 (80 ac)
+          //  (3) [NS]/2\s+[NS]/2           eg. N/2 S/2 (160 ac)
+          //  (4) [EW]/2\s+[EW]/2           eg. E/2 W/2 (160 ac)
+          //  (5) [NS][EW]/4                eg. NE/4 (160 ac)
+          //  (6) [NSEW]/2                  eg. E/2 (320 ac)
+          //  (7) 1/1                       Shorthand for the full section (640 ac)
+          //
+          // Expressions like E/2 N/2 are not valid. Use NE/4 instead.
+          // Expressions like NW/4 E/2 are not valid. You probably want W/2 NE/4.
+
+          var pat = '' +
+              '(([NS][EW]/4|[NSEW]/2)\\s+)?[NS][EW]/4\\s+' +    // (1), (2) & (5)
+              '|([NS]/2\\s+)?[NS]/2\\s+' +                      // (3) & part of (6)
+              '|([EW]/2\\s+)?[EW]/2\\s+' +                      // (4) & part of (6)
+              '|1/1\\s+';                                       // (7)
+
+          pat = '(' + pat + ')?' + 'S\\d{1,2}';                 // a Section Spec
+
+          // Line anchors, join alternatives and a negative lookahead to exclude a starting comma
+          pat = '(?!^,)^((^|,\\s*|\\s+)(' + pat + '))+$';
+
+          var re = new RegExp(pat, 'i');
+          console.log(pat);
+
+          var error_msg = '';
+          if (!re.test(val)) {
+            var m = val.split(/(?<=S\d+)(,\s*|\s+)/i);
+            for (var i = 0; i < m.length; i += 2) {
+              if (!re.test(m[i])) {
+                error_msg = 'Bad section: ' + m[i];
+                break;
               }
             }
-          } else {
-            // Something's wrong.
-            err = 'Section Error: ' + val;
-          }
-          if (err) {
-            $('#input-section').parent().parent().addClass('has-error');
-            $('#help-block').removeClass('text-primary').addClass('text-danger').text(err);
-            console.log(err);
 
           } else {
-            $('#input-section').parent().parent().removeClass('has-error');
-            $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
-            console.log('Good: ' + val);
+            // Check section numbers.
+            var m = val.split(/(?<=S\d+)(,\s*|\s+)/i);
+            for (var i = 0; i < m.length; i += 2) {
+              var n = parseInt(m[i].replace(/.*S(\d+)/i, '$1'));
+              if (n < 1 || n > 36) {
+                error_msg = 'Bad section number: ' + m[i];
+                break;
+              }
+            }
           }
+          if (error_msg) {
+            $('#input-section').closest('.form-group').addClass('has-error');
+            $('#help-block').removeClass('text-primary').addClass('text-danger').text(error_msg);
+          } else {
+            $('#input-section').closest('.form-group').removeClass('has-error');
+            $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
+          }
+
         }
       });
 
@@ -507,20 +537,16 @@
 
         if (val.length > 0) {
           var re = new RegExp('^T?\\d{1,2}[NS]$', 'i');
-          var err = null;
-          if (!val.match(re)) {
-            // Something's wrong.
-            err = 'Township Error: ' + val;
+          var error_msg = '';
+          if (!re.test(val)) {
+            error_msg = 'Bad township: ' + val;
           }
-          if (err) {
-            $('#input-township').parent().parent().addClass('has-error');
-            $('#help-block').removeClass('text-primary').addClass('text-danger').text(err);
-            console.log(err);
-
+          if (error_msg) {
+            $('#input-township').closest('.form-group').addClass('has-error');
+            $('#help-block').removeClass('text-primary').addClass('text-danger').text(error_msg);
           } else {
-            $('#input-township').parent().parent().removeClass('has-error');
+            $('#input-township').closest('.form-group').removeClass('has-error');
             $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
-            console.log('Good: ' + val);
           }
         }
       });
@@ -531,20 +557,17 @@
 
         if (val.length > 0) {
           var re = new RegExp('^R?\\d{1,2}[EW]$', 'i');
-          var err = null;
-          if (!val.match(re)) {
-            // Something's wrong.
-            err = 'Range Error: ' + val;
+          var error_msg = '';
+          if (!re.test(val)) {
+            error_msg = 'Bad range: ' + val;
           }
-          if (err) {
-            $('#input-range').parent().parent().addClass('has-error');
-            $('#help-block').removeClass('text-primary').addClass('text-danger').text(err);
-            console.log(err);
+          if (error_msg) {
+            $('#input-range').closest('.form-group').addClass('has-error');
+            $('#help-block').removeClass('text-primary').addClass('text-danger').text(error_msg);
 
           } else {
-            $('#input-range').parent().parent().removeClass('has-error');
+            $('#input-range').closest('.form-group').removeClass('has-error');
             $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
-            console.log('Good: ' + val);
           }
         }
       });
