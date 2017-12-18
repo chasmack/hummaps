@@ -121,6 +121,22 @@
 <!-- end page content block -->
 {%- endblock page -%}
 
+{% macro name_value(name, form) -%}
+{%- if form -%}
+  name="{{  name  }}" value="{{ form[name] | escape }}"
+{%- else -%}
+  name="{{  name  }}"
+{%- endif -%}
+{%- endmacro %}
+
+{% macro name_checked(name, form) -%}
+{%- if form and form[name] != 'on' -%}
+  name="{{  name  }}"
+{%- else -%}
+  name="{{  name  }}" checked
+{%- endif -%}
+{%- endmacro %}
+
 {% block dialog -%}
 <!-- begin modal dialog -->
     <div id="search-dialog" class="modal fade" tabindex="-1" role="dialog">
@@ -132,12 +148,12 @@
           </div>
 
           <div class="modal-body">
-            <form class="form-horizontal">
+            <form class="form-horizontal" method="post">
 
               <div class="form-group">
                 <label for="input-section" class="col-md-3 control-label">Section</label>
                 <div class="col-md-7">
-                  <input id="input-section" type="text" class="dialog-circulate form-control" placeholder="eg. s23" spellcheck="false">
+                  <input id="input-section" {{ name_value('section', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. s22" autocomplete="off" spellcheck="false">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -147,7 +163,7 @@
               <div class="form-group">
                 <label for="input-township" class="col-md-3 control-label">Township</label>
                 <div class="col-md-7">
-                  <input id="input-township" type="text" class="dialog-circulate form-control" placeholder="eg. 8n" spellcheck="false">
+                  <input id="input-township" {{ name_value('township', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 5n" autocomplete="off" spellcheck="false">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -157,7 +173,7 @@
               <div class="form-group">
                 <label for="input-range" class="col-md-3 control-label">Range</label>
                 <div class="col-md-7">
-                  <input id="input-range" type="text" class="dialog-circulate form-control" placeholder="eg. 4e" spellcheck="false">
+                  <input id="input-range" {{ name_value('range', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 1w" autocomplete="off" spellcheck="false">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -167,11 +183,11 @@
               <div class="form-group">
                 <label for="input-recdate" class="col-md-3 control-label">Date</label>
                 <div class="col-md-3">
-                  <input id="input-recdate" type="text" class="dialog-circulate form-control" placeholder="eg. 12/2017" autocomplete="off" spellcheck="false">
+                  <input id="input-recdate" {{ name_value('recdate', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 12/2017" autocomplete="off" spellcheck="false">
                 </div>
                 <label for="input-recdate-to" class="col-md-1 control-label">To</label>
                 <div class="col-md-3">
-                  <input id="input-recdate-to" type="text" class="dialog-circulate form-control" placeholder="" autocomplete="off" spellcheck="false">
+                  <input id="input-recdate-to" {{ name_value('recdate-to', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="" autocomplete="off" spellcheck="false">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -181,7 +197,7 @@
               <div class="form-group">
                 <label for="input-surveyor" class="col-md-3 control-label">Surveyor</label>
                 <div class="col-md-7">
-                  <input id="input-surveyor" type="text" class="dialog-circulate typeahead form-control" placeholder="type a name or number..." autocomplete="off" spellcheck="false">
+                  <input id="input-surveyor" {{ name_value('surveyor', form) | safe }} type="text" class="dialog-circulate typeahead form-control" placeholder="type a name or number..." autocomplete="off" spellcheck="false">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -191,7 +207,7 @@
               <div class="form-group">
                 <label for="input-client" class="col-md-3 control-label">Client</label>
                 <div class="col-md-7">
-                  <input id="input-client" type="text" class="dialog-circulate form-control" placeholder="type a client or subdivision..." spellcheck="false">
+                  <input id="input-client" {{ name_value('client', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="type a client or subdivision..." autocomplete="off" spellcheck="false">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -201,7 +217,7 @@
               <div class="form-group">
                 <label for="input-description" class="col-md-3 control-label">Description</label>
                 <div class="col-md-7">
-                  <input id="input-description" type="text" class="dialog-circulate form-control" placeholder="type a word or phrase..." spellcheck="false">
+                  <input id="input-description" {{ name_value('description', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="type a word or phrase..." autocomplete="off" spellcheck="false">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -211,33 +227,33 @@
               <div class="form-group">
                 <label class="col-md-3 control-label">Map Type</label>
                 <div class="maptype checkbox col-md-4">
-                  <label><input type="checkbox" checked>Corner Records (CR)</label>
+                  <label><input {{ name_checked('maptype-cr', form) | safe }} type="checkbox">Corner Records (CR)</label>
                 </div>
                 <div class="maptype checkbox col-md-4">
-                  <label><input type="checkbox" checked>Parcel Maps (PM)</label>
+                  <label><input {{ name_checked('maptype-pm', form) | safe }} type="checkbox">Parcel Maps (PM)</label>
                 </div>
               </div>
               <div class="form-group">
                 <div class="maptype checkbox col-md-4 col-md-offset-3">
-                  <label><input type="checkbox" checked>Subdivision Maps (RM)</label>
+                  <label><input {{ name_checked('maptype-rm', form) | safe }} type="checkbox">Subdivision Maps (RM)</label>
                 </div>
                 <div class="maptype checkbox col-md-4">
-                  <label><input type="checkbox" checked>Surveys (RS)</label>
+                  <label><input {{ name_checked('maptype-rs', form) | safe }} type="checkbox">Surveys (RS)</label>
                 </div>
               </div>
               <div class="form-group">
                 <div class="maptype checkbox col-md-4 col-md-offset-3">
-                  <label><input type="checkbox" checked>Unrecorded Maps (UR)</label>
+                  <label><input {{ name_checked('maptype-ur', form) | safe }} type="checkbox">Unrecorded Maps (UR)</label>
                 </div>
                 <div class="maptype checkbox col-md-4">
-                  <label><input type="checkbox" checked>Others (HM, MM)</label>
+                  <label><input {{ name_checked('maptype-other', form) | safe }} type="checkbox">Others (HM, MM)</label>
                 </div>
               </div>
 
               <div class="form-group">
                 <label for="input-maps" class="col-md-3 control-label">Individual Maps</label>
                 <div class="col-md-7">
-                  <input id="input-maps" type="text" class="dialog-circulate form-control" placeholder="eg. 68rs136 26pm151 21rm80" spellcheck="false">
+                  <input id="input-maps" {{ name_value('maps', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 68rs136 26pm151 21rm80" autocomplete="off" spellcheck="false">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -497,8 +513,6 @@
           pat = '(?!^,)^((^|,\\s*|\\s+)(' + pat + '))+$';
 
           var re = new RegExp(pat, 'i');
-          console.log(pat);
-
           var error_msg = '';
           if (!re.test(val)) {
             var m = val.split(/(?<=S\d+)(,\s*|\s+)/i);
@@ -572,67 +586,85 @@
         }
       });
 
+      $('#search-dialog').delegate('input:checkbox', 'change', function(e) {
+        if ($('div.maptype input:checked').length == 0) {
+          $('div.maptype').closest('.form-group').addClass('has-error');
+          $('#help-block').removeClass('text-primary').addClass('text-danger').text('No map types selected');
+
+        } else {
+          $('div.maptype').closest('.form-group').removeClass('has-error');
+          $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
+        }
+      });
+
+      // Run through the field validators
+      $('#search-dialog input').not(':checkbox').each(function(i) {
+        $(this).blur();
+      });
+      $('#search-dialog input:checkbox').first().change();
 
       function validateAndSubmit(e) {
 
-        var sec = $('#input-section').val();
-        var tshp = $('#input-township').val();
-        var rng = $('#input-range').val();
-        var recdate = $('#input-recdate').val();
-        var recdate_to = $('#input-recdate-to').val();
-        var surveyor = $('#input-surveyor').val().replace(/ \(.*/, '');
-        var client = $('#input-client').val();
-        var desc = $('#input-description').val();
-        var maps = $('#input-maps').val();
+        var form = {};
+        $('#search-dialog input').each(function(i) {
+          form[this.name] = $(this).val();
+        });
 
         $('#search-dialog').modal('hide');
 
         var q = '';
-        if (tshp.length > 0 && rng.length > 0) {
-          q += tshp + ' ' + rng;
-          if (sec.length > 0) {
-            q = sec + ' ' + q;
+        if (form['township'].length > 0 && form['range'].length > 0) {
+          q += form['township'] + ' ' + form['range'];
+          if (form['section'].length > 0) {
+            q = form['section'] + ' ' + q;
           }
         }
 
-        if (recdate.length > 0) {
-          if (recdate_to.length > 0) {
-            q += ' date="' + recdate + ' ' + recdate_to + '"';
+        if (form['recdate'].length > 0) {
+          if (form['recdate-to'].length > 0) {
+            q += ' date="' + form['recdate'] + ' ' + form['recdate-to'] + '"';
           } else {
-            q += ' date=' + recdate;
+            q += ' date=' + form['recdate'];
           }
         }
 
-        if (surveyor.length > 0) {
-          q += ' by="' + surveyor + '"';
+        if (form['surveyor'].length > 0) {
+          // Strip off the LS/RCE number before adding to the query string.
+          q += ' by="' + form['surveyor'].replace(/\s*\([A-Z]+\d+\)/, '') + '"';
         }
 
-        if (client.length > 0) {
-          q += ' for="' + client + '"';
+        if (form['client'].length > 0) {
+          q += ' for="' + form['client'] + '"';
         }
 
-        if (desc.length > 0) {
-          q += ' desc="' + desc + '"';
+        if (form['description'].length > 0) {
+          q += ' desc="' + form['description'] + '"';
         }
 
-        if (q.length > 0 && $('div.maptype input').not(':checked').length > 0) {
-          // Only need maptypes if something is not checked to qualify other parts of a search
-          var maptypes = '';
-          $('div.maptype input:checked').each(function (i) {
-            maptypes += ' ' + $(this).parent().text().replace(/.*\((.*)\).*/, '$1');
-          });
-          if (maptypes.length > 0) {
-            q += ' type=' + maptypes.trim().replace(/,?\s+/g, '|').toLowerCase();
+        if (q.length > 0) {
+          if ($('div.maptype input:checked').length == 0) {
+            $('#help-block').removeClass('text-primary').addClass('text-danger').text('No map types selected');
+            q = '';
+
+          } else if (q.length > 0 && $('div.maptype input').not(':checked').length > 0) {
+            // Only need maptypes if something is not checked to qualify other parts of a search
+            var maptypes = '';
+            $('div.maptype input:checked').each(function (i) {
+              maptypes += ' ' + $(this).parent().text().replace(/.*\((.*)\).*/, '$1');
+            });
+            if (maptypes.length > 0) {
+              q += ' type=' + maptypes.trim().replace(/,?\s+/g, '|').toLowerCase();
+            }
           }
         }
 
-        if (maps.length > 0) {
-          q += ' ' + maps;
+        if (form['maps'].length > 0) {
+          q += ' ' + form['maps'];
         }
 
         if (q.length > 0) {
           $('#search-query').val(q);
-          window.location.href = '/?q=' + q.trim();
+          $('#search-dialog form').attr('action', '/?' + $.param({q: q.trim()})).submit();
         }
 
       }

@@ -17,12 +17,15 @@ import os.path
 def basename_filter(s):
     return os.path.basename(s)
 
-
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
     args = request.args
     if request.is_xhr:
         return jsonify(xhr_request(args.get('req', '')))
+    elif request.method == 'POST':
+        form = request.form
+    else:
+        form = None
 
     q = args.get('q', '')
     if q == '':
@@ -41,7 +44,7 @@ def index():
     if total > 200:
         results = results[0:200]
 
-    return render_template('index.html', query=q, results=results, total=total)
+    return render_template('index.html', query=q, form=form, results=results, total=total)
 
 
 @app.route('/gpx', methods=['GET', 'POST'])
