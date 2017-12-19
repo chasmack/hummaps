@@ -226,26 +226,26 @@
 
               <div class="form-group">
                 <label class="col-md-3 control-label">Map Type</label>
-                <div class="maptype checkbox col-md-4">
+                <div class="checkbox col-md-4">
                   <label><input {{ name_checked('maptype-cr', form) | safe }} type="checkbox">Corner Records (CR)</label>
                 </div>
-                <div class="maptype checkbox col-md-4">
+                <div class="checkbox col-md-4">
                   <label><input {{ name_checked('maptype-pm', form) | safe }} type="checkbox">Parcel Maps (PM)</label>
                 </div>
               </div>
               <div class="form-group">
-                <div class="maptype checkbox col-md-4 col-md-offset-3">
+                <div class="checkbox col-md-4 col-md-offset-3">
                   <label><input {{ name_checked('maptype-rm', form) | safe }} type="checkbox">Subdivision Maps (RM)</label>
                 </div>
-                <div class="maptype checkbox col-md-4">
+                <div class="checkbox col-md-4">
                   <label><input {{ name_checked('maptype-rs', form) | safe }} type="checkbox">Surveys (RS)</label>
                 </div>
               </div>
               <div class="form-group">
-                <div class="maptype checkbox col-md-4 col-md-offset-3">
+                <div class="checkbox col-md-4 col-md-offset-3">
                   <label><input {{ name_checked('maptype-ur', form) | safe }} type="checkbox">Unrecorded Maps (UR)</label>
                 </div>
-                <div class="maptype checkbox col-md-4">
+                <div class="checkbox col-md-4">
                   <label><input {{ name_checked('maptype-other', form) | safe }} type="checkbox">Others (HM, MM)</label>
                 </div>
               </div>
@@ -253,7 +253,7 @@
               <div class="form-group">
                 <label for="input-maps" class="col-md-3 control-label">Individual Maps</label>
                 <div class="col-md-7">
-                  <input id="input-maps" {{ name_value('maps', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 68rs136 26pm151 21rm80" autocomplete="off" spellcheck="false">
+                  <input id="input-maps" {{ name_value('maps', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 26pm151" autocomplete="off" spellcheck="false">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -296,12 +296,12 @@
         }).on('hide.bs.modal', function(e) {
           // Re-enable arrow key navigation annd hide any popovers
           disableKeyboardNavigation = false;
-          $('div.help-popover').each(function(index) {
+          $('div.help-popover').each(function(i) {
             $(this).popover('hide');
           });
         });
 
-      $('#search-dialog').delegate('input.dialog-circulate', 'keypress', function(e) {
+      $('#search-dialog').on('keypress', 'input.dialog-circulate', function(e) {
         if (e.which == 13) {
           var $circ = $('input.dialog-circulate');
           var i = $circ.index(this) + 1;
@@ -316,7 +316,7 @@
       $('[data-toggle="popover"]').popover();
 
       // Initialize the help popovers
-      $('#input-section').parent().nextAll('.help-popover').popover({
+      $('#input-section').closest('.form-group').find('.help-popover').popover({
          trigger: 'manual',
          container: 'body',
          html: true,
@@ -330,14 +330,14 @@
       }).on('click', function(e) {
         var $this = $(this);
         if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(index) {
+          $('div.help-popover').not($this).each(function(i) {
             $(this).popover('hide');
           });
         }
         $this.popover('toggle');
       });
 
-      $('#input-township').parent().nextAll('.help-popover').popover({
+      $('#input-township').closest('.form-group').find('.help-popover').popover({
          trigger: 'manual',
          container: 'body',
          html: true,
@@ -347,14 +347,14 @@
       }).on('click', function(e) {
         var $this = $(this);
         if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(index) {
+          $('div.help-popover').not($this).each(function(i) {
             $(this).popover('hide');
           });
         }
         $this.popover('toggle');
       });
 
-      $('#input-range').parent().nextAll('.help-popover').popover({
+      $('#input-range').closest('.form-group').find('.help-popover').popover({
          trigger: 'manual',
          container: 'body',
          html: true,
@@ -364,14 +364,14 @@
       }).on('click', function(e) {
         var $this = $(this);
         if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(index) {
+          $('div.help-popover').not($this).each(function(i) {
             $(this).popover('hide');
           });
         }
         $this.popover('toggle');
       });
 
-      $('#input-recdate').parent().nextAll('.help-popover').popover({
+      $('#input-recdate').closest('.form-group').find('.help-popover').popover({
          trigger: 'manual',
          container: 'body',
          html: true,
@@ -382,14 +382,14 @@
       }).on('click', function(e) {
         var $this = $(this);
         if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(index) {
+          $('div.help-popover').not($this).each(function(i) {
             $(this).popover('hide');
           });
         }
         $this.popover('toggle');
       });
 
-      $('#input-surveyor').parent().nextAll('.help-popover').popover({
+      $('#input-surveyor').closest('.form-group').find('.help-popover').popover({
          trigger: 'manual',
          container: 'body',
          html: true,
@@ -398,14 +398,14 @@
       }).on('click', function(e) {
         var $this = $(this);
         if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(index) {
+          $('div.help-popover').not($this).each(function(i) {
             $(this).popover('hide');
           });
         }
         $this.popover('toggle');
       });
 
-      $('#input-client').parent().nextAll('.help-popover').popover({
+      $('#input-client').closest('.form-group').find('.help-popover').popover({
          trigger: 'manual',
          container: 'body',
          html: true,
@@ -416,14 +416,14 @@
       }).on('click', function(e) {
         var $this = $(this);
         if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(index) {
+          $('div.help-popover').not($this).each(function(i) {
             $(this).popover('hide');
           });
         }
         $this.popover('toggle');
       });
 
-      $('#input-description').parent().nextAll('.help-popover').popover({
+      $('#input-description').closest('.form-group').find('.help-popover').popover({
          trigger: 'manual',
          container: 'body',
          html: true,
@@ -434,14 +434,14 @@
       }).on('click', function(e) {
         var $this = $(this);
         if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(index) {
+          $('div.help-popover').not($this).each(function(i) {
             $(this).popover('hide');
           });
         }
         $this.popover('toggle');
       });
 
-      $('#input-maps').parent().nextAll('.help-popover').popover({
+      $('#input-maps').closest('.form-group').find('.help-popover').popover({
          trigger: 'manual',
          container: 'body',
          html: true,
@@ -455,7 +455,7 @@
       }).on('click', function(e) {
         var $this = $(this);
         if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(index) {
+          $('div.help-popover').not($this).each(function(i) {
             $(this).popover('hide');
           });
         }
@@ -464,10 +464,10 @@
 
       // Lazy initialization of the surveyor typeahead
       $('#input-surveyor').one('input', function(e) {
-        var $this = $(this);
+        var $input = $(this);
         $.get('/', { req: 'surveyors' }, function(data) {
           console.log('init surveyor typeahead: ' + data.length + ' items');
-          $this.typeahead({
+          $input.typeahead({
             source: data,
             appendTo: '#search-dialog',
             minLength: 2,
@@ -478,8 +478,9 @@
 
       // Validation callbacks
       $('#input-section').on('blur', function(e) {
-        var $this = $(this);
-        var val = $this.val().trim();
+        console.log('blur: ' + this.name);
+        var $input = $(this);
+        var val = $input.val().trim();
 
         if (val.length > 0) {
 
@@ -515,6 +516,7 @@
           var re = new RegExp(pat, 'i');
           var error_msg = '';
           if (!re.test(val)) {
+            // Split apart multiple terms and see if we can find the error
             var m = val.split(/(?<=S\d+)(,\s*|\s+)/i);
             for (var i = 0; i < m.length; i += 2) {
               if (!re.test(m[i])) {
@@ -522,12 +524,11 @@
                 break;
               }
             }
-
           } else {
-            // Check section numbers.
+            // Split apart multiple terms and check section numbers.
             var m = val.split(/(?<=S\d+)(,\s*|\s+)/i);
             for (var i = 0; i < m.length; i += 2) {
-              var n = parseInt(m[i].replace(/.*S(\d+)/i, '$1'));
+              var n = parseInt(m[i].match(/(?<=S)(\d+)/i)[0]);
               if (n < 1 || n > 36) {
                 error_msg = 'Bad section number: ' + m[i];
                 break;
@@ -535,138 +536,158 @@
             }
           }
           if (error_msg) {
-            $('#input-section').closest('.form-group').addClass('has-error');
-            $('#help-block').removeClass('text-primary').addClass('text-danger').text(error_msg);
+            $input.closest('.form-group').addClass('has-error');
+            $('#help-block').addClass('text-danger').text(error_msg);
           } else {
-            $('#input-section').closest('.form-group').removeClass('has-error');
-            $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
+            $input.closest('.form-group').removeClass('has-error');
+            $('#help-block').removeClass('text-danger').text('');
           }
-
         }
       });
 
       $('#input-township').on('blur', function(e) {
-        var $this = $(this);
-        var val = $this.val().trim();
-
+        console.log('blur: ' + this.name);
+        var $input = $(this);
+        var val = $input.val().trim();
         if (val.length > 0) {
           var re = new RegExp('^T?\\d{1,2}[NS]$', 'i');
-          var error_msg = '';
-          if (!re.test(val)) {
-            error_msg = 'Bad township: ' + val;
-          }
-          if (error_msg) {
-            $('#input-township').closest('.form-group').addClass('has-error');
-            $('#help-block').removeClass('text-primary').addClass('text-danger').text(error_msg);
+          if (re.test(val)) {
+            $input.closest('.form-group').removeClass('has-error');
+            $('#help-block').removeClass('text-danger').text('');
           } else {
-            $('#input-township').closest('.form-group').removeClass('has-error');
-            $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
+            $input.closest('.form-group').addClass('has-error');
+            $('#help-block').addClass('text-danger').text('Bad township: ' + val);
           }
         }
       });
 
       $('#input-range').on('blur', function(e) {
-        var $this = $(this);
-        var val = $this.val().trim();
-
+        console.log('blur: ' + this.name);
+        var $input = $(this);
+        var val = $input.val().trim();
         if (val.length > 0) {
           var re = new RegExp('^R?\\d{1,2}[EW]$', 'i');
-          var error_msg = '';
-          if (!re.test(val)) {
-            error_msg = 'Bad range: ' + val;
-          }
-          if (error_msg) {
-            $('#input-range').closest('.form-group').addClass('has-error');
-            $('#help-block').removeClass('text-primary').addClass('text-danger').text(error_msg);
-
+          if (re.test(val)) {
+            $input.closest('.form-group').removeClass('has-error');
+            $('#help-block').removeClass('text-danger').text('');
           } else {
-            $('#input-range').closest('.form-group').removeClass('has-error');
-            $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
+            $input.closest('.form-group').addClass('has-error');
+            $('#help-block').addClass('text-danger').text('Bad range: ' + val);
           }
         }
       });
 
-      $('#search-dialog').delegate('input:checkbox', 'change', function(e) {
-        if ($('div.maptype input:checked').length == 0) {
-          $('div.maptype').closest('.form-group').addClass('has-error');
+      $('#input-recdate').on('blur', function(e) {
+        console.log('blur: ' + this.name);
+      });
+
+      $('#input-recdate-to').on('blur', function(e) {
+        console.log('blur: ' + this.name);
+      });
+
+      $('#input-surveyor').on('blur', function(e) {
+        console.log('blur: ' + this.name);
+      });
+
+      $('#input-client').on('blur', function(e) {
+        console.log('blur: ' + this.name);
+      });
+
+      $('#input-description').on('blur', function(e) {
+        console.log('blur: ' + this.name);
+      });
+
+      $('#input-maps').on('blur', function(e) {
+        console.log('blur: ' + this.name);
+      });
+
+      // Warn if there are no map types selected
+      $('#search-dialog').on('change', 'input[name^="maptype"]', function(e) {
+        console.log('change: ' + this.name);
+        var $inputs = $('input[name^="maptype"]');
+        if ($inputs.filter(':checked').length == 0) {
+          $inputs.closest('.form-group').addClass('has-error');
           $('#help-block').removeClass('text-primary').addClass('text-danger').text('No map types selected');
 
         } else {
-          $('div.maptype').closest('.form-group').removeClass('has-error');
+          $inputs.closest('.form-group').removeClass('has-error');
           $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
         }
       });
 
       // Run through the field validators
-      $('#search-dialog input').not(':checkbox').each(function(i) {
-        $(this).blur();
-      });
-      $('#search-dialog input:checkbox').first().change();
+      $('#search-dialog').find('input').not('[name^="maptype"]').blur()
+          .end().filter('[name^="maptype"]').first().change();
 
       function validateAndSubmit(e) {
 
-        var form = {};
-        $('#search-dialog input').each(function(i) {
-          form[this.name] = $(this).val();
+        var val = {};
+        var $dialog = $('#search-dialog');
+        $dialog.find('input').each(function(i) {
+          // Trim space from input values and add to object.
+          var $input = $(this);
+          $input.val($input.val().trim());
+          val[this.name] = $input.val();
         });
 
-        $('#search-dialog').modal('hide');
-
-        var q = '';
-        if (form['township'].length > 0 && form['range'].length > 0) {
-          q += form['township'] + ' ' + form['range'];
-          if (form['section'].length > 0) {
-            q = form['section'] + ' ' + q;
+        var terms = [];
+        if (val['township'].length > 0 && val['range'].length > 0) {
+          terms.push(val['township'], val['range']);
+          if (val['section'].length > 0) {
+            terms.unshift(val['section']);
           }
         }
 
-        if (form['recdate'].length > 0) {
-          if (form['recdate-to'].length > 0) {
-            q += ' date="' + form['recdate'] + ' ' + form['recdate-to'] + '"';
+        if (val['recdate'].length > 0) {
+          if (val['recdate-to'].length > 0) {
+            terms.push('date="' + val['recdate'] + ' ' + val['recdate-to'] + '"');
           } else {
-            q += ' date=' + form['recdate'];
+            terms.push('date=' + val['recdate']);
           }
         }
 
-        if (form['surveyor'].length > 0) {
+        if (val['surveyor'].length > 0) {
           // Strip off the LS/RCE number before adding to the query string.
-          q += ' by="' + form['surveyor'].replace(/\s*\([A-Z]+\d+\)/, '') + '"';
+          terms.push('by="' + val['surveyor'].match(/.*?(?=\s*\()/)[0] + '"');
         }
 
-        if (form['client'].length > 0) {
-          q += ' for="' + form['client'] + '"';
+        if (val['client'].length > 0) {
+          terms.push('for="' + val['client'] + '"');
         }
 
-        if (form['description'].length > 0) {
-          q += ' desc="' + form['description'] + '"';
+        if (val['description'].length > 0) {
+          terms.push('desc="' + val['description'] + '"');
         }
 
-        if (q.length > 0) {
-          if ($('div.maptype input:checked').length == 0) {
-            $('#help-block').removeClass('text-primary').addClass('text-danger').text('No map types selected');
-            q = '';
-
-          } else if (q.length > 0 && $('div.maptype input').not(':checked').length > 0) {
-            // Only need maptypes if something is not checked to qualify other parts of a search
-            var maptypes = '';
-            $('div.maptype input:checked').each(function (i) {
-              maptypes += ' ' + $(this).parent().text().replace(/.*\((.*)\).*/, '$1');
+        if (terms.length > 0) {
+          var $maptypes = $('input[name^="maptype"]');
+          var $not_checked = $maptypes.not(':checked');
+          if ($not_checked.length > 0 && $maptypes.length > $not_checked.length) {
+            // Only need maptypes if something is not selected and at least
+            // one maptype is selected. The case where no maptypes are selected
+            // makes no sense so we do nothing to qualify maptypes.
+            var types = [];
+            $maptypes.filter(':checked').each(function (i) {
+              // Maptype abbreviations are two alpha chars inside parens.
+              // Multiple maptypes are separate by a comma and space.
+              $.merge(types, $(this).parent().text().match(/\(.*\)/)[0].match(/\w{2}/g));
             });
-            if (maptypes.length > 0) {
-              q += ' type=' + maptypes.trim().replace(/,?\s+/g, '|').toLowerCase();
-            }
+            terms.push('type=' + types.join('|').toLowerCase());
           }
         }
 
-        if (form['maps'].length > 0) {
-          q += ' ' + form['maps'];
+        if (val['maps'].length > 0) {
+          terms.push(val['maps']);
         }
 
-        if (q.length > 0) {
-          $('#search-query').val(q);
-          $('#search-dialog form').attr('action', '/?' + $.param({q: q.trim()})).submit();
-        }
+        $dialog.modal('hide');
 
+        if (terms.length > 0) {
+          var query = terms.join(' ');
+          $('#search-query').val(query);
+          // $('#search-dialog form').attr('action', '/?' + $.param({q: query})).submit();
+          $('#search-dialog form').attr('action', '/?q=' + encodeURIComponent(query)).submit();
+        }
       }
 
       $('#search-submit').on('click', validateAndSubmit);
