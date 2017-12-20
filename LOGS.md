@@ -200,9 +200,10 @@ works (and doesn't work). The apostrophe in *O'Hern* should be optional but isn'
  75.109.248.173  20-Nov-2017 16:32:34     5K 200  query  13RS62
  75.109.248.173  20-Nov-2017 16:32:36   737K 200    map  013rs062-001.jpg
  75.109.248.173  20-Nov-2017 16:39:13    17K 200  query  by=herrick
- 75.109.248.173  20-Nov-2017 16:39:31     2K 200  query  1901
- 75.109.248.173  20-Nov-2017 16:39:42     3K 200  query  no 77
- 75.109.248.173  20-Nov-2017 16:40:19     4K 200  query  s34 6n 2e
+ 75.109.248.173  20-Nov-2017 16:39:31    14K 200  query  77
+ 75.109.248.173  20-Nov-2017 16:39:42     5K 200  query  77 by=herrick
+ 75.109.248.173  20-Nov-2017 16:39:59  3458K 200    pdf  003rs037.pdf
+ 75.109.248.173  20-Nov-2017 16:40:19     7K 200  query  s34 6n 2e
  75.109.248.173  20-Nov-2017 16:40:23   330K 200    map  001cr002-001.jpg
  75.109.248.173  20-Nov-2017 16:40:43   269K 200    map  001cr002-002.jpg
  75.109.248.173  20-Nov-2017 16:40:43   316K 200    map  002cr030-001.jpg
@@ -217,7 +218,6 @@ works (and doesn't work). The apostrophe in *O'Hern* should be optional but isn'
  75.109.248.173  20-Nov-2017 16:42:49   537K 200    map  031rs118-001.jpg
  75.109.248.173  20-Nov-2017 16:43:22   539K 200    pdf  031rs118.pdf
  75.109.248.173  20-Nov-2017 16:43:54     4K 200  query  s1 5n 2e
- 75.109.248.173  20-Nov-2017 16:44:31  3458K 200    pdf  003rs037.pdf
  75.109.248.173  20-Nov-2017 16:46:02  1321K 200    pdf  005rs034.pdf
  75.109.248.173  20-Nov-2017 16:47:39     2K 200  query  16rs133
  75.109.248.173  20-Nov-2017 16:47:41   574K 200    map  016rs133-001.jpg
@@ -231,18 +231,17 @@ works (and doesn't work). The apostrophe in *O'Hern* should be optional but isn'
 ### AP Numbers
 
 ```
-
  108.209.219.59  12-Dec-2017 16:14:09     2K 200  query  221221008
  108.209.219.59  12-Dec-2017 16:14:45     2K 200  query  507091046
  108.209.219.59  12-Dec-2017 16:14:52     2K 200  query  507-091-046
  ```
 
-No, at this point you can't search for AP numbers.
+No, you can't search for AP numbers.
 
 Mapping an AP number to a section search would be pretty straightforward 
 and I will gladly add the feature if someone can supply me the data. 
 Make a project out of it: use Tesseract OCR to parse the subdivisional 
-information from the top of the AP map images.
+information from the top of AP map images.
 
 `apn="507-091-046"`
 
