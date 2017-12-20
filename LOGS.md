@@ -240,9 +240,9 @@ works (and doesn't work). The apostrophe in *O'Hern* should be optional but isn'
 No, at this point you can't search for AP numbers.
 
 Mapping an AP number to a section search would be pretty straightforward 
-and we will gladly add the feature if someone out there can supply the data. 
-Make a project out of it. Use Tesseract OCR to parse the subdivisional 
-information from the top of the AP map images.
+and I will gladly add the feature if someone can supply the data. 
+You can make a project out of it. Use Tesseract OCR to parse the 
+subdivisional information from the top of the AP map images.
 
 `apn="507-091-046"`
 
