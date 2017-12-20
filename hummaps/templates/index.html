@@ -604,14 +604,14 @@
       // Warn if there are no map types selected
       $('#search-dialog').on('change', 'input[name^="maptype"]', function(e) {
         console.log('change: ' + this.name);
-        var $inputs = $('input[name^="maptype"]');
-        if ($inputs.filter(':checked').length == 0) {
-          $inputs.closest('.form-group').addClass('has-error');
-          $('#help-block').removeClass('text-primary').addClass('text-danger').text('No map types selected');
+        var $maptypes = $('input[name^="maptype"]');
+        if ($maptypes.filter(':checked').length == 0) {
+          $maptypes.closest('.form-group').addClass('has-error');
+          $('#help-block').addClass('text-danger').text('No map types selected.');
 
         } else {
-          $inputs.closest('.form-group').removeClass('has-error');
-          $('#help-block').removeClass('text-danger').addClass('text-primary').text('');
+          $maptypes.closest('.form-group').removeClass('has-error');
+          $('#help-block').removeClass('text-danger').text('');
         }
       });
 
@@ -661,13 +661,13 @@
 
         if (terms.length > 0) {
           var $maptypes = $('input[name^="maptype"]');
-          var $not_checked = $maptypes.not(':checked');
-          if ($not_checked.length > 0 && $maptypes.length > $not_checked.length) {
+          var $selected = $maptypes.filter(':checked');
+          if ($selected.length < $maptypes.length && $selected.length > 0) {
             // Only need maptypes if something is not selected and at least
             // one maptype is selected. The case where no maptypes are selected
             // makes no sense so we do nothing to qualify maptypes.
             var types = [];
-            $maptypes.filter(':checked').each(function (i) {
+            $selected.each(function (i) {
               // Maptype abbreviations are two alpha chars inside parens.
               // Multiple maptypes are separate by a comma and space.
               $.merge(types, $(this).parent().text().match(/\(.*\)/)[0].match(/\w{2}/g));
