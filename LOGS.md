@@ -240,7 +240,7 @@ No, you can't search for AP numbers.
 
 Mapping an AP number to a section search would be pretty straightforward 
 and I will gladly add the feature if someone can supply me the data. 
-Make a project out of it: use Tesseract OCR to parse the subdivisional 
+Make a project out of it: use Tesseract OCR to parse subdivisional 
 information from the top of AP map images.
 
 `apn="507-091-046"`

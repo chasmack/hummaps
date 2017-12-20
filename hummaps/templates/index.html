@@ -153,7 +153,7 @@
               <div class="form-group">
                 <label for="input-section" class="col-md-3 control-label">Section</label>
                 <div class="col-md-7">
-                  <input id="input-section" {{ name_value('section', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. s22" autocomplete="off" spellcheck="false">
+                  <input id="input-section" {{ name_value('section', form) | safe }} type="text" class="form-control">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -163,7 +163,7 @@
               <div class="form-group">
                 <label for="input-township" class="col-md-3 control-label">Township</label>
                 <div class="col-md-7">
-                  <input id="input-township" {{ name_value('township', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 5n" autocomplete="off" spellcheck="false">
+                  <input id="input-township" {{ name_value('township', form) | safe }} type="text" class="form-control">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -173,7 +173,7 @@
               <div class="form-group">
                 <label for="input-range" class="col-md-3 control-label">Range</label>
                 <div class="col-md-7">
-                  <input id="input-range" {{ name_value('range', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 1w" autocomplete="off" spellcheck="false">
+                  <input id="input-range" {{ name_value('range', form) | safe }} type="text" class="form-control">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -183,11 +183,11 @@
               <div class="form-group">
                 <label for="input-recdate" class="col-md-3 control-label">Date</label>
                 <div class="col-md-3">
-                  <input id="input-recdate" {{ name_value('recdate', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 12/2017" autocomplete="off" spellcheck="false">
+                  <input id="input-recdate" {{ name_value('recdate', form) | safe }} type="text" class="form-control">
                 </div>
                 <label for="input-recdate-to" class="col-md-1 control-label">To</label>
                 <div class="col-md-3">
-                  <input id="input-recdate-to" {{ name_value('recdate-to', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="" autocomplete="off" spellcheck="false">
+                  <input id="input-recdate-to" {{ name_value('recdate-to', form) | safe }} type="text" class="form-control">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -197,7 +197,7 @@
               <div class="form-group">
                 <label for="input-surveyor" class="col-md-3 control-label">Surveyor</label>
                 <div class="col-md-7">
-                  <input id="input-surveyor" {{ name_value('surveyor', form) | safe }} type="text" class="dialog-circulate typeahead form-control" placeholder="type a name or number..." autocomplete="off" spellcheck="false">
+                  <input id="input-surveyor" {{ name_value('surveyor', form) | safe }} type="text" class="form-control">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -207,7 +207,7 @@
               <div class="form-group">
                 <label for="input-client" class="col-md-3 control-label">Client</label>
                 <div class="col-md-7">
-                  <input id="input-client" {{ name_value('client', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="type a client or subdivision..." autocomplete="off" spellcheck="false">
+                  <input id="input-client" {{ name_value('client', form) | safe }} type="text" class="form-control">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -217,7 +217,7 @@
               <div class="form-group">
                 <label for="input-description" class="col-md-3 control-label">Description</label>
                 <div class="col-md-7">
-                  <input id="input-description" {{ name_value('description', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="type a word or phrase..." autocomplete="off" spellcheck="false">
+                  <input id="input-description" {{ name_value('description', form) | safe }} type="text" class="form-control">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -253,7 +253,7 @@
               <div class="form-group">
                 <label for="input-maps" class="col-md-3 control-label">Individual Maps</label>
                 <div class="col-md-7">
-                  <input id="input-maps" {{ name_value('maps', form) | safe }} type="text" class="dialog-circulate form-control" placeholder="eg. 26pm151" autocomplete="off" spellcheck="false">
+                  <input id="input-maps" {{ name_value('maps', form) | safe }} type="text" class="form-control">
                 </div>
                 <div class="help-popover col-md-1 control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -271,7 +271,6 @@
               <button id="search-submit" type="button" class="btn btn-primary btn-sm btn-block">Search</button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -288,197 +287,219 @@
     $(function () {
 
       $('#search-dialog')
-        .on('shown.bs.modal', function(e) {
-          // Disable arrow key navigation when modal is open
-          disableKeyboardNavigation = true;
-          $('#input-section').focus();
+          // Disable arrow key navigation when modal is open.
+          .on('shown.bs.modal', function(e) {
+            disableKeyboardNavigation = true;
+            $('#input-section').focus();
 
-        }).on('hide.bs.modal', function(e) {
-          // Re-enable arrow key navigation annd hide any popovers
-          disableKeyboardNavigation = false;
-          $('div.help-popover').each(function(i) {
-            $(this).popover('hide');
+          })
+          // Re-enable arrow key navigation annd hide any popovers.
+          .on('hide.bs.modal', function(e) {
+            disableKeyboardNavigation = false;
+            $('div.help-popover').each(function(i) {
+              $(this).popover('hide');
+            });
+          })
+          // Enter in main inputs to circulate focus.
+          .on('keypress', '.dialog-circulate', function(e) {
+            if (e.which == 13) {
+              var $circ = $('input.dialog-circulate').add('#search-submit');
+              var i = $circ.index(this) + 1;
+              if (i < $circ.length) {
+                $circ.eq(i).focus();
+                e.preventDefault();
+              }
+            }
+          })
+          // Toggle popover visibility making sure other popovers are hidden.
+          .on('click', '.help-popover', function(e) {
+            var $target = $(this);
+            $('#search-dialog').find('.help-popover').not($target).each(function(i) {
+              $(this).popover('hide');
+            });
+            $target.popover('toggle');
           });
-        });
 
-      $('#search-dialog').on('keypress', 'input.dialog-circulate', function(e) {
-        if (e.which == 13) {
-          var $circ = $('input.dialog-circulate');
-          var i = $circ.index(this) + 1;
-          if (i < $circ.length) {
-            $circ.eq(i).focus();
-            e.preventDefault();
-          }
-        }
-      });
-
-      // Initialize the BS popover plugin
+      // Initialize the BS plugin for the help popovers.
       $('[data-toggle="popover"]').popover();
 
-      // Initialize the help popovers
-      $('#input-section').closest('.form-group').find('.help-popover').popover({
-         trigger: 'manual',
-         container: 'body',
-         html: true,
-         content:
-            '<p>Type one or more section numbers separated by space -</p>' +
-            '<p style="padding-left: .5em"><strong>S12</strong></p>' +
-            '<p style="padding-left: .5em"><strong>S11 S12 S13 S14</strong></p>' +
-            '<p>Subsections can be added in front of the section numbers -</p>' +
-            '<p style="padding-left: .5em"><strong>S/2 S12</strong></p>' +
-            '<p style="padding-left: .5em"><strong>NE/4 SW/4 S16</strong></p>'
-      }).on('click', function(e) {
-        var $this = $(this);
-        if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(i) {
-            $(this).popover('hide');
+      // Setup the inputs and help popovers
+      $('#input-section')
+          .attr({
+            placeholder: 'eg. s22',
+            autocomplete: "off",
+            spellcheck: "false"
+          })
+          .addClass('dialog-circulate')
+          .closest('.form-group').find('.help-popover').popover({
+            trigger: 'manual',
+            container: 'body',
+            html: true,
+            content:
+              '<p>Type one or more section numbers separated by space -</p>' +
+              '<p style="padding-left: .5em"><strong>S12</strong></p>' +
+              '<p style="padding-left: .5em"><strong>S11 S12 S13 S14</strong></p>' +
+              '<p>Subsections can be added in front of the section numbers -</p>' +
+              '<p style="padding-left: .5em"><strong>S/2 S12</strong></p>' +
+              '<p style="padding-left: .5em"><strong>NE/4 SW/4 S16</strong></p>'
+          });
+
+      $('#input-township')
+          .attr({
+            placeholder: 'eg. 5n',
+            autocomplete: "off",
+            spellcheck: "false"
+          })
+          .addClass('dialog-circulate')
+          .closest('.form-group').find('.help-popover').popover({
+            trigger: 'manual',
+            container: 'body',
+            html: true,
+            content:
+              '<p>Type a single township number followed by "N" or "S" - <strong>T6N</strong></p>' +
+              '<p>The "T" prefix is optional - <strong>6N</strong></p>'
+          });
+
+      $('#input-range')
+          .attr({
+            placeholder: 'eg. 1w',
+            autocomplete: "off",
+            spellcheck: "false"
+          })
+          .addClass('dialog-circulate')
+          .closest('.form-group').find('.help-popover').popover({
+            trigger: 'manual',
+            container: 'body',
+            html: true,
+            content:
+              '<p>Type a single range number followed by "E" or "W" - <strong>R4E</strong></p>' +
+              '<p>The "R" prefix is optional - <strong>4E</strong></p>'
+          });
+
+      $('#input-recdate')
+          .attr({
+            placeholder: 'eg. 12/2017',
+            autocomplete: "off",
+            spellcheck: "false"
+          })
+          .addClass('dialog-circulate')
+          .closest('.form-group').find('.help-popover').popover({
+            trigger: 'manual',
+            container: 'body',
+            html: true,
+            content:
+              '<p>Type a year, month or day like -</p>' +
+              '<p style="padding-left: .5em"><strong>2017</strong> or <strong>6/2017</strong> or <strong>6/22/2017</strong></p>' +
+              '<p>Use an optional second date in the "To" field to specify a date range.</p>'
+          });
+
+       $('#input-recdate-to')
+          .attr({
+            autocomplete: "off",
+            spellcheck: "false"
+          })
+          .addClass('dialog-circulate');
+
+      $('#input-surveyor')
+          .attr({
+            placeholder: 'type a name or number...',
+            autocomplete: "off",
+            spellcheck: "false"
+          })
+          .addClass('dialog-circulate typeahead')
+          .one('input', function(e) {
+            // Lazy initialization of the surveyor typeahead.
+            var $input = $(this);
+            $.get('/', { req: 'surveyors' }, function(data) {
+              // console.log('init surveyor typeahead: ' + data.length + ' items');
+              $input.typeahead({
+                source: data,
+                appendTo: '#search-dialog',
+                minLength: 2,
+                items: 10
+              });
+            }, 'json');
+          })
+          .closest('.form-group').find('.help-popover').popover({
+            trigger: 'manual',
+            container: 'body',
+            html: true,
+            content:
+              '<p>Type a few characters from a name or LS/RCE number and select a surveyor from the list.</p>'
+          }) ;
+
+      $('#input-client')
+          .attr({
+            placeholder: 'type a client or subdivision...',
+            autocomplete: "off",
+            spellcheck: "false"
+          })
+          .addClass('dialog-circulate')
+          .closest('.form-group').find('.help-popover').popover({
+            trigger: 'manual',
+            container: 'body',
+            html: true,
+            content:
+              '<p>Type a client or subdivision name. This field supports a limited set of ' +
+              '<a href="https://www.postgresql.org/docs/9.4/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP" target="_blank">' +
+              'regular expressions.</a></p>'
+          });
+
+      $('#input-description')
+          .attr({
+            placeholder: 'type a word or phrase...',
+            autocomplete: "off",
+            spellcheck: "false"
+          })
+          .addClass('dialog-circulate')
+          .closest('.form-group').find('.help-popover').popover({
+            trigger: 'manual',
+            container: 'body',
+            html: true,
+            content:
+              '<p>Type a word or phrase from the map description. This field supports a limited set of ' +
+              '<a href="https://www.postgresql.org/docs/9.4/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP" target="_blank">' +
+              'regular expressions.</a></p>'
+          });
+
+      $('#input-maps')
+          .attr({
+            placeholder: 'eg 68rs136 26pm151',
+            autocomplete: "off",
+            spellcheck: "false"
+          })
+          .addClass('dialog-circulate')
+          .closest('.form-group').find('.help-popover').popover({
+            trigger: 'manual',
+            container: 'body',
+            html: true,
+            content:
+              '<p>Type one or more map names specifying a book and page, parcel map number or tract number -</p>' +
+              '<p style="padding-left: .5em"><strong>68rs136</strong></p>' +
+              '<p style="padding-left: .5em"><strong>pm2938</strong></p>' +
+              '<p style="padding-left: .5em"><strong>tr445</strong></p>' +
+              '<p>Separate multiple maps with space -</p>' +
+              '<p style="padding-left: .5em"><strong>68rs136 26pm151</strong></p>' +
+              '<p>DO NOT include any space within individual map names.</p>'
+          });
+
+      jQuery.fn.extend({
+
+        validationState: function(state) {
+          return this.each(function() {
+            var $this = $(this);
+            var classes = $this.attr('class').replace(/has-\w+/, '').split(/\s+/);
+            if (state) {
+              classes.push(state);
+            }
+            $this.attr('class', classes.join(' '));
           });
         }
-        $this.popover('toggle');
-      });
-
-      $('#input-township').closest('.form-group').find('.help-popover').popover({
-         trigger: 'manual',
-         container: 'body',
-         html: true,
-         content:
-            '<p>Type a single township number followed by "N" or "S" - <strong>T6N</strong></p>' +
-            '<p>The "T" prefix is optional - <strong>6N</strong></p>'
-      }).on('click', function(e) {
-        var $this = $(this);
-        if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(i) {
-            $(this).popover('hide');
-          });
-        }
-        $this.popover('toggle');
-      });
-
-      $('#input-range').closest('.form-group').find('.help-popover').popover({
-         trigger: 'manual',
-         container: 'body',
-         html: true,
-         content:
-            '<p>Type a single range number followed by "E" or "W" - <strong>R4E</strong></p>' +
-            '<p>The "R" prefix is optional - <strong>4E</strong></p>'
-      }).on('click', function(e) {
-        var $this = $(this);
-        if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(i) {
-            $(this).popover('hide');
-          });
-        }
-        $this.popover('toggle');
-      });
-
-      $('#input-recdate').closest('.form-group').find('.help-popover').popover({
-         trigger: 'manual',
-         container: 'body',
-         html: true,
-         content:
-            '<p>Type a year, month or day like -</p>' +
-            '<p style="padding-left: .5em"><strong>2017</strong> or <strong>6/2017</strong> or <strong>6/22/2017</strong></p>' +
-            '<p>Use an optional second date in the "To" field to specify a date range.</p>'
-      }).on('click', function(e) {
-        var $this = $(this);
-        if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(i) {
-            $(this).popover('hide');
-          });
-        }
-        $this.popover('toggle');
-      });
-
-      $('#input-surveyor').closest('.form-group').find('.help-popover').popover({
-         trigger: 'manual',
-         container: 'body',
-         html: true,
-         content:
-            '<p>Type a few characters of a name or LS/RCE number and select a surveyor from the list.</p>'
-      }).on('click', function(e) {
-        var $this = $(this);
-        if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(i) {
-            $(this).popover('hide');
-          });
-        }
-        $this.popover('toggle');
-      });
-
-      $('#input-client').closest('.form-group').find('.help-popover').popover({
-         trigger: 'manual',
-         container: 'body',
-         html: true,
-         content:
-            '<p>Type a client or subdivision name. This field supports a limited set of ' +
-            '<a href="https://www.postgresql.org/docs/9.4/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP" target="_blank">' +
-            'regular expressions.</a></p>'
-      }).on('click', function(e) {
-        var $this = $(this);
-        if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(i) {
-            $(this).popover('hide');
-          });
-        }
-        $this.popover('toggle');
-      });
-
-      $('#input-description').closest('.form-group').find('.help-popover').popover({
-         trigger: 'manual',
-         container: 'body',
-         html: true,
-         content:
-            '<p>Type a word or phrase from the map description. This field supports a limited set of ' +
-            '<a href="https://www.postgresql.org/docs/9.4/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP" target="_blank">' +
-            'regular expressions.</a></p>'
-      }).on('click', function(e) {
-        var $this = $(this);
-        if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(i) {
-            $(this).popover('hide');
-          });
-        }
-        $this.popover('toggle');
-      });
-
-      $('#input-maps').closest('.form-group').find('.help-popover').popover({
-         trigger: 'manual',
-         container: 'body',
-         html: true,
-         content:
-            '<p>Type one or more maps specifying book and page, parcel map number or tract number -</p>' +
-            '<p style="padding-left: .5em"><strong>68RS136</strong></p>' +
-            '<p style="padding-left: .5em"><strong>PM2938</strong></p>' +
-            '<p style="padding-left: .5em"><strong>TR445</strong></p>' +
-            '<p>Separate multiple maps with space -</p>' +
-            '<p style="padding-left: .5em"><strong>68RS136 26PM151 21RM80</strong></p>'
-      }).on('click', function(e) {
-        var $this = $(this);
-        if ($('div.popover:visible').length) {
-          $('div.help-popover').not($this).each(function(i) {
-            $(this).popover('hide');
-          });
-        }
-        $this.popover('toggle');
-      });
-
-      // Lazy initialization of the surveyor typeahead
-      $('#input-surveyor').one('input', function(e) {
-        var $input = $(this);
-        $.get('/', { req: 'surveyors' }, function(data) {
-          console.log('init surveyor typeahead: ' + data.length + ' items');
-          $input.typeahead({
-            source: data,
-            appendTo: '#search-dialog',
-            minLength: 2,
-            items: 10
-          });
-        }, 'json');
       });
 
       // Validation callbacks
       $('#input-section').on('blur', function(e) {
-        console.log('blur: ' + this.name);
+        // console.log('blur: ' + this.name);
         var $input = $(this);
         var val = $input.val().trim();
 
@@ -515,116 +536,146 @@
 
           var re = new RegExp(pat, 'i');
           var error_msg = '';
-          if (!re.test(val)) {
-            // Split apart multiple terms and see if we can find the error
-            var m = val.split(/(?<=S\d+)(,\s*|\s+)/i);
-            for (var i = 0; i < m.length; i += 2) {
-              if (!re.test(m[i])) {
-                error_msg = 'Bad section: ' + m[i];
+          var secs = val.split(/(?<=S\d+)(?:,\s*|\s+)/i);
+          if (re.test(val)) {
+            // Check section numbers.
+            for (var i = 0; i < secs.length; i++) {
+              var n = parseInt(secs[i].match(/(?<=S)(\d+)/i)[0]);
+              if (n < 1 || n > 36) {
+                error_msg = 'Bad section number: ' + secs[i];
                 break;
               }
             }
           } else {
-            // Split apart multiple terms and check section numbers.
-            var m = val.split(/(?<=S\d+)(,\s*|\s+)/i);
-            for (var i = 0; i < m.length; i += 2) {
-              var n = parseInt(m[i].match(/(?<=S)(\d+)/i)[0]);
-              if (n < 1 || n > 36) {
-                error_msg = 'Bad section number: ' + m[i];
+            // See if we can find the error.
+            for (var i = 0; i < secs.length; i++) {
+              if (!re.test(secs[i])) {
+                error_msg = 'Bad section: ' + secs[i];
                 break;
               }
             }
           }
           if (error_msg) {
-            $input.closest('.form-group').addClass('has-error');
-            $('#help-block').addClass('text-danger').text(error_msg);
+            $input.closest('.form-group').validationState('has-error');
+            $('#help-block').attr('class', 'text-danger').text(error_msg);
           } else {
-            $input.closest('.form-group').removeClass('has-error');
-            $('#help-block').removeClass('text-danger').text('');
+            $input.closest('.form-group').validationState();
+            $('#help-block').removeClass().text('');
           }
         }
       });
 
       $('#input-township').on('blur', function(e) {
-        console.log('blur: ' + this.name);
+        // console.log('blur: ' + this.name);
         var $input = $(this);
         var val = $input.val().trim();
         if (val.length > 0) {
           var re = new RegExp('^T?\\d{1,2}[NS]$', 'i');
           if (re.test(val)) {
-            $input.closest('.form-group').removeClass('has-error');
-            $('#help-block').removeClass('text-danger').text('');
+            $input.closest('.form-group').validationState();
+            $('#help-block').removeClass().text('');
           } else {
-            $input.closest('.form-group').addClass('has-error');
-            $('#help-block').addClass('text-danger').text('Bad township: ' + val);
+            $input.closest('.form-group').validationState('has-error');
+            $('#help-block').attr('class', 'text-danger').text('Bad township: ' + val);
           }
         }
       });
 
       $('#input-range').on('blur', function(e) {
-        console.log('blur: ' + this.name);
+        // ('blur: ' + this.name);
         var $input = $(this);
         var val = $input.val().trim();
         if (val.length > 0) {
           var re = new RegExp('^R?\\d{1,2}[EW]$', 'i');
           if (re.test(val)) {
-            $input.closest('.form-group').removeClass('has-error');
-            $('#help-block').removeClass('text-danger').text('');
+            $input.closest('.form-group').validationState();
+            $('#help-block').removeClass().text('');
           } else {
-            $input.closest('.form-group').addClass('has-error');
-            $('#help-block').addClass('text-danger').text('Bad range: ' + val);
+            $input.closest('.form-group').validationState('has-error');
+            $('#help-block').attr('class', 'text-danger').text('Bad range: ' + val);
           }
         }
       });
 
       $('#input-recdate').on('blur', function(e) {
-        console.log('blur: ' + this.name);
+        // console.log('blur: ' + this.name);
       });
 
       $('#input-recdate-to').on('blur', function(e) {
-        console.log('blur: ' + this.name);
+        // console.log('blur: ' + this.name);
       });
 
       $('#input-surveyor').on('blur', function(e) {
-        console.log('blur: ' + this.name);
+        // console.log('blur: ' + this.name);
       });
 
       $('#input-client').on('blur', function(e) {
-        console.log('blur: ' + this.name);
+        // console.log('blur: ' + this.name);
       });
 
       $('#input-description').on('blur', function(e) {
-        console.log('blur: ' + this.name);
+        // console.log('blur: ' + this.name);
       });
 
       $('#input-maps').on('blur', function(e) {
-        console.log('blur: ' + this.name);
+        // console.log('blur: ' + this.name);
+        var $input = $(this);
+        var val = $input.val().trim();
+        if (val.length > 0) {
+
+          // Get a list of the valid map types
+          var maptypes = [];
+          $('#search-dialog').find('[name^="maptype"]').each(function (i) {
+            $.merge(maptypes, $(this).parent().text().match(/\(.*\)/)[0].match(/\w{2}/g));
+          });
+          maptypes = maptypes.join('|');
+
+          // One or more maps separated by space
+          var pat = '^((\\d{1,3}(' + maptypes + ')\\d{1,3}|(PM|TR)\\d{1,4})(\\s+|$))+$';
+          var re = new RegExp(pat, 'i');
+          if (re.test(val)) {
+            $input.closest('.form-group').validationState();
+            $('#help-block').removeClass().text('');
+
+          } else {
+            var m = val.split(/\s+/);
+            var bad = [];
+            for (var i = 0; i < m.length; i++) {
+              if (!re.test(m[i])) {
+                bad.push(m[i]);
+              }
+            }
+            $input.closest('.form-group').validationState('has-error');
+            $('#help-block').attr('class', 'text-danger').text('Bad map name: ' + bad.join(' '));
+          }
+        }
       });
 
       // Warn if there are no map types selected
       $('#search-dialog').on('change', 'input[name^="maptype"]', function(e) {
-        console.log('change: ' + this.name);
+        // console.log('change: ' + this.name);
         var $maptypes = $('input[name^="maptype"]');
         if ($maptypes.filter(':checked').length == 0) {
-          $maptypes.closest('.form-group').addClass('has-error');
-          $('#help-block').addClass('text-danger').text('No map types selected.');
+          $maptypes.closest('.form-group').validationState('has-error');
+          $('#help-block').attr('class', 'text-danger').text('No map types selected.');
 
         } else {
-          $maptypes.closest('.form-group').removeClass('has-error');
+          $maptypes.closest('.form-group').validationState();
           $('#help-block').removeClass('text-danger').text('');
         }
       });
 
-      // Run through the field validators
+      // Run through the field validators on startup
       $('#search-dialog').find('input').not('[name^="maptype"]').blur()
           .end().filter('[name^="maptype"]').first().change();
 
-      function validateAndSubmit(e) {
+      // Combine form data into a query string, hide dialog and submit search.
+      $('#search-submit').on('click', function (e) {
 
-        var val = {};
         var $dialog = $('#search-dialog');
+        var val = {};
+        // Trim space from input and collect values into an object.
         $dialog.find('input').each(function(i) {
-          // Trim space from input values and add to object.
           var $input = $(this);
           $input.val($input.val().trim());
           val[this.name] = $input.val();
@@ -642,7 +693,7 @@
           if (val['recdate-to'].length > 0) {
             terms.push('date="' + val['recdate'] + ' ' + val['recdate-to'] + '"');
           } else {
-            terms.push('date=' + val['recdate']);
+            terms.push('date="' + val['recdate'] + '"');
           }
         }
 
@@ -685,22 +736,10 @@
         if (terms.length > 0) {
           var query = terms.join(' ');
           $('#search-query').val(query);
-          // $('#search-dialog form').attr('action', '/?' + $.param({q: query})).submit();
           $('#search-dialog form').attr('action', '/?q=' + encodeURIComponent(query)).submit();
         }
-      }
-
-      $('#search-submit').on('click', validateAndSubmit);
-
-      // Enter in the maps input triggers search
-      $('#input-maps').on('keydown', function(e) {
-        if (e.keyCode == 13) {
-          $('#search-submit').trigger('click')
-        }
-      })
-
+      });
     });
-
     </script>
 <!-- end scripts block -->
 {% endblock scripts %}
