@@ -172,7 +172,7 @@ def do_search(search):
 
         # parse for individual maps
         # pat = '((\d+)(CR|HM|MM|PM|RM|RS|UR)(\d+),?)'  # no more commas
-        pat = '(\d+)(CR|HM|MM|PM|RM|SM|MAPS|RS|UR)(\d+)'
+        pat = '(\d+)(CR|HM|MM|PM|RM|M|SM|MAPS|RS|S|UR)(\d+)'
         subterms += [(m[0], 'MAP', m[0:]) for m in re.findall(pat, term, flags=re.I)]
         term = re.sub(pat, '', term, flags=re.I)
 
@@ -287,8 +287,10 @@ def do_search(search):
             elif k == 'MAP':
                 book, maptype, page = v
                 maptype = maptype.upper()
-                if maptype == 'SM' or maptype == 'MAPS':
+                if maptype == 'M' or maptype == 'MAPS' or maptype == 'SM':
                     maptype = 'RM'
+                elif maptype == 'S':
+                    maptype = 'RS'
                 or_terms.append(
                     and_(
                         Map.book == int(book), MapType.abbrev == maptype,
