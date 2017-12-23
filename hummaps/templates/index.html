@@ -622,8 +622,9 @@
         // console.log('blur: ' + this.name);
       });
 
-      function validateMaps(e) {
-        var input = $(this);
+      function validateMaps() {
+        console.log('validateMaps()');
+        var input = $('#input-maps');
         var val = input.val().trim();
         if (val.length > 0) {
 
@@ -664,23 +665,14 @@
             var input = $(this);
             if (e.key == 'Enter') {
               e.preventDefault();
-              validateMaps.call(this, e);
+              validateMaps();
               if ( !(input.closest('.form-group').hasClass('has-error')) ) {
                 $('#search-submit').click();
               }
-            } else {
-              if (e.key.length == 1) {
-                e.preventDefault();
-                var start = this.selectionStart;
-                var end = this.selectionEnd;
-                var val = input.val();
-                input.val(val.substring(0, start) + e.key + val.substring(end));
-                this.setSelectionRange(start + 1, start + 1);
-              }
-              var has_error = input.closest('.form-group').hasClass('has-error');
-              if (e.key.length == 1 && e.key.search(/\w/) < 0 || has_error) {
-                validateMaps.call(this, e);
-              }
+            } else if (e.key.length == 1 && e.key.search(/[A-Z0-9]/i) < 0) {
+              setTimeout(function () { validateMaps() }, 200);
+            } else if (input.closest('.form-group').hasClass('has-error')) {
+              setTimeout(function () { validateMaps() }, 200);
             }
           });
 
