@@ -303,7 +303,7 @@
           // Enter in main inputs to circulate focus.
           .on('keypress', '.dialog-circulate', function(e) {
             if (e.which == 13) {
-              var $circ = $('input.dialog-circulate').add('#search-submit');
+              var $circ = $('input.dialog-circulate');
               var i = $circ.index(this) + 1;
               if (i < $circ.length) {
                 $circ.eq(i).focus();
@@ -313,11 +313,11 @@
           })
           // Toggle popover visibility making sure other popovers are hidden.
           .on('click', '.help-popover', function(e) {
-            var $target = $(this);
-            $('#search-dialog').find('.help-popover').not($target).each(function(i) {
+            var target = $(this);
+            $('#search-dialog').find('.help-popover').not(target).each(function(i) {
               $(this).popover('hide');
             });
-            $target.popover('toggle');
+            target.popover('toggle');
           });
 
       // Initialize the BS plugin for the help popovers.
@@ -409,10 +409,10 @@
           .addClass('dialog-circulate typeahead')
           .one('input', function(e) {
             // Lazy initialization of the surveyor typeahead.
-            var $input = $(this);
+            var input = $(this);
             $.get('/', { req: 'surveyors' }, function(data) {
               // console.log('init surveyor typeahead: ' + data.length + ' items');
-              $input.typeahead({
+              input.typeahead({
                 source: data,
                 appendTo: '#search-dialog',
                 minLength: 2,
@@ -483,25 +483,21 @@
               '<p>DO NOT include any space within individual map names.</p>'
           });
 
+      // Input validation
       jQuery.fn.extend({
-
         validationState: function(state) {
           return this.each(function() {
-            var $this = $(this);
-            var classes = $this.attr('class').replace(/has-\w+/, '').split(/\s+/);
-            if (state) {
-              classes.push(state);
-            }
-            $this.attr('class', classes.join(' '));
+            this.className = this.className
+                .split(/\s+/).filter(function(attr) { return !(attr.startsWith('has-')); })
+                .concat(state).join(' ').trim();
           });
         }
       });
 
-      // Validation callbacks
       $('#input-section').on('blur', function(e) {
         // console.log('blur: ' + this.name);
-        var $input = $(this);
-        var val = $input.val().trim();
+        var input = $(this);
+        var val = input.val().trim();
 
         if (val.length > 0) {
 
@@ -556,44 +552,53 @@
             }
           }
           if (error_msg) {
-            $input.closest('.form-group').validationState('has-error');
+            input.closest('.form-group').validationState('has-error');
             $('#help-block').attr('class', 'text-danger').text(error_msg);
           } else {
-            $input.closest('.form-group').validationState();
+            input.closest('.form-group').validationState();
             $('#help-block').removeClass().text('');
           }
+        } else {
+          input.closest('.form-group').validationState();
+          $('#help-block').removeClass().text('');
         }
       });
 
       $('#input-township').on('blur', function(e) {
         // console.log('blur: ' + this.name);
-        var $input = $(this);
-        var val = $input.val().trim();
+        var input = $(this);
+        var val = input.val().trim();
         if (val.length > 0) {
           var re = new RegExp('^T?\\d{1,2}[NS]$', 'i');
           if (re.test(val)) {
-            $input.closest('.form-group').validationState();
+            input.closest('.form-group').validationState();
             $('#help-block').removeClass().text('');
           } else {
-            $input.closest('.form-group').validationState('has-error');
+            input.closest('.form-group').validationState('has-error');
             $('#help-block').attr('class', 'text-danger').text('Bad township: ' + val);
           }
+        } else {
+          input.closest('.form-group').validationState();
+          $('#help-block').removeClass().text('');
         }
       });
 
       $('#input-range').on('blur', function(e) {
         // ('blur: ' + this.name);
-        var $input = $(this);
-        var val = $input.val().trim();
+        var input = $(this);
+        var val = input.val().trim();
         if (val.length > 0) {
           var re = new RegExp('^R?\\d{1,2}[EW]$', 'i');
           if (re.test(val)) {
-            $input.closest('.form-group').validationState();
+            input.closest('.form-group').validationState();
             $('#help-block').removeClass().text('');
           } else {
-            $input.closest('.form-group').validationState('has-error');
+            input.closest('.form-group').validationState('has-error');
             $('#help-block').attr('class', 'text-danger').text('Bad range: ' + val);
           }
+        } else {
+          input.closest('.form-group').validationState();
+          $('#help-block').removeClass().text('');
         }
       });
 
@@ -617,10 +622,9 @@
         // console.log('blur: ' + this.name);
       });
 
-      $('#input-maps').on('blur', function(e) {
-        // console.log('blur: ' + this.name);
-        var $input = $(this);
-        var val = $input.val().trim();
+      function validateMaps(e) {
+        var input = $(this);
+        var val = input.val().trim();
         if (val.length > 0) {
 
           // Get a list of the valid map types
@@ -628,13 +632,13 @@
           $('#search-dialog').find('[name^="maptype"]').each(function (i) {
             $.merge(maptypes, $(this).parent().text().match(/\(.*\)/)[0].match(/\w{2}/g));
           });
-          maptypes = maptypes.join('|');
+          maptypes = maptypes.concat('MAPS', 'M', 'SM', 'S').join('|');
 
           // One or more maps separated by space
           var pat = '^((\\d{1,3}(' + maptypes + ')\\d{1,3}|(PM|TR)\\d{1,4})(\\s+|$))+$';
           var re = new RegExp(pat, 'i');
           if (re.test(val)) {
-            $input.closest('.form-group').validationState();
+            input.closest('.form-group').validationState();
             $('#help-block').removeClass().text('');
 
           } else {
@@ -645,11 +649,40 @@
                 bad.push(m[i]);
               }
             }
-            $input.closest('.form-group').validationState('has-error');
+            input.closest('.form-group').validationState('has-error');
             $('#help-block').attr('class', 'text-danger').text('Bad map name: ' + bad.join(' '));
           }
+        } else {
+          input.closest('.form-group').validationState();
+          $('#help-block').removeClass().text('');
         }
-      });
+      }
+
+      $('#input-maps')
+          .on('blur', validateMaps)
+          .on('keypress', function(e) {
+            var input = $(this);
+            if (e.key == 'Enter') {
+              e.preventDefault();
+              validateMaps.call(this, e);
+              if ( !(input.closest('.form-group').hasClass('has-error')) ) {
+                $('#search-submit').click();
+              }
+            } else {
+              if (e.key.length == 1) {
+                e.preventDefault();
+                var start = this.selectionStart;
+                var end = this.selectionEnd;
+                var val = input.val();
+                input.val(val.substring(0, start) + e.key + val.substring(end));
+                this.setSelectionRange(start + 1, start + 1);
+              }
+              var has_error = input.closest('.form-group').hasClass('has-error');
+              if (e.key.length == 1 && e.key.search(/\w/) < 0 || has_error) {
+                validateMaps.call(this, e);
+              }
+            }
+          });
 
       // Warn if there are no map types selected
       $('#search-dialog').on('change', 'input[name^="maptype"]', function(e) {
@@ -676,9 +709,9 @@
         var val = {};
         // Trim space from input and collect values into an object.
         $dialog.find('input').each(function(i) {
-          var $input = $(this);
-          $input.val($input.val().trim());
-          val[this.name] = $input.val();
+          var input = $(this);
+          input.val(input.val().trim());
+          val[this.name] = input.val();
         });
 
         var terms = [];
