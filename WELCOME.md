@@ -8,7 +8,7 @@ of your predecessors.
 The little box is powerful for the user that understands the rules and unforgiving
 for those that don't. 
 
-For those that need extra support Hummaps has training wheels: the Popup Search
+No worries though. Hummaps has training wheels: **Popup Search**
 
 ![Hummaps popup search](https://github.com/chasmack/hummaps/blob/master/docs/popup.jpg)
 
