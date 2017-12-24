@@ -11,8 +11,8 @@ No worries though. Hummaps has training wheels: the **Popup Search**
 
 ![Hummaps popup search](https://github.com/chasmack/hummaps/blob/master/docs/popup.jpg)
 
-Click on `popup` next to the little box. Information from the popup is written into 
-the little box and sent out for search. Eventually you may decide you can type your 
+Click on `popup` next to the little box. Information from the popup search is written 
+into the little box and sent out for search. Eventually you may decide you can type your 
 own searches into the little box.
 
 Good luck and happy searching!
