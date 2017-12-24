@@ -427,6 +427,9 @@ $('#search-dialog').find('input').not('[name^="maptype"]').blur()
 // Combine form data into a query string, hide dialog and submit search.
 $('#search-submit').on('click', function (e) {
 
+  // Manually submit form if appropriate.
+  e.preventDefault()
+
   var $dialog = $('#search-dialog');
   var val = {};
   // Trim space from input and collect values into an object.
