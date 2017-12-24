@@ -180,7 +180,7 @@ $('#input-description')
 
 $('#input-maps')
     .attr({
-      placeholder: 'eg 68rs136 26pm151',
+      placeholder: 'eg. 68rs136 26pm151',
       autocomplete: "off",
       spellcheck: "false"
     })
