@@ -118,6 +118,7 @@
       <div id="map-name">
         <span></span>
       </div>
+    </div>
 <!-- end page content block -->
 {%- endblock page -%}
 
@@ -147,9 +148,9 @@
             <h4 class="modal-title" id="queryModalLabel">Map Search</h4>
           </div>
 
-          <div class="modal-body">
-            <form class="form-horizontal" method="post">
 
+          <form class="form-horizontal" method="post" action="/">
+            <div class="modal-body">
               <div class="form-group">
                 <label for="input-section" class="col-md-3 control-label">Section</label>
                 <div class="col-md-7">
@@ -259,18 +260,18 @@
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
-
-            </form>
-          </div>
-
-          <div class="modal-footer" style="border-top-style: None;">
-            <div class="col-md-7 col-md-offset-3" style="text-align: left;">
-              <span id="help-block"></span>
             </div>
-            <div class="col-md-2">
-              <button id="search-submit" type="button" class="btn btn-primary btn-sm btn-block">Search</button>
+
+            <div class="modal-footer" style="border-top-style: None;">
+              <div class="col-md-7 col-md-offset-3" style="text-align: left;">
+                <span id="help-block"></span>
+              </div>
+              <div class="col-md-2">
+                <button id="search-submit" type="submit" class="btn btn-primary btn-sm btn-block">Search</button>
+              </div>
             </div>
-          </div>
+
+          </form>
         </div>
       </div>
     </div>

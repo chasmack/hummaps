@@ -10,6 +10,7 @@ from hummaps.gpx import dxf_read, dxf_out
 from hummaps.gpx import pnts_read, pnts_out
 
 import os.path
+import re
 
 
 # Custom filter for the Jinja2 template processor
@@ -30,6 +31,32 @@ def index():
     q = args.get('q', '')
     if q == '':
         return render_template('index.html', query='', results=[])
+
+        # Server side processing of form data
+        # if form:
+        #     q = ' '.join([form['section'], form['township'], form['range']]).strip();
+        #     if form['recdate']:
+        #         if form['recdate-to']:
+        #             q += ' date="' + form['recdate'] + ' ' + form['recdate-to'] + '"'
+        #         else:
+        #             q += ' date="' + form['recdate'] + '"'
+        #     if form['surveyor']:
+        #         q += ' by="' + re.sub(r'\s*\(.*', '', form['surveyor']) + '"'
+        #     if form['client']:
+        #         q += ' for="' + form['client'] + '"'
+        #     if form['description']:
+        #         q += ' desc="' + form['description'] + '"'
+        #     if q:
+        #         maptypes = []
+        #         for t in ('cr', 'pm', 'rm', 'rs', 'ur'):
+        #             if 'maptype-' + t in form:
+        #                 maptypes.append(t)
+        #         if 'maptype-other' in form:
+        #             maptypes += ['hm|mm']
+        #         if maptypes and len(maptypes) < 6:
+        #             q += ' type=' + '|'.join(maptypes)
+        #     if form['maps']:
+        #         q = ' '.join([q, form['maps']])
 
     results = []
     try:

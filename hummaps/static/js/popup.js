@@ -18,7 +18,7 @@ $('#search-dialog')
     })
     // Enter in main inputs to circulate focus.
     .on('keypress', '.dialog-circulate', function(e) {
-      if (e.which == 13) {
+      if (e.key == 'Enter') {
         var $circ = $('input.dialog-circulate');
         var i = $circ.index(this) + 1;
         if (i < $circ.length) {
@@ -204,7 +204,7 @@ jQuery.fn.extend({
   validationState: function(state) {
     return this.each(function() {
       this.className = this.className
-          .split(/\s+/).filter(function(attr) { return !(attr.startsWith('has-')); })
+          .split(/\s+/).filter(function(a) { return a.indexOf('has-') != 0 })
           .concat(state).join(' ').trim();
     });
   }
@@ -400,7 +400,7 @@ $('#input-maps')
       }
     })
     .on('keyup', function(e) {
-      if (e.key != 'Enter' && input.closest('.form-group').hasClass('has-error'))
+      if (e.key != 'Enter' && $(this).closest('.form-group').hasClass('has-error'))
         setTimeout(validateMaps, 200);
     });
 
