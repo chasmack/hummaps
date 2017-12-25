@@ -139,7 +139,7 @@
 {%- endmacro %}
 
 {% block dialog -%}
-<!-- begin modal dialog -->
+<!-- begin modal dialog block -->
     <div id="search-dialog" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -147,9 +147,8 @@
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="queryModalLabel">Map Search</h4>
           </div>
-
-
           <form class="form-horizontal" method="post" action="/">
+
             <div class="modal-body">
               <div class="form-group">
                 <label for="input-section" class="col-md-3 control-label">Section</label>
@@ -160,7 +159,6 @@
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="input-township" class="col-md-3 control-label">Township</label>
                 <div class="col-md-7">
@@ -170,7 +168,6 @@
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="input-range" class="col-md-3 control-label">Range</label>
                 <div class="col-md-7">
@@ -180,7 +177,6 @@
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="input-recdate" class="col-md-3 control-label">Date</label>
                 <div class="col-md-3">
@@ -194,7 +190,6 @@
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="input-surveyor" class="col-md-3 control-label">Surveyor</label>
                 <div class="col-md-7">
@@ -204,7 +199,6 @@
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="input-client" class="col-md-3 control-label">Client</label>
                 <div class="col-md-7">
@@ -214,7 +208,6 @@
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="input-description" class="col-md-3 control-label">Description</label>
                 <div class="col-md-7">
@@ -224,7 +217,6 @@
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
-
               <div class="form-group">
                 <label class="col-md-3 control-label">Map Type</label>
                 <div class="checkbox col-md-4">
@@ -250,7 +242,6 @@
                   <label><input {{ name_checked('maptype-other', form) | safe }} type="checkbox">Others (HM, MM)</label>
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="input-maps" class="col-md-3 control-label">Individual Maps</label>
                 <div class="col-md-7">
