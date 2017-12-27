@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
 
+from datetime import datetime, timedelta
+
 app = Flask(__name__)
 
 # configuration
@@ -14,6 +16,13 @@ RECAPTCHA_PUBLIC_KEY = '6Lc3iBkTAAAAAACduP62sPp1Zq6iD6wDES0iIVrE'
 RECAPTCHA_PRIVATE_KEY = '6Lc3iBkTAAAAAJmOqU8GF4LLxQQvSIwnd65JgoWF'
 
 VERSION = '17.12.07'
+
+MAX_AGE = {
+    'text/html': 0,
+    'text/css': 604800,
+    'application/javascript': 604800,
+    'application/octet-stream': 604800
+}
 
 # app.config.from_envvar('FLASKAPP_CONFIG', silent=False)
 app.config.from_object(__name__)
@@ -31,6 +40,16 @@ def before_request():
 
 @app.after_request
 def after_request(response):
+    # Cache control
+    if response.mimetype in MAX_AGE:
+        max_age = MAX_AGE[response.mimetype]
+        if max_age > 0:
+            response.cache_control.max_age = max_age
+            expires = (datetime.utcnow() + timedelta(seconds=max_age))
+            response.headers['Expires'] = expires.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        else:
+            response.cache_control.no_cache = True
+            response.cache_control.no_store = True
     return response
 
 @app.teardown_request
