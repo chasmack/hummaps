@@ -1,5 +1,6 @@
 from flask import request, make_response
-from flask import render_template, flash, jsonify
+from flask import render_template, flash
+from flask.json import jsonify, dumps
 
 from hummaps import app
 from hummaps.search import do_search, ParseError
@@ -10,7 +11,7 @@ from hummaps.gpx import dxf_read, dxf_out
 from hummaps.gpx import pnts_read, pnts_out
 
 import os.path
-import re
+from time import time
 
 
 # Custom filter for the Jinja2 template processor
@@ -22,7 +23,11 @@ def basename_filter(s):
 def index():
     args = request.args
     if request.is_xhr:
-        return jsonify(xhr_request(args.get('req', '')))
+        resp = jsonify(xhr_request(args.get('req', '')))
+        resp.cache_control.public = True
+        resp.cache_control.max_age = 3600
+        resp.expires = int(time() + 3600)
+        return resp
     elif request.method == 'POST':
         form = request.form
     else:
@@ -112,6 +117,8 @@ def gpx():
 
         resp.headers['Content-Disposition'] = 'attachment; filename="%s"' % outfile
         resp.mimetype = 'application/octet-stream'
+        resp.cache_control.no_cache = True
+        resp.cache_control.no_store = True
         return resp
 
     return render_template('gpx.html')
