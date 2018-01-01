@@ -51,14 +51,14 @@
       <div class="row">
         <div class="col-md-offset-3 col-md-6">
           {% if not results -%}
-          <h3 class="text-center">No maps</h3>
+          <h3 class="text-center">No Maps</h3>
           {%- else -%}
           {%- if total > results|length -%}
           <h3 class="text-center">Showing 1-{{ results|count }} of {{ total }}</h3>
           {%- elif total > 1 -%}
-          <h3 class="text-center">{{ results|count }} maps</h3>
+          <h3 class="text-center">{{ results|count }} Maps</h3>
           {%- else -%}
-          <h3 class="text-center">1 map</h3>
+          <h3 class="text-center">1 Map</h3>
           {%- endif %}
           <div class="list-group">
             {%- for map in results %}
@@ -148,120 +148,117 @@
             <h4 class="modal-title" id="queryModalLabel">Map Search</h4>
           </div>
           <form class="form-horizontal" method="post" action="/">
-
             <div class="modal-body">
               <div class="form-group">
-                <label for="input-section" class="col-md-3 control-label">Section</label>
-                <div class="col-md-7">
+                <label for="input-section" class="col-xs-12 col-sm-3 control-label">Section</label>
+                <div class="col-sm-7">
                   <input id="input-section" {{ name_value('section', form) | safe }} type="text" class="form-control">
                 </div>
-                <div class="help-popover col-md-1 control-label">
+                <div class="help-popover col-sm-1 hidden-xs control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
               <div class="form-group">
-                <label for="input-township" class="col-md-3 control-label">Township</label>
-                <div class="col-md-7">
+                <label for="input-township" class="col-xs-12 col-sm-3 control-label">Township</label>
+                <div class="col-sm-7">
                   <input id="input-township" {{ name_value('township', form) | safe }} type="text" class="form-control">
                 </div>
-                <div class="help-popover col-md-1 control-label">
+                <div class="help-popover col-sm-1 hidden-xs control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
               <div class="form-group">
-                <label for="input-range" class="col-md-3 control-label">Range</label>
-                <div class="col-md-7">
+                <label for="input-range" class="col-xs-12 col-sm-3 control-label">Range</label>
+                <div class="col-sm-7">
                   <input id="input-range" {{ name_value('range', form) | safe }} type="text" class="form-control">
                 </div>
-                <div class="help-popover col-md-1 control-label">
+                <div class="help-popover col-sm-1 hidden-xs control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
               <div class="form-group">
-                <label for="input-recdate" class="col-md-3 control-label">Date</label>
-                <div class="col-md-3">
+                <label for="input-recdate" class="col-xs-12 col-sm-3 control-label">Date</label>
+                <div class="col-sm-3">
                   <input id="input-recdate" {{ name_value('recdate', form) | safe }} type="text" class="form-control">
                 </div>
-                <label for="input-recdate-to" class="col-md-1 control-label">To</label>
-                <div class="col-md-3">
+                <label for="input-recdate-to" class="col-xs-12 col-sm-1 control-label">To</label>
+                <div class="col-sm-3">
                   <input id="input-recdate-to" {{ name_value('recdate-to', form) | safe }} type="text" class="form-control">
                 </div>
-                <div class="help-popover col-md-1 control-label">
+                <div class="help-popover col-sm-1 hidden-xs control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
               <div class="form-group">
-                <label for="input-surveyor" class="col-md-3 control-label">Surveyor</label>
-                <div class="col-md-7">
+                <label for="input-surveyor" class="col-xs-12 col-sm-3 control-label">Surveyor</label>
+                <div class="col-sm-7">
                   <input id="input-surveyor" {{ name_value('surveyor', form) | safe }} type="text" class="form-control">
                 </div>
-                <div class="help-popover col-md-1 control-label">
+                <div class="help-popover col-sm-1 hidden-xs control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
               <div class="form-group">
-                <label for="input-client" class="col-md-3 control-label">Client</label>
-                <div class="col-md-7">
+                <label for="input-client" class="col-xs-12 col-sm-3 control-label">Client</label>
+                <div class="col-sm-7">
                   <input id="input-client" {{ name_value('client', form) | safe }} type="text" class="form-control">
                 </div>
-                <div class="help-popover col-md-1 control-label">
+                <div class="help-popover col-sm-1 hidden-xs control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
               <div class="form-group">
-                <label for="input-description" class="col-md-3 control-label">Description</label>
-                <div class="col-md-7">
+                <label for="input-description" class="col-xs-12 col-sm-3 control-label">Description</label>
+                <div class="col-sm-7">
                   <input id="input-description" {{ name_value('description', form) | safe }} type="text" class="form-control">
                 </div>
-                <div class="help-popover col-md-1 control-label">
+                <div class="help-popover col-sm-1 hidden-xs control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
               <div class="form-group">
-                <label class="col-md-3 control-label">Map Type</label>
-                <div class="checkbox col-md-4">
+                <label class="col-xs-12 col-sm-3 control-label">Map Type</label>
+                <div class="checkbox col-xs-6 col-sm-4">
                   <label><input {{ name_checked('maptype-cr', form) | safe }} type="checkbox">Corner Records (CR)</label>
                 </div>
-                <div class="checkbox col-md-4">
+                <div class="checkbox col-xs-6 col-sm-4">
                   <label><input {{ name_checked('maptype-pm', form) | safe }} type="checkbox">Parcel Maps (PM)</label>
                 </div>
               </div>
               <div class="form-group">
-                <div class="checkbox col-md-4 col-md-offset-3">
+                <div class="checkbox col-xs-6 col-sm-4 col-sm-offset-3">
                   <label><input {{ name_checked('maptype-rm', form) | safe }} type="checkbox">Subdivision Maps (RM)</label>
                 </div>
-                <div class="checkbox col-md-4">
+                <div class="checkbox col-xs-6 col-sm-4">
                   <label><input {{ name_checked('maptype-rs', form) | safe }} type="checkbox">Surveys (RS)</label>
                 </div>
               </div>
               <div class="form-group">
-                <div class="checkbox col-md-4 col-md-offset-3">
+                <div class="checkbox col-xs-6 col-sm-4 col-sm-offset-3">
                   <label><input {{ name_checked('maptype-ur', form) | safe }} type="checkbox">Unrecorded Maps (UR)</label>
                 </div>
-                <div class="checkbox col-md-4">
+                <div class="checkbox col-xs-6 col-sm-4">
                   <label><input {{ name_checked('maptype-other', form) | safe }} type="checkbox">Others (HM, MM)</label>
                 </div>
               </div>
               <div class="form-group">
-                <label for="input-maps" class="col-md-3 control-label">Individual Maps</label>
-                <div class="col-md-7">
+                <label for="input-maps" class="col-xs-12 col-sm-3 control-label">Individual Maps</label>
+                <div class="col-sm-7">
                   <input id="input-maps" {{ name_value('maps', form) | safe }} type="text" class="form-control">
                 </div>
-                <div class="help-popover col-md-1 control-label">
+                <div class="help-popover col-sm-1 hidden-xs control-label">
                   <a href="#" tabindex="-1"><span class="glyphicon glyphicon-info-sign"></span></a>
                 </div>
               </div>
             </div>
-
             <div class="modal-footer" style="border-top-style: None;">
-              <div class="col-md-7 col-md-offset-3" style="text-align: left;">
-                <span id="help-block" data-source=""></span>
+              <div class="col-sm-7 col-sm-offset-3" style="text-align: center; margin-bottom: 6px;">
+                <strong><span id="help-block" data-source=""></span>&nbsp;</strong>
               </div>
-              <div class="col-md-2">
+              <div class="col-xs-12 col-sm-2" style="margin-bottom: 10px;">
                 <button id="search-submit" type="submit" class="btn btn-primary btn-sm btn-block">Search</button>
               </div>
             </div>
-
           </form>
         </div>
       </div>
@@ -273,7 +270,7 @@
 <!-- begin scripts block -->
     {{- super() }}
     <script src="{{ url_for('static', filename='js/jquery.mousewheel.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/hummaps-17.12.27.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/popup-17.12.27.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/hummaps-18.1.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popup-18.1.1.js') }}"></script>
 <!-- end scripts block -->
 {% endblock scripts %}

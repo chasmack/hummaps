@@ -421,40 +421,25 @@ function validateRecdate(input) {
       }
       if (year < 1800 || year > 2100) {
         error_msg = 'Bad year: ' + val;
-
-      } else if (parts.length == 2 && (month < 1 || month > 12)) {
+      } else if (parts.length > 1 && (month < 1 || month > 12)) {
         error_msg = 'Bad month: ' + val;
-
       } else if (parts.length == 3) {
-        switch (month) {
-          case 1:
-          case 3:
-          case 5:
-          case 7:
-          case 8:
-          case 10:
-          case 12:
-            if (day == 0 || day > 31)
-              error_msg = 'Bad day: ' + val;
-            break;
-
-          case 4:
-          case 6:
-          case 9:
-          case 11:
-            if (day == 0 || day > 30)
-              error_msg = 'Bad day: ' + val;
-            break;
-
-          case 2:
-            if ((year % 4 == 0) && (year % 100 != 0) || (year % 400 == 0)) {
-              if (day == 0 || day > 29)   // leap year
+        if (day == 0) {
+          error_msg = 'Bad day: ' + val;
+        } else if (month == 2) {
+          if ((year % 4 == 0) && (year % 100 != 0) || (year % 400 == 0)) {
+              if (day > 29)   // leap year
                 error_msg = 'Bad day: ' + val;
             } else {
               if (day == 0 || day > 28)
                 error_msg = 'Bad day: ' + val;
             }
-            break;
+        } else if ([4,6,9,11].indexOf(month) >= 0) {
+          if (day == 0 || day > 30)
+              error_msg = 'Bad day: ' + val;
+        } else {
+          if (day == 0 || day > 31)
+              error_msg = 'Bad day: ' + val;
         }
       }
     }
@@ -500,7 +485,7 @@ $('#input-surveyor').on('blur', function(e) {
   var input = $(this);
   var val = input.trimValue();
 
-  // Not much we can check.
+  // Not much to check.
 
   if (val.length > 0) {
     input.closest('.form-group').validationState('has-success');
@@ -514,7 +499,7 @@ $('#input-client').on('blur', function(e) {
   var input = $(this);
   var val = input.trimValue();
 
-  // Not much we can check.
+  // Not much to check.
 
   if (val.length > 0) {
     input.closest('.form-group').validationState('has-success');
@@ -608,7 +593,7 @@ function validateMaptypes() {
   var id = 'maptypes';
   if (maptypes.filter(':checked').length == 0) {
     maptypes.closest('.form-group').validationState('has-error');
-    help_block.textState('text-danger').text('No map types selected.').attr('data-source', id);;
+    help_block.textState('text-danger').text('No map types selected').attr('data-source', id);;
   } else {
     maptypes.closest('.form-group').validationState();
     if (help_block.attr('data-source') == id) {
