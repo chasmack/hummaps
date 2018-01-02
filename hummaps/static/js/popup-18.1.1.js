@@ -232,7 +232,6 @@ jQuery.fn.extend({
 });
 
 function validateSection(input) {
-  console.log('validateSection()');
   var val = input.trimValue();
   var error_msg = '';
 
@@ -322,7 +321,6 @@ $('#input-section')
   });
 
 function validateTownship(input) {
-  console.log('validateTownship()');
   var val = input.trimValue();
   var error_msg = '';
 
@@ -358,7 +356,6 @@ $('#input-township')
   });
 
 function validateRange(input) {
-  console.log('validateRange()');
   var val = input.trimValue();
   var error_msg = '';
 
@@ -394,7 +391,6 @@ $('#input-range')
   });
 
 function validateRecdate(input) {
-  console.log('validateRecdate()');
   var val = input.trimValue();
   var error_msg = '';
 
@@ -481,12 +477,10 @@ $('#input-recdate-to')
   });
 
 $('#input-surveyor').on('blur', function(e) {
-  console.log('validateSurveyor()');
   var input = $(this);
   var val = input.trimValue();
 
   // Not much to check.
-
   if (val.length > 0) {
     input.closest('.form-group').validationState('has-success');
   } else {
@@ -495,12 +489,10 @@ $('#input-surveyor').on('blur', function(e) {
 });
 
 $('#input-client').on('blur', function(e) {
-  console.log('validateClient()');
   var input = $(this);
   var val = input.trimValue();
 
   // Not much to check.
-
   if (val.length > 0) {
     input.closest('.form-group').validationState('has-success');
   } else {
@@ -509,12 +501,10 @@ $('#input-client').on('blur', function(e) {
 });
 
 $('#input-description').on('blur', function(e) {
-  console.log('validateDescription()');
   var input = $(this);
   var val = input.trimValue();
 
-  // Not much we can check.
-
+  // Not much to check.
   if (val.length > 0) {
     input.closest('.form-group').validationState('has-success');
   } else {
@@ -523,7 +513,6 @@ $('#input-description').on('blur', function(e) {
 });
 
 function validateMaps(input) {
-  console.log('validateMaps()');
   var val = input.trimValue();
   var error_msg = '';
 
@@ -587,7 +576,6 @@ $('#input-maps')
 
 // Warn if there are no map types selected
 function validateMaptypes() {
-  console.log('validateMaptypes()');
   var maptypes = $('input[name^="maptype"]');
   var help_block = $('#help-block');
   var id = 'maptypes';
@@ -611,7 +599,7 @@ $('#search-dialog').find('input').not('[name^="maptype"]').blur()
 // Combine form data into a query string, hide dialog and submit search.
 $('#search-submit').on('click', function (e) {
 
-  // Manually submit form if appropriate.
+  // Manually submit form.
   e.preventDefault()
 
   var $dialog = $('#search-dialog');
