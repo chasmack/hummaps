@@ -6,7 +6,7 @@ commonly referred to as the Hollins Index.
 
 Hummaps is currently hosted at [hummaps.com](https://hummaps.com).
 
-New Feature: [Search Logs](LOGS.md)
+We also have excerpts and commentary from the [User Search Logs.](LOGS.md)
 
 ### Basic search
 
