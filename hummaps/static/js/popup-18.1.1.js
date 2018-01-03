@@ -49,12 +49,12 @@ $('#input-section')
       container: 'body',
       html: true,
       content:
-        '<p>Type one or more section numbers separated by space -</p>' +
+        '<p>Type one or more section numbers separated by space.</p>' +
         '<p style="padding-left: .5em"><strong>S12</strong></p>' +
         '<p style="padding-left: .5em"><strong>S11 S12 S13 S14</strong></p>' +
-        '<p>Subsections can be added in front of the section numbers -</p>' +
+        '<p>Place optional subsections in front of the section numbers.</p>' +
         '<p style="padding-left: .5em"><strong>S/2 S12</strong></p>' +
-        '<p style="padding-left: .5em"><strong>NE/4 SW/4 S16</strong></p>'
+        '<p style="padding-left: .5em"><strong>NE/4 SE/4 S11 N/2 SW/4 S12</strong></p>'
     });
 
 $('#input-township')
@@ -69,8 +69,10 @@ $('#input-township')
       container: 'body',
       html: true,
       content:
-        '<p>Type a single township number followed by "N" or "S" - <strong>T6N</strong></p>' +
-        '<p>The "T" prefix is optional - <strong>6N</strong></p>'
+        '<p>Type a single township number followed by "N" or "S".</p>' +
+        '<p style="padding-left: .5em"><strong>T6N</strong></p>' +
+        '<p>The "T" prefix is optional.</p>' +
+        '<p style="padding-left: .5em"><strong>6N</strong></p>'
     });
 
 $('#input-range')
@@ -85,8 +87,10 @@ $('#input-range')
       container: 'body',
       html: true,
       content:
-        '<p>Type a single range number followed by "E" or "W" - <strong>R4E</strong></p>' +
-        '<p>The "R" prefix is optional - <strong>4E</strong></p>'
+        '<p>Type a single range number followed by "E" or "W".</p>' +
+        '<p style="padding-left: .5em"><strong>R4E</strong></p>' +
+        '<p>The "R" prefix is optional.</p>' +
+        '<p style="padding-left: .5em"><strong>4E</strong></p>'
     });
 
 $('#input-recdate')
@@ -101,9 +105,11 @@ $('#input-recdate')
       container: 'body',
       html: true,
       content:
-        '<p>Type a year, month or day like -</p>' +
-        '<p style="padding-left: .5em"><strong>2017</strong> or <strong>6/2017</strong> or <strong>6/22/2017</strong></p>' +
-        '<p>Use an optional second date in the "To" field to specify a date range.</p>'
+        '<p>Type a year, month or day.</p>' +
+        '<p style="padding-left: .5em"><strong>2017</strong></p>' +
+        '<p style="padding-left: .5em"><strong>6/2017</strong></p>' +
+        '<p style="padding-left: .5em"><strong>6/22/2017</strong></p>' +
+        '<p>Use the optional <Strong>To</Strong> field to specify a date range.</p>'
     });
 
  $('#input-recdate-to')
@@ -187,13 +193,13 @@ $('#input-maps')
       container: 'body',
       html: true,
       content:
-        '<p>Type one or more map names specifying a book and page, parcel map number or tract number -</p>' +
+        '<p>Type one or more map names specifying a book and page, parcel map number or tract number.</p>' +
         '<p style="padding-left: .5em"><strong>68rs136</strong></p>' +
         '<p style="padding-left: .5em"><strong>pm2938</strong></p>' +
         '<p style="padding-left: .5em"><strong>tr445</strong></p>' +
-        '<p>Separate multiple maps with space -</p>' +
+        '<p>Separate multiple maps with a space.</p>' +
         '<p style="padding-left: .5em"><strong>68rs136 26pm151</strong></p>' +
-        '<p>DO NOT include any space within individual map names.</p>'
+        '<p><em>Do not include any spaces within the individual map names.</em></p>'
     });
 
 // Input validation
