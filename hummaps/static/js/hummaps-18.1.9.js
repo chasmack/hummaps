@@ -12,28 +12,25 @@ var imageOffset;          // origin of the map image relative to the map frame
 var imageScale;           // scale of the map image
 var imageScaleMin;        // minimum scale to fit map into the map frame
 var zoomStep = 1.35;      // factor to change zoom scale per step
-var shiftPressed;         // shift key is down
-var ctrlPressed;          // ctrl key is down
-var altPressed;           // alt key is down
 var loader = null;        // map view loader
 var loaderTimeout = null; // setTimeout ID for delayed loader display
 
 $(function() {
 
-  // initialize the contents
+  // Initialize the contents.
   $(window).trigger('resize');
 
   if ($('div.flashed-messages').length) {
 
-    // hide content if there are messages
+    // Hide content if there are messages.
     $('#map-list').hide();
     $('#map-frame').hide();
 
   } else {
 
-    // select the first map in the list
+    // Select the first map and displat the map list.
     currentMap = $('#map-list').find('.map-info:not(.disabled)').first();
-    if (currentMap.length) {
+    if (currentMap.length == 1) {
       currentMap.addClass('active');
       mapPage = 1;
     } else {
@@ -41,14 +38,13 @@ $(function() {
     }
     showMapList();
   }
-
 });
 
-// Handlers for window resize, map-item click and focus.
+// Handlers for window resize, map-info click and focus.
 
 $(window).on('resize', function (e) {
 
-  // setup frame heights
+  // Setup frame heights.
   var win = $(window).height();
   var pad = 6;
   var nav = $('nav').outerHeight(false) + pad;
@@ -110,6 +106,29 @@ $('#prev').on('click', function (e) {
 
 // Map list navigation.
 
+function nextPage() {
+  if (currentMap) {
+    $mapimages = currentMap.find('.map-image-list .map-image');
+    if (mapPage < $mapimages.length) {
+      mapPage += 1;
+      showMap();
+    } else {
+      nextMap();
+    }
+  }
+}
+
+function prevPage() {
+  if (currentMap) {
+    if (mapPage == 1) {
+      prevMap(true);
+    } else {
+      mapPage -= 1;
+      showMap();
+    }
+  }
+}
+
 function nextMap() {
   if (currentMap) {
     var $item = currentMap.parent().nextAll().children('.map-info:not(.disabled)').first();
@@ -142,28 +161,7 @@ function prevMap(lastpage) {
   }
 }
 
-function nextPage() {
-  if (currentMap) {
-    $mapimages = currentMap.find('.map-image-list .map-image');
-    if (mapPage < $mapimages.length) {
-      mapPage += 1;
-      showMap();
-    } else {
-      nextMap();
-    }
-  }
-}
-
-function prevPage() {
-  if (currentMap) {
-    if (mapPage == 1) {
-      prevMap(true);
-    } else {
-      mapPage -= 1;
-      showMap();
-    }
-  }
-}
+// Display the map list.
 
 function showMapList() {
   if (loader) {
@@ -178,18 +176,21 @@ function showMapList() {
   mapList = true;
 }
 
+// Display the map view.
+
 function showMap() {
   if (currentMap) {
 
-    // Remove any curent canvas.
     var frame = $('#map-frame');
+
+    // Remove the curent canvas.
     frame.find('canvas').remove();
 
     if (mapList) {
       $('#map-list').hide();
-      $('#map-frame').show();
       mapList = false;
     }
+    frame.show();
 
     // Add a new canvas.
     var canvas = document.createElement('canvas');
@@ -322,11 +323,11 @@ function zoomMapImage(scale, pageX, pageY) {
 
 // Keypress related stuff.
 
-// Prevent query and dialog keyboard events from propagating.
-// $('#search-query').add('#search-dialog')
-//   .on('keydown keyup keypress', function(e) {
-//     e.stopPropagation();
-// })
+// Stop query and dialog keyboard events from propagating up.
+$('#search-query').add('#search-dialog')
+  .on('keydown keyup keypress', function(e) {
+    e.stopPropagation();
+})
 
 $(window).on('keydown', function (e) {
 
@@ -338,68 +339,28 @@ $(window).on('keydown', function (e) {
   }
   // console.log('keydown: ' + e.key + ' (' + key + ')');
   switch (key) {
-    case 'Shift':  // shift
-      shiftPressed = true;
-      break;
-    case 'Control':  // ctrl
-      ctrlPressed = true;
-      break;
-    case 'Alt':  // alt
-      altPressed = true;
-      break;
-    case 'Esc':  // esc
+    case 'Esc':
       showMapList();
       break;
-    case 'Left':  // left arrow
+    case 'Left':
       if (!mapList) {
         prevPage();
-        arrowLockout = true;
         e.preventDefault();
       }
       break;
-    case 'Up':  // up arrow
-      prevMap();
-      arrowLockout = true;
-      e.preventDefault();
-      break;
-    case 'Right':  // right arrow
+    case 'Right':
       if (!mapList) {
         nextPage();
-        arrowLockout = true;
         e.preventDefault();
       }
       break;
-    case 'Down':  // down arrow
-      nextMap();
-      arrowLockout = true;
+    case 'Up':
+      prevMap();
       e.preventDefault();
       break;
-  }
-
-}).on('keyup', function (e) {
-
-  var key = e.key;
-  if (key.indexOf('Arrow') == 0) {
-    key = key.substr(5);
-  } else if (key.indexOf('Esc') == 0) {
-    key = 'Esc';
-  }
-  // console.log('keyup: ' + e.key + ' (' + key + ')');
-  switch (key) {
-    case 'Shift':
-      shiftPressed = false;
-      break;
-    case 'Control':
-      ctrlPressed = false;
-      break;
-    case 'Alt':
-      altPressed = false;
-      break;
-    case 'Left':
-    case 'Up':
-    case 'Right':
     case 'Down':
-      arrowLockout = false;
+      nextMap();
+      e.preventDefault();
       break;
   }
 
@@ -416,93 +377,14 @@ $(window).on('keydown', function (e) {
         zoomMapImage(imageScale / zoomStep);
         break;
       case ' ':
-        zoomMapImage(0);  // space zooms to minimum
+        // space zooms to minimum
+        zoomMapImage(0);
         break;
     }
   }
 });
 
 // Mouse and touch related stuff.
-
-var mc = new Hammer.Manager($('#map-frame').get(0), {
-  // domEvents: true
-});
-
-mc.add( new Hammer.Pan({ }) );
-mc.add( new Hammer.Pinch({ }) );
-
-// mc.add( new Hammer.Tap({ event: 'singletap' }) );
-// mc.add( new Hammer.Tap({ event: 'doubletap', taps: 2 }) );
-// mc.get('doubletap').recognizeWith('singletap');
-// mc.get('singletap').requireFailure('doubletap');
-//
-// mc.on('singletap', function(e) {
-//   console.log(e.type);
-// });
-
-// mc.add( new Hammer.Swipe({
-//   direction: Hammer.DIRECTION_HORIZONTAL,
-//   threshold: Math.floor(0.6 * $(window).width()),
-//   velocity: 1.0
-// }));
-//
-// mc.get('swipe').recognizeWith('pan');
-//
-// mc.on('swiperight swipeleft', function (e) {
-//   if (e.type == 'swiperight') {
-//     nextPage();
-//   } else {
-//     prevPage();
-//   }
-// });
-
-//
-// Make pan work???
-//
-// $('#map-frame').on('mousedown', function (e) {
-//   console.log('mousedown');
-//   e.preventDefault();
-// });
-
-var startX, startY, startScale;
-
-mc.on('pinchstart pinchmove', function(e) {
-
-  if (e.type == 'pinchstart') {
-    startScale = imageScale;
-  } else {
-    zoomMapImage(startScale * e.scale, e.center.x, e.center.y);
-  }
-});
-
-mc.on('panstart panmove', function(e) {
-
-  // var x = e.center.x, y = e.center.y;
-  // var dx = e.deltaX, dy = e.deltaY;
-  // var dt = e.deltaTime;
-  // var dist = e.distance, ang = e.angle;
-  // var vx = e.velocityX, vy = e.velocityY;
-  // var scale = e.scale;
-  //
-  // var str = '' +
-  //   ' x/y=' + x + '/' + y +
-  //   ' dx/dy=' + dx + '/' + dy +
-  //   ' dt=' + dt +
-  //   ' dist=' + dist.toFixed(2) +
-  //   ' ang=' + ang.toFixed(2) +
-  //   ' vx/vy=' + vx.toFixed(2) + '/' + vy.toFixed(2) +
-  //   ' scale=' + scale.toFixed(3);
-  // console.log(e.type + str);
-
-  if (imageScale > imageScaleMin) {
-    if (e.type == 'panstart') {
-      startX = imageOffset.x;
-      startY = imageOffset.y;
-    } else {
-      panMapImage(startX + e.deltaX, startY + e.deltaY);
-    }
-  }
-});
 
 $('#map-frame').on('mousewheel', function (e) {
 
@@ -512,5 +394,118 @@ $('#map-frame').on('mousewheel', function (e) {
   } else {
     zoomMapImage(imageScale / zoomStep, e.pageX, e.pageY);
   }
+  e.preventDefault();
   e.stopPropagation();
 });
+
+var ham = new Hammer.Manager($('#map-frame').get(0), {
+  // domEvents: true
+});
+
+ham.add( new Hammer.Pan({ }) );
+ham.add( new Hammer.Pinch({ }) );
+
+// ham.add( new Hammer.Tap({ event: 'singletap' }) );
+// ham.add( new Hammer.Tap({ event: 'doubletap', taps: 2 }) );
+// ham.get('doubletap').recognizeWith('singletap');
+// ham.get('singletap').requireFailure('doubletap');
+//
+// ham.on('singletap', function(e) {
+//   console.log(e.type);
+// });
+
+// ham.add( new Hammer.Swipe({
+//   direction: Hammer.DIRECTION_HORIZONTAL,
+//   threshold: Math.floor(0.6 * $(window).width()),
+//   velocity: 1.0
+// }));
+//
+// ham.get('swipe').recognizeWith('pan');
+//
+// ham.on('swiperight swipeleft', function (e) {
+//   if (e.type == 'swiperight') {
+//     nextPage();
+//   } else {
+//     prevPage();
+//   }
+// });
+
+// Make pan work???
+//
+// $('#map-frame').on('mousedown', function (e) {
+//   console.log('mousedown');
+//   e.preventDefault();
+// });
+
+var autoPanTimeConstant = 125;
+var autoPanAmplitude = 250;
+var startX, startY, startScale;
+var startTime, finalDeltaX, finalDeltaY;
+
+ham.on('pinchstart', function(e) {
+  startScale = imageScale;
+});
+
+ham.on('pinchmove', function(e) {
+  zoomMapImage(startScale * e.scale, e.center.x, e.center.y);
+});
+
+ham.on('panstart', function(e) {
+  startX = imageOffset.x;
+  startY = imageOffset.y;
+  finalDeltaX = finalDeltaY = 0;  // Cancel any autopan.
+});
+
+ham.on('panmove', function(e) {
+  if (imageScale > imageScaleMin) {
+    panMapImage(startX + e.deltaX, startY + e.deltaY);
+  }
+});
+
+ham.on('panend pancancel', function(e) {
+
+  // var x = e.center.x, y = e.center.y;
+  // var dx = e.deltaX, dy = e.deltaY;
+  // var dt = e.deltaTime;
+  // var dist = e.distance, ang = e.angle;
+  // var vx = e.velocityX, vy = e.velocityY;
+  // var v = e.velocity;
+  // var scale = e.scale;
+  //
+  // var str = '' +
+  //   ' x/y=' + x + '/' + y +
+  //   ' dx/dy=' + dx + '/' + dy +
+  //   ' dt=' + dt +
+  //   ' dist=' + dist.toFixed(2) +
+  //   ' ang=' + ang.toFixed(2) +
+  //   ' v=' + v.toFixed(2) +
+  //   ' vx/vy=' + vx.toFixed(2) + '/' + vy.toFixed(2) +
+  //   ' scale=' + scale.toFixed(3);
+  // console.log(e.type + str);
+
+  if (imageScale > imageScaleMin && Math.abs(e.velocity) > 0.1) {
+
+    // Initialize the kinetic autopan.
+    startX = imageOffset.x;
+    startY = imageOffset.y;
+    finalDeltaX = autoPanAmplitude * e.velocityX;
+    finalDeltaY = autoPanAmplitude * e.velocityY;
+    startTime = Date.now();
+    window.requestAnimationFrame(kineticPan);
+  }
+});
+
+function kineticPan() {
+
+  var elapsed =  startTime - Date.now();
+  var delta = 1 - Math.exp(elapsed / autoPanTimeConstant);
+  var dx = Math.round(finalDeltaX * delta);
+  var dy = Math.round(finalDeltaY * delta);
+  // console.log('kineticPan: dx/dy=' + dx + '/' + dy);
+
+  var rem = Math.max(Math.abs(finalDeltaX - dx), Math.abs(finalDeltaY - dy));
+  if (rem > 4) {
+    panMapImage(startX + dx, startY + dy);
+    window.requestAnimationFrame(kineticPan);
+  }
+}
