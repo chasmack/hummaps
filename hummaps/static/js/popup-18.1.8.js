@@ -2,13 +2,11 @@
 $('#search-dialog')
     // Disable arrow key navigation when modal is open.
     .on('shown.bs.modal', function(e) {
-      disableKeyboardNavigation = true;
       $('#input-section').focus();
 
     })
     // Re-enable arrow key navigation annd hide any popovers.
     .on('hide.bs.modal', function(e) {
-      disableKeyboardNavigation = false;
       $('div.help-popover').each(function(i) {
         $(this).popover('hide');
       });
@@ -446,19 +444,24 @@ function validateRecdate(input) {
       }
     }
   }
-  // recdate and recdate-to inputs share a form-group so
+  // The recdate and recdate-to inputs share a form-group so
   // errors have to be applied to the input's div and label.
+  // Also the recdate-to input has two labels to handle the
+  // breakpoint for xs screens.
   var help_block = $('#help-block');
   var id = input.attr('id');
+  var for_selector = 'label[for="' + id + '"]';
   if (error_msg) {
     input.parent().validationState('has-error')
-      .prev().textState('text-danger');
+      .prevAll(for_selector).textState('text-danger');
     help_block.textState('text-danger').text(error_msg).attr('data-source', id);
   } else {
     if (val.length > 0) {
-      input.parent().validationState('has-success').prev().textState('text-success');
+      input.parent().validationState('has-success')
+        .prevAll(for_selector).textState('text-success');
     } else {
-      input.parent().validationState().prev().textState();
+      input.parent().validationState()
+        .prevAll(for_selector).textState();
     }
     if (help_block.attr('data-source') == id) {
       help_block.text('');
@@ -626,11 +629,16 @@ $('#search-submit').on('click', function (e) {
     }
   }
 
-  if (val['recdate'].length > 0) {
-    if (val['recdate-to'].length > 0) {
-      terms.push('date="' + val['recdate'] + ' ' + val['recdate-to'] + '"');
-    } else {
+  if (val['recdate'].length > 0 || val['recdate-to'].length > 0) {
+    if (val['recdate-to'].length == 0) {
+      // a single year/month/day
       terms.push('date="' + val['recdate'] + '"');
+    } else if (val['recdate'].length == 0) {
+      // a range with missing range start date
+      terms.push('date="1800 ' + val['recdate-to'] + '"');
+    } else {
+      // a range with both terma present
+      terms.push('date="' + val['recdate'] + ' ' + val['recdate-to'] + '"');
     }
   }
 

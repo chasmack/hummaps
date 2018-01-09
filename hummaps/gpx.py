@@ -248,7 +248,7 @@ def dxf_out(geom, srid):
     dwg.layers.new(name='GPX-TRACKS', dxfattribs={'linetype': 'CONTINUOUS', 'color': 7})
     msp = dwg.modelspace()
 
-    # transform geometry from WGS 84 Lon/Lat (EPSG:4326) to target srs
+    # transform geometry from WGS 84 Lon/Lat (EPSG:4326) to currentMap srs
     wgs84 = osr.SpatialReference()
     wgs84.ImportFromEPSG(4326)
     target = osr.SpatialReference()
@@ -258,7 +258,7 @@ def dxf_out(geom, srid):
     for rec in geom:
         rec['geom'].Transform(transform)
         if 'ele' in rec:
-            # convert elevation to target linear units
+            # convert elevation to currentMap linear units
             rec['ele'] = '%.4f' % (float(rec['ele']) / target.GetLinearUnits())
 
     for g in [g['geom'] for g in geom]:
@@ -319,7 +319,7 @@ def pnts_read(f, srid):
 
 def pnts_out(geom, srid):
 
-    # transform geometry from WGS 84 Lon/Lat (EPSG:4326) to target srs
+    # transform geometry from WGS 84 Lon/Lat (EPSG:4326) to currentMap srs
     wgs84 = osr.SpatialReference()
     wgs84.ImportFromEPSG(4326)
     target = osr.SpatialReference()
@@ -329,7 +329,7 @@ def pnts_out(geom, srid):
     for rec in geom:
         rec['geom'].Transform(transform)
         if 'ele' in rec:
-            # convert elevation to target linear units
+            # convert elevation to currentMap linear units
             rec['ele'] = '%.4f' % (float(rec['ele']) / target.GetLinearUnits())
 
     pnezd = ''

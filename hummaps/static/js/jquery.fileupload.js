@@ -87,10 +87,10 @@
     $.widget('blueimp.fileupload', {
 
         options: {
-            // The drop target element(s), by the default the complete document.
+            // The drop currentMap element(s), by the default the complete document.
             // Set to null to disable drag & drop support:
             dropZone: $(document),
-            // The paste target element(s), by the default undefined.
+            // The paste currentMap element(s), by the default undefined.
             // Set to a DOM node or jQuery object to enable file pasting:
             pasteZone: undefined,
             // The file input field(s), that are listened to for change events.

@@ -245,7 +245,7 @@ $('#map-list').on('click', 'a.map-info:not(.disabled)', function (e) {
 
   if ($(this)[0] != $target[0]) {
 
-    // update the target
+    // update the currentMap
     $target.removeClass('active');
     $target = $(this).addClass('active');
     mapPage = 1;
