@@ -20,27 +20,29 @@
 
 {%- block navigation %}
 <!-- begin navigation controls block -->
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-            <form class="navbar-form" role="search" action="{{ request.path }}" method="get">
-              <div class="form-group">
-                <div class="input-group">
-                  <span class="input-group-btn">
-                    <button class="btn btn-secondary" type="submit">
-                      <span class="glyphicon glyphicon-search"></span>
-                    </button>
-                  </span>
-                  <input id="search-query" class="form-control" type="text" name="q" value="{{ query }}" placeholder="Search for..." autofocus autocomplete="off" spellcheck="false">
+        <div id="searchbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <form class="navbar-form" role="search" action="{{ request.path }}" method="get">
+                <div class="form-group">
+                  <div class="input-group">
+                    <span class="input-group-btn">
+                      <button class="btn btn-secondary" type="submit">
+                        <span class="glyphicon glyphicon-search"></span>
+                      </button>
+                    </span>
+                    <input id="search-query" class="form-control" type="text" name="q" value="{{ query }}" placeholder="Search for..." autofocus autocomplete="off" spellcheck="false">
+                  </div>
                 </div>
-              </div>
-            </form>
-          </li>
-          <li><a id="launch-dialog" data-toggle="modal" href="#search-dialog">popup</a></li>
-          <li><a id="show-maps" href="#">maps</a></li>
-          <li><a id="next" href="#">next</a></li>
-          <li><a id="prev" href="#">prev</a></li>
-          <li><a href="https://github.com/chasmack/hummaps/blob/master/README.md" target="_blank">about</a></li>
-        </ul>
+              </form>
+            </li>
+            <li><a id="show-dialog" href="#search-dialog">popup</a></li>
+            <li><a id="show-maps" href="#">maps</a></li>
+            <li><a id="next" href="#">next</a></li>
+            <li><a id="prev" href="#">prev</a></li>
+            <li><a href="https://github.com/chasmack/hummaps/blob/master/README.md" target="_blank">about</a></li>
+          </ul>
+        </div> <!--/.nav-collapse -->
 <!-- end navigation controls -->
 {%- endblock navigation -%}
 
@@ -265,7 +267,7 @@
     {{ super() }}
     <script src="{{ url_for('static', filename='js/jquery.mousewheel-3.1.11.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/hammer-2.0.8.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/hummaps-18.1.9.3.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/popup-18.1.9.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/hummaps-18.1.10.2.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popup-18.1.10.js') }}"></script>
 <!-- end scripts block -->
 {% endblock scripts %}
