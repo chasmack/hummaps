@@ -6,19 +6,21 @@ var mapList = true;       // map list is displayed
 var currentMap;           // current map-info
 var mapPage;              // current map page
 var mapImage;             // current DOM map image
+var canvasSize;           // map canvas size
 var imageSize;            // natural size of the map image
-var canvasSize;           // size of the map image canvas
-var imageOffset;          // origin of the map image relative to the map frame
-var imageScale;           // scale of the map image
 var imageScaleMin;        // minimum scale to fit map into the map frame
+var imageScale;           // scale of the map image
+var imageOffset;          // origin of the map image relative to the map canvas
 var zoomStep = 1.35;      // factor to change zoom scale per step
+var resizeLockout;        // prevent resize of frame
 var loader = null;        // map view loader
 var loaderTimeout = null; // setTimeout ID for delayed loader display
 
 $(function() {
 
-  // Initialize the contents.
-  $(window).trigger('resize');
+  // Initialize content frame size.
+  resizeLockout = false;
+  updateFrameSize();
 
   if ($('div.flashed-messages').length) {
 
@@ -42,20 +44,25 @@ $(function() {
 
 // Handlers for window resize, map-info click and focus.
 
-$(window).on('resize', function (e) {
+function updateFrameSize() {
 
   // Setup frame heights.
-  var win = $(window).height();
-  var pad = 6;
-  var nav = $('nav').outerHeight(false) + pad;
-  var content = win - nav - pad;
-  $('#content-frame').height(content).css({
-    position: 'relative',
-    top: nav,
-    left: 0
+  var navHeight = Math.ceil($('nav').outerHeight(true));
+  var frame = $('#content-frame').css({
+    'height': 'calc(100% - ' + navHeight + 'px)',
+    'position': 'relative',
+    'top': navHeight,
+    'left': 0
   });
-  $('#map-list').height(content).css('overflow-y', 'auto');
-  $('#map-frame').height(content).css('overflow', 'hidden');
+  canvasSize = {x: Math.floor(frame.width()), y: Math.floor(frame.height())};
+}
+
+$(window).on('resize', function (e) {
+
+  if (resizeLockout){
+    return;
+  }
+  updateFrameSize();
   if (!mapList) {
     showMap();
   }
@@ -78,7 +85,55 @@ $('#map-list').on('click', 'a.map-info:not(.disabled)', function (e) {
   }
 });
 
+// Navbar collapse handlers.
+
+$('#searchbar').collapse({
+  toggle: false
+});
+
+$('nav').on('click', '.navbar-toggle', function(e) {
+  $('#searchbar').collapse('toggle');
+});
+
+$('div.navbar-collapse').on('click', 'a', function(e) {
+  $('#searchbar').collapse('hide');
+});
+
+$('div.navbar-collapse').on('submit', 'form', function(e) {
+  $('#searchbar').collapse('hide');
+});
+
+$('div.navbar-collapse').on('show.bs.collapse', function(e) {
+  resizeLockout = true;
+});
+
+$('div.navbar-collapse').on('hidden.bs.collapse', function(e) {
+  resizeLockout = false;
+});
+
 // Handlers for nav buttons.
+
+$('#search-dialog').modal({
+  show: false
+
+}).on('hidden.bs.modal', function (e) {
+  window.setTimeout(function() {
+    resizeLockout = false;
+  }, 500);
+});
+
+$('#show-dialog').on('click', function (e) {
+  $('#search-dialog').modal('toggle');
+  resizeLockout = true;
+});
+
+$('#search-query')
+  .on('focus', function (e) {
+  resizeLockout = true;
+
+}).on('blur', function (e) {
+  resizeLockout = false;
+});
 
 $('#show-maps').on('click', function (e) {
   if (mapList) {
@@ -181,24 +236,14 @@ function showMapList() {
 function showMap() {
   if (currentMap) {
 
-    var frame = $('#map-frame');
-
-    // Remove the curent canvas.
-    frame.find('canvas').remove();
+    // Remove any existing map canvas.
+    $('#map-canvas').remove();
 
     if (mapList) {
       $('#map-list').hide();
       mapList = false;
     }
-    frame.show();
-
-    // Add a new canvas.
-    var canvas = document.createElement('canvas');
-    canvas.width = Math.floor(frame.width());
-    canvas.height = Math.floor(frame.height());
-    canvas.id = 'map-canvas';
-    frame.prepend(canvas);
-    canvasSize = {x: canvas.width, y: canvas.height};
+    $('#map-frame').show();
 
     // Get the current map image from the image list.
     var img = currentMap.find('.map-image-list .map-image').eq(mapPage - 1);
@@ -214,10 +259,11 @@ function showMap() {
       }, 750);
 
       // Replace div with an img element, this starts the download.
-      img = $('<img class="map-image">').attr({
+      img = $('<img>').attr({
+        class: 'map-image',
         src: img.attr('data-src'),
         alt: img.attr('data-alt')
-      }).replaceAll(img)
+      }).replaceAll(img);
 
       // Callback to draw the image and cancel the loader.
       img.on('load', function() {
@@ -229,14 +275,7 @@ function showMap() {
           loader.hide();
           loader = null;
         }
-
-        mapImage = img[0];
-        imageSize = {x: mapImage.naturalWidth, y: mapImage.naturalHeight};
-        imageOffset = {x: 0, y: 0};
-        imageScaleMin = Math.min(canvasSize.x / imageSize.x, canvasSize.y / imageSize.y);
-        imageScale = imageScaleMin;
-
-        drawMapImage();
+        showMapCanvas(img);
       });
 
     } else {
@@ -251,26 +290,53 @@ function showMap() {
         loader.hide();
         loader = null;
       }
-
-      mapImage = img[0];
-      imageSize = {x: mapImage.naturalWidth, y: mapImage.naturalHeight};
-      imageOffset = {x: 0, y: 0};
-      imageScaleMin = Math.min(canvasSize.x / imageSize.x, canvasSize.y / imageSize.y);
-      imageScale = imageScaleMin;
-      drawMapImage();
+      showMapCanvas(img);
     }
 
-    // update the map name label and scan link
-    $('#map-name span').text(img.attr('alt'));
-    var scan = currentMap.find('.scanfile-list .scanfile').eq(mapPage - 1);
-    if (scan.length == 1) {
-      $('<a>')
-          .attr('href', scan.attr('data-href'))
-          .text(scan.attr('data-alt'))
-          .appendTo('#map-name span')
-          .before('<br>');
-    }
+    // Update the map name label and link.
+    var name = $('<span>').text(img.attr('alt'));
+    var src = img.attr('src');
+    var link = $('<a>')
+      .attr('href', src)
+      .text(src.substr(src.lastIndexOf('/') + 1));
+
+    $('#map-name').children().remove().end()
+      .append(name)
+      .append('<br>')
+      .append(link);
+
+    // var scan = currentMap.find('.scanfile-list .scanfile').eq(mapPage - 1);
+    // if (scan.length == 1) {
+    //   link = $('<a>')
+    //     .attr('href', scan.attr('data-href'))
+    //     .text(scan.attr('data-alt'));
+    //   $('#map-name')
+    //     .append('<br>')
+    //     .append(link);
+    // }
   }
+}
+
+function showMapCanvas(img) {
+
+  mapImage = img[0];
+  imageSize = {x: mapImage.naturalWidth, y: mapImage.naturalHeight};
+  imageScaleMin = Math.min(canvasSize.x / imageSize.x, canvasSize.y / imageSize.y);
+  imageScale = imageScaleMin;
+  imageOffset = {
+    x: canvasSize.x > imageSize.x * imageScale ? Math.floor((canvasSize.x - imageSize.x * imageScale) / 2) : 0,
+    y: 0
+  };
+
+  // Add a new canvas.
+  var canvas = document.createElement('canvas');
+  canvas.id = 'map-canvas';
+  canvas.width = canvasSize.x;
+  canvas.height = canvasSize.y;
+  canvas.style.display = 'block';
+  $('#map-frame').prepend(canvas);
+
+  drawMapImage();
 }
 
 function drawMapImage() {
@@ -283,41 +349,61 @@ function drawMapImage() {
   ctx.restore();
 }
 
-function panMapImage(dx, dy) {
+function panMapImage(x, y) {
 
-  // Clamp new offset to frame boundaries.
-  imageOffset.x = Math.round(Math.max(dx, canvasSize.x - imageSize.x * imageScale));
-  imageOffset.y = Math.round(Math.max(dy, canvasSize.y - imageSize.y * imageScale));
-  if (imageOffset.x > 0) imageOffset.x = 0;
-  if (imageOffset.y > 0) imageOffset.y = 0;
-
+  var e;
+  e = canvasSize.x - imageSize.x * imageScale;
+  if (e < 0) {
+    imageOffset.x = Math.round(Math.min(Math.max(x, e), 0));
+  }
+  e = canvasSize.y - imageSize.y * imageScale;
+  if (e < 0) {
+    imageOffset.y = Math.round(Math.min(Math.max(y, e), 0));
+  }
   drawMapImage();
 }
 
 function zoomMapImage(scale, pageX, pageY) {
 
+  if (imageScale == imageScaleMin && scale <= imageScaleMin) {
+    return;
+  }
+
   var initialScale = imageScale;
   imageScale = (scale > imageScaleMin) ? scale : imageScaleMin;
 
-  // Zoom origin relative to the frame.
-  var frame = $('#map-frame');
+  // Zoom origin relative to pageX/pageY.
+  var canvas = $('#map-canvas');
   var originX, originY;
   if (pageX && pageY) {
-    originX = pageX - frame.offset().left;
-    originY = pageY - frame.offset().top;
+    originX = pageX - canvas.offset().left;
+    originY = pageY - canvas.offset().top;
   } else {
-    originX = frame.width() / 2;
-    originY = frame.height() / 2;
+    originX = canvasSize.x / 2;
+    originY = canvasSize.y / 2;
   }
 
-  // Set new offset and clamp to frame boundaries.
-  imageOffset.x = imageScale / initialScale * (imageOffset.x - originX) + originX;
-  imageOffset.y = imageScale / initialScale * (imageOffset.y - originY) + originY;
-  imageOffset.y = Math.round(Math.max(imageOffset.y, canvasSize.y - imageSize.y * imageScale));
-  imageOffset.x = Math.round(Math.max(imageOffset.x, canvasSize.x - imageSize.x * imageScale));
-  if (imageOffset.x > 0) imageOffset.x = 0;
-  if (imageOffset.y > 0) imageOffset.y = 0;
-
+  var e;
+  e = canvasSize.x - imageSize.x * imageScale;
+  if (e < 0) {
+    // Scaled image width is larger than the frame.
+    // Zoom relative to the origin, clamp edges to frame.
+    imageOffset.x = imageScale / initialScale * (imageOffset.x - originX) + originX;
+    imageOffset.x = Math.round(Math.min(Math.max(imageOffset.x, e), 0));
+  } else {
+    // Center the image in the available frame width.
+    imageOffset.x = Math.round(e / 2);
+  }
+  e = canvasSize.y - imageSize.y * imageScale;
+  if (e < 0) {
+    // Scaled image height is larger than the frame.
+    // Zoom relative to the origin, clamp edges to frame.
+    imageOffset.y = imageScale / initialScale * (imageOffset.y - originY) + originY;
+    imageOffset.y = Math.round(Math.min(Math.max(imageOffset.y, e), 0));
+  } else {
+    // Clamp to top of frame.
+    imageOffset.y = 0;
+  }
   drawMapImage();
 }
 
@@ -430,10 +516,8 @@ ham.add( new Hammer.Pinch({ }) );
 //   }
 // });
 
-// Make pan work???
-//
+// Need to prevent default for mouse pan.
 // $('#map-frame').on('mousedown', function (e) {
-//   console.log('mousedown');
 //   e.preventDefault();
 // });
 
@@ -491,7 +575,11 @@ ham.on('panend pancancel', function(e) {
     finalDeltaX = autoPanAmplitude * e.velocityX;
     finalDeltaY = autoPanAmplitude * e.velocityY;
     startTime = Date.now();
-    window.requestAnimationFrame(kineticPan);
+    if (window.requestAnimationFrame) {
+      window.requestAnimationFrame(kineticPan);
+    } else {
+      window.setTimeout(kineticPan, 25);
+    }
   }
 });
 
@@ -506,6 +594,10 @@ function kineticPan() {
   var rem = Math.max(Math.abs(finalDeltaX - dx), Math.abs(finalDeltaY - dy));
   if (rem > 4) {
     panMapImage(startX + dx, startY + dy);
-    window.requestAnimationFrame(kineticPan);
+    if (window.requestAnimationFrame) {
+      window.requestAnimationFrame(kineticPan);
+    } else {
+      window.setTimeout(kineticPan, 25);
+    }
   }
 }

@@ -4,15 +4,6 @@
 {%- block styles %}
 {{- super() }}
   <style>
-  body {
-     height: 100%;
-  }
-  .navbar {
-    margin-bottom: 0;
-  }
-  #content-frame {
-    padding: 6px 0 0;
-  }
   .map-item {
     position: relative;
     z-index: 0;
@@ -57,7 +48,7 @@
 
 {% block page %}
 <!-- begin page content block -->
-    <div id="map-list" class="container-fluid" style="height: 100%; overflow-y: auto">
+    <div id="map-list" class="container-fluid" hidden>
       <div class="row">
         <div class="col-md-offset-3 col-md-6">
           {% if not results -%}
@@ -117,7 +108,7 @@
         </div>
       </div>
     </div>
-    <div id="map-frame" style="height: 100%; display: none">
+    <div id="map-frame" style="display: none">
       <div id="loader-frame" style="display: none;">
         <div id="loader"></div>
         <span style="margin-left: 12px;">Loading map image...</span>
@@ -275,7 +266,7 @@
     {{ super() }}
     <script src="{{ url_for('static', filename='js/jquery.mousewheel-3.1.11.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/hammer-2.0.8.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/hummaps-18.1.26.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/popup-18.1.26.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/hummaps-18.1.11.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popup-18.1.10.js') }}"></script>
 <!-- end scripts block -->
 {% endblock scripts %}

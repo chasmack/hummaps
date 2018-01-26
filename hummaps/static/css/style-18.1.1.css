@@ -6,8 +6,8 @@ body {
   color: #333666;
 }
 section {
-  text-align: center;
   margin: 50px 0;
+  text-align: center;
 }
 
 .flashed-messages {
@@ -15,14 +15,14 @@ section {
 }
 
 #map-name {
+  background: #f6f6f6;
+  border-radius: 4px;
+  bottom: 0;
+  color: rgba(0, 0, 0, 0.8);
+  opacity: 0.8;;
+  padding: 2px 8px;
   position: absolute;
   right: 20px;
-  bottom: 0;
-  border-radius: 4px;
-  padding: 2px 8px;
-  color: rgba(0, 0, 0, 0.8);
-  background: #f6f6f6;
-  opacity: 0.8;";
 }
 
 #map-name a {
