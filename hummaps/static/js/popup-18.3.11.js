@@ -2,13 +2,11 @@
 $('#search-dialog')
     // Disable arrow key navigation when modal is open.
     .on('shown.bs.modal', function(e) {
-      disableKeyboardNavigation = true;
       $('#input-section').focus();
 
     })
     // Re-enable arrow key navigation annd hide any popovers.
     .on('hide.bs.modal', function(e) {
-      disableKeyboardNavigation = false;
       $('div.help-popover').each(function(i) {
         $(this).popover('hide');
       });
@@ -39,7 +37,7 @@ $('[data-toggle="popover"]').popover();
 // Setup the inputs and help popovers
 $('#input-section')
     .attr({
-      placeholder: 'eg. s22',
+      placeholder: 'eg. S12',
       autocomplete: "off",
       spellcheck: "false"
     })
@@ -59,7 +57,7 @@ $('#input-section')
 
 $('#input-township')
     .attr({
-      placeholder: 'eg. 5n',
+      placeholder: 'eg. 6N',
       autocomplete: "off",
       spellcheck: "false"
     })
@@ -77,7 +75,7 @@ $('#input-township')
 
 $('#input-range')
     .attr({
-      placeholder: 'eg. 1w',
+      placeholder: 'eg. 4E',
       autocomplete: "off",
       spellcheck: "false"
     })
@@ -107,8 +105,8 @@ $('#input-recdate')
       content:
         '<p>Type a year, month or day.</p>' +
         '<p style="padding-left: .5em"><strong>2017</strong></p>' +
-        '<p style="padding-left: .5em"><strong>6/2017</strong></p>' +
-        '<p style="padding-left: .5em"><strong>6/22/2017</strong></p>' +
+        '<p style="padding-left: .5em"><strong>12/2017</strong></p>' +
+        '<p style="padding-left: .5em"><strong>12/22/2017</strong></p>' +
         '<p>Use the optional <Strong>To</Strong> field to specify a date range.</p>'
     });
 
@@ -240,6 +238,8 @@ jQuery.fn.extend({
 function validateSection(input) {
   var val = input.trimValue();
   var error_msg = '';
+  var pat, re, parts, i;
+  var sec, n, help_block, id;
 
   if (val.length > 0) {
 
@@ -261,17 +261,17 @@ function validateSection(input) {
     // Expressions like E/2 N/2 are not valid. Use NE/4 instead.
     // Expressions like NW/4 E/2 are not valid. You probably want W/2 NE/4.
 
-    var pat = '' +
+    pat = '' +
       '(([NS][EW]/4|[NSEW]/2)\\s+)?[NS][EW]/4\\s+' +    // (1), (2) & (5)
       '|([NS]/2\\s+)?[NS]/2\\s+' +                      // (3) & part of (6)
       '|([EW]/2\\s+)?[EW]/2\\s+' +                      // (4) & part of (6)
       '|1/1\\s+';                                       // (7)
 
     pat = '^(' + pat + ')?S\\d{1,2}$';                  // a section
-    var re = new RegExp(pat, 'i');
+    re = new RegExp(pat, 'i');
 
     // Split line into individual sections.
-    var parts = val.split(/(S\d+)(,\s*|\s+|(?!,)$)/i);
+    parts = val.split(/(S\d+)(,\s*|\s+|(?!,)$)/i);
     if (parts.length == 1) {
       // Doesn't look like a section.
       error_msg = 'Bad section: ' + val;
@@ -280,8 +280,8 @@ function validateSection(input) {
       // For each section there are three parts: subsection, section and separator.
       // A terminal separator generates an empty final part. Dispose of it.
       parts.pop();
-      for (var i = 0; i < parts.length; i += 3) {
-        var sec = parts[i] + parts[i + 1];
+      for (i = 0; i < parts.length; i += 3) {
+        sec = parts[i] + parts[i + 1];
 
         // The final separator should be empty.
         if (i + 3 == parts.length) {
@@ -293,7 +293,7 @@ function validateSection(input) {
           break;
         }
         // Check section numbers.
-        var n = parseInt(sec.match(/\d+$/)[0]);
+        n = parseInt(sec.match(/\d+$/)[0]);
         if (n < 1 || n > 36) {
           error_msg = 'Bad section: ' + sec;
           break;
@@ -301,8 +301,8 @@ function validateSection(input) {
       }
     }
   }
-  var help_block = $('#help-block');
-  var id = input.attr('id');
+  help_block = $('#help-block');
+  id = input.attr('id');
   if (error_msg) {
     input.closest('.form-group').validationState('has-error');
     help_block.textState('text-danger').text(error_msg).attr('data-source', id);
@@ -446,19 +446,24 @@ function validateRecdate(input) {
       }
     }
   }
-  // recdate and recdate-to inputs share a form-group so
+  // The recdate and recdate-to inputs share a form-group so
   // errors have to be applied to the input's div and label.
+  // Also the recdate-to input has two labels to handle the
+  // breakpoint for xs screens.
   var help_block = $('#help-block');
   var id = input.attr('id');
+  var for_selector = 'label[for="' + id + '"]';
   if (error_msg) {
     input.parent().validationState('has-error')
-      .prev().textState('text-danger');
+      .prevAll(for_selector).textState('text-danger');
     help_block.textState('text-danger').text(error_msg).attr('data-source', id);
   } else {
     if (val.length > 0) {
-      input.parent().validationState('has-success').prev().textState('text-success');
+      input.parent().validationState('has-success')
+        .prevAll(for_selector).textState('text-success');
     } else {
-      input.parent().validationState().prev().textState();
+      input.parent().validationState()
+        .prevAll(for_selector).textState();
     }
     if (help_block.attr('data-source') == id) {
       help_block.text('');
@@ -610,6 +615,9 @@ $('#search-submit').on('click', function (e) {
 
   var $dialog = $('#search-dialog');
   var val = {};
+  var terms = [];
+  var re;
+
   // Trim space from input and collect values into an object.
   $dialog.find('input').each(function(i) {
     var input = $(this);
@@ -618,19 +626,30 @@ $('#search-submit').on('click', function (e) {
     val[this.name] = trimmed;
   });
 
-  var terms = [];
   if (val['township'].length > 0 && val['range'].length > 0) {
     terms.push(val['township'], val['range']);
     if (val['section'].length > 0) {
+      // Make the S prefix optional
+      re = /^(\d{1,2}(?:\s+|$))+$/;
+      if (re.test(val['section'])) {
+        val['section'] = val['section'].split(/\s+/).map(function(n) {
+          return 's' + n
+        }).join(' ');
+      }
       terms.unshift(val['section']);
     }
   }
 
-  if (val['recdate'].length > 0) {
-    if (val['recdate-to'].length > 0) {
-      terms.push('date="' + val['recdate'] + ' ' + val['recdate-to'] + '"');
-    } else {
+  if (val['recdate'].length > 0 || val['recdate-to'].length > 0) {
+    if (val['recdate-to'].length == 0) {
+      // a single year/month/day
       terms.push('date="' + val['recdate'] + '"');
+    } else if (val['recdate'].length == 0) {
+      // a range with missing range start date
+      terms.push('date="1800 ' + val['recdate-to'] + '"');
+    } else {
+      // a range with both terma present
+      terms.push('date="' + val['recdate'] + ' ' + val['recdate-to'] + '"');
     }
   }
 

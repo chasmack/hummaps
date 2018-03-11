@@ -4,6 +4,8 @@ from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from hummaps.database import Base
 
+#URL_BASE = 'https://hummaps.com'
+URL_BASE = ''
 
 class MapImage(Base):
     __tablename__ = 'map_image'
@@ -14,6 +16,10 @@ class MapImage(Base):
     imagefile = Column(String)
 
     map = relationship('Map', back_populates='mapimages')
+
+    @hybrid_property
+    def url(self):
+        return URL_BASE + self.imagefile
 
     def __repr__(self):
         return '<MapImage(id=%d, map=%d, imagefile="%s")>' % (self.id, self.map_id, self.imagefile)
@@ -27,6 +33,10 @@ class Pdf(Base):
     pdffile = Column(String)
 
     map = relationship('Map', back_populates='pdf')
+
+    @hybrid_property
+    def url(self):
+        return URL_BASE + self.pdffile
 
     def __repr__(self):
         return '<PdfFile(id=%d, map=%d, pdffile="%s")>' % (self.id, self.map_id, self.pdffile)
@@ -42,6 +52,10 @@ class Scan(Base):
 
     map = relationship('Map', back_populates='scans')
 
+    @hybrid_property
+    def url(self):
+        return URL_BASE + self.scanfile
+
     def __repr__(self):
         return '<Scan(id=%d, map=%d, scanfile="%s")>' % (self.id, self.map_id, self.scanfile)
 
@@ -55,6 +69,10 @@ class CCImage(Base):
     imagefile = Column(String)
 
     cc = relationship('CC', back_populates='ccimages')
+
+    @hybrid_property
+    def url(self):
+        return URL_BASE + self.imagefile
 
     def __repr__(self):
         return '<CCImage(id=%d, cc=%d, imagefile="%s")>' % (self.id, self.cc_id, self.imagefile)

@@ -50,7 +50,12 @@ def gpx_read(f):
             for trkpt in trkseg.findall('gpx:trkpt', ns):
                 time = trkpt.find('gpx:time', ns)
                 if time is not None:
-                    dt = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%SZ')
+                    if re.match('.*:\d{2}\.\d+Z$', time.text, re.IGNORECASE):
+                        # parse with microseconds
+                        dt = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%S.%fZ')
+                    else :
+                        # parse with only full seconds
+                        dt = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%SZ')
                     if dtlast and (dt - dtlast).seconds > TRKSEG_IDLE_SECS:
                         # start a new segment
                         geom.append({'geom': g})

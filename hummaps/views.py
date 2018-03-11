@@ -124,6 +124,14 @@ def gpx():
     return render_template('gpx.html')
 
 #
+# Service unavailable
+#
+
+@app.route('/error/503.html', methods=['GET'])
+def unavailable():
+    return render_template('503.html'), 503
+
+#
 # /robots.txt
 #
 
@@ -156,3 +164,4 @@ def not_found(e):
 @app.errorhandler(500)
 def server_error(e):
     return render_template('500.html'), 500
+
