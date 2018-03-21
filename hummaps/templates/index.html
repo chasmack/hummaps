@@ -108,7 +108,7 @@
                 {%- endif %}
               </a>
               {% if map.pdf %}
-              <a href="{{ map.pdf.url }}" download="{{ map.pdf.pdffile|basename }}.pdf"><button class="btn btn-default btn-xs pdf-button" style="padding: 2px 8px;"><strong>PDF</strong></button></a>
+              <a href="{{ map.pdf.url }}" download="{{ map.pdf.pdffile|basename }}"><button class="btn btn-default btn-xs pdf-button" style="padding: 2px 8px;"><strong>PDF</strong></button></a>
               {% endif %}
             </div>
             {%- endfor %}
