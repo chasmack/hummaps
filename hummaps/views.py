@@ -4,8 +4,8 @@ from flask.json import jsonify, dumps
 
 from hummaps import app
 from hummaps.xhr import xhr_request
-from hummaps.search import do_search, ParseError
-# from hummaps.search_paths import do_search, ParseError
+# from hummaps.search import do_search, ParseError
+from hummaps.search_paths import do_search, ParseError
 
 from hummaps.gpx import gpx_read, gpx_out
 from hummaps.gpx import dxf_read, dxf_out

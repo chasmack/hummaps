@@ -227,30 +227,30 @@ def do_search(search):
                         # pattern search both pls and rce
                         and_terms.append(or_(Surveyor.pls.op('~*')(v), Surveyor.rce.op('~*')(v)))
                     elif type.upper()[-2:] == 'LS':
-                        and_terms.append(and_(Surveyor.pls.op('~*')(number)))
+                        and_terms.append(Surveyor.pls.op('~*')(number))
                     else:
-                        and_terms.append(and_(Surveyor.rce.op('~*')(number)))
+                        and_terms.append(Surveyor.rce.op('~*')(number))
                 else:
                     # replace spaces with wildcards and pattern search fullname
                     if v.strip().find(' ') < 0:
                         # pattern search full name
-                        and_terms.append(and_(Surveyor.fullname.op('~*')(v)))
+                        and_terms.append(Surveyor.fullname.op('~*')(v))
                     else:
                         # assume each non-space fragment starts a word
                         # add wildcards and word boundary qualifiers
                         vqual = '\m' + re.sub('\s+', '.*\m', v)
-                        and_terms.append(and_(Surveyor.fullname.op('~*')(vqual)))
+                        and_terms.append(Surveyor.fullname.op('~*')(vqual))
             elif k == 'DATE' or k == 'REC':
                 dates = parse_dates(v)
                 and_terms.append(between(Map.recdate, *dates))
             elif k == 'FOR':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
-                and_terms.append(and_(Map.client.op('~*')(v)))
+                and_terms.append(Map.client.op('~*')(v))
             elif k == 'DESC':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
-                and_terms.append(and_(Map.description.op('~*')(v)))
+                and_terms.append(Map.description.op('~*')(v))
             elif k == 'ANY':
                 try:
                     re.compile(v)
@@ -262,9 +262,9 @@ def do_search(search):
             elif k == 'TYPE':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
-                and_terms.append(and_(MapType.abbrev.op('~*')(v)))
+                and_terms.append(MapType.abbrev.op('~*')(v))
             elif k == 'ID':
-                and_terms.append(and_(Map.id == v))
+                and_terms.append(Map.id == v)
             elif k == 'MAP':
                 book, maptype, page = v
                 maptype = maptype.upper()
@@ -284,7 +284,7 @@ def do_search(search):
             elif k == 'TRS':
                 tshp = (v['tshp'] + '.' + v['rng']).upper()
                 if len(v['secs']) == 0:
-                    and_terms.append(and_(TRS.trs_path.op('<@')(Ltree(tshp))))
+                    and_terms.append(TRS.trs_path.op('<@')(Ltree(tshp)))
                 else:
                     paths = []
                     for sec in v['secs']:
@@ -293,8 +293,8 @@ def do_search(search):
                             paths.append(Ltree(path))
                         else:
                             for code in sec['subsec']:
-                                paths.append(Ltree((path + '.' + code)))
-                    and_terms.append(and_(TRS.trs_path.in_(paths)))
+                                paths.append(Ltree(path + '.' + code))
+                    and_terms.append(TRS.trs_path.in_(paths))
 
         if and_terms:
             or_terms.append(and_(*and_terms))
