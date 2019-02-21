@@ -142,6 +142,11 @@ def do_search(search):
         subterms += kwterms
         term = re.sub(pat, '', term, flags=re.I)
 
+        # parse for surveyor, client, date & desc with empty double quotes
+        pat = '((BY|FOR|REC|DATE|DESC)[=:]"()")'
+        subterms += re.findall(pat, term, flags=re.I)
+        term = re.sub(pat, '', term, flags=re.I)
+
         # parse for single word surveyor, client, date, desc & maptype without quotes
         pat = '((BY|FOR|REC|DATE|DESC|TYPE|ID|ANY)[=:](\S*))'
         kwterms = re.findall(pat, term, flags=re.I)
@@ -230,6 +235,8 @@ def do_search(search):
                         and_terms.append(Surveyor.pls.op('~*')(number))
                     else:
                         and_terms.append(Surveyor.rce.op('~*')(number))
+                elif v == '':
+                    and_terms.append(Surveyor.fullname == None)
                 else:
                     # replace spaces with wildcards and pattern search fullname
                     if v.strip().find(' ') < 0:
@@ -241,16 +248,25 @@ def do_search(search):
                         vqual = '\m' + re.sub('\s+', '.*\m', v)
                         and_terms.append(Surveyor.fullname.op('~*')(vqual))
             elif k == 'DATE' or k == 'REC':
-                dates = parse_dates(v)
-                and_terms.append(between(Map.recdate, *dates))
+                if v == '':
+                    and_terms.append(Map.recdate == None)
+                else:
+                    dates = parse_dates(v)
+                    and_terms.append(between(Map.recdate, *dates))
             elif k == 'FOR':
-                try: re.compile(v)
-                except: raise ParseError(v, term)
-                and_terms.append(Map.client.op('~*')(v))
+                if v == '':
+                    and_terms.append(Map.client == None)
+                else:
+                    try: re.compile(v)
+                    except: raise ParseError(v, term)
+                    and_terms.append(Map.client.op('~*')(v))
             elif k == 'DESC':
-                try: re.compile(v)
-                except: raise ParseError(v, term)
-                and_terms.append(Map.description.op('~*')(v))
+                if v == '':
+                    and_terms.append(Map.description == None)
+                else:
+                    try: re.compile(v)
+                    except: raise ParseError(v, term)
+                    and_terms.append(Map.description.op('~*')(v))
             elif k == 'ANY':
                 try:
                     re.compile(v)
@@ -286,15 +302,17 @@ def do_search(search):
                 if len(v['secs']) == 0:
                     and_terms.append(TRS.trs_path.op('<@')(Ltree(tshp)))
                 else:
-                    paths = []
+                    sec_terms = []
+                    subsec_paths = []
                     for sec in v['secs']:
                         path = tshp + '.' + sec['sec']
                         if sec['subsec'] is None:
-                            paths.append(Ltree(path))
+                            sec_terms.append(TRS.trs_path.op('<@')(Ltree(path)))
                         else:
                             for code in sec['subsec']:
-                                paths.append(Ltree(path + '.' + code))
-                    and_terms.append(TRS.trs_path.in_(paths))
+                                subsec_paths.append(Ltree(path + '.' + code))
+                    sec_terms.append(TRS.trs_path.in_(subsec_paths))
+                    and_terms.append(or_(*sec_terms))
 
         if and_terms:
             or_terms.append(and_(*and_terms))
