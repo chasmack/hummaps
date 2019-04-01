@@ -2,18 +2,18 @@ from flask import request, make_response
 from flask import render_template, flash
 from flask.json import jsonify, dumps
 
+import tempfile
+
 from hummaps import app
 from hummaps.xhr import xhr_request
 # from hummaps.search import do_search, ParseError
 from hummaps.search_paths import do_search, ParseError
 
-from hummaps.gpx import gpx_read, gpx_out
-from hummaps.gpx import dxf_read, dxf_out
-from hummaps.gpx import pnts_read, pnts_out
+from hummaps.gpx import gpx_in, gpx_out
+from hummaps.gpx import pnezd_in, pnezd_out
 
 import os.path
 from time import time
-
 
 # Custom filter for the Jinja2 template processor
 @app.template_filter('basename')
@@ -22,6 +22,7 @@ def basename_filter(s):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+
     args = request.args
     if request.is_xhr:
         resp = jsonify(xhr_request(args.get('req', '')))
@@ -83,8 +84,9 @@ def index():
 @app.route('/gpx', methods=['GET', 'POST'])
 def gpx():
     if request.method == 'POST':
+
         datatype = request.form['datatype']
-        srid = int(request.form['srid'])
+        target_srid = int(request.form['srid'])
         outfile = request.form['filename']
         if outfile:
             i = outfile.rfind('.')
@@ -92,26 +94,24 @@ def gpx():
                 outfile = outfile[0:i]  # strip extension
         else:
             outfile = 'results'
+
         # files = request.files.getlist('file')
         # headers = 'type: ' + datatype + ', srid: ' + str(srid) + ', files: ' + ', '.join([f.filename for f in files]) + '\n'
-        geom = []
+
+        pnts = []
+
         for f in request.files.getlist('file'):
             filename = f.filename
             ext = filename.lower().rsplit('.', 1)[-1]
             if ext == 'txt':
-                geom += pnts_read(f.stream, srid)
-            elif ext == 'dxf':
-                geom += dxf_read(f.stream, srid)
+                pnts += pnezd_in(f.stream, target_srid)
             elif ext == 'gpx':
-                geom += gpx_read(f.stream)
+                pnts += gpx_in(f.stream)
         if datatype == 'pnts':
-            resp = make_response(pnts_out(geom, srid))
+            resp = make_response(pnezd_out(pnts, target_srid))
             outfile += '.txt'
-        elif datatype == 'dxf':
-            resp = make_response(dxf_out(geom, srid))
-            outfile += '.dxf'
         elif datatype == 'gpx':
-            resp = make_response(gpx_out(geom))
+            resp = make_response(gpx_out(pnts))
             outfile += '.gpx'
         else:
             return('Bad type: %s' % datatype, 400)

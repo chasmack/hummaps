@@ -5,7 +5,8 @@ from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from hummaps.database import Base
 
-URL_BASE = 'https://hummaps.com'
+URL_BASE = 'http://maps.hummaps.org'
+# URL_BASE = 'https://hummaps.com'
 # URL_BASE = ''
 
 class MapImage(Base):

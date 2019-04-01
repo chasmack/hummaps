@@ -2,7 +2,8 @@
 $('#fileupload').fileupload({
   dataType: 'text',
   autoUpload: false,
-  singleFileUploads: false
+  singleFileUploads: false,
+  maxFileSize: 1000000
 })
 .on('fileuploadadd', function (e, data) {
   console.log('Add:');

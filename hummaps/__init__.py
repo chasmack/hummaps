@@ -15,6 +15,9 @@ RECAPTCHA_DATA_ATTRS = {'theme': 'dark', 'size': 'normal'}
 RECAPTCHA_PUBLIC_KEY = '6Lc3iBkTAAAAAACduP62sPp1Zq6iD6wDES0iIVrE'
 RECAPTCHA_PRIVATE_KEY = '6Lc3iBkTAAAAAJmOqU8GF4LLxQQvSIwnd65JgoWF'
 
+# Mazimum file upload size
+MAX_CONTENT_LENGTH = 1 * 1024 * 1024
+
 # Default cache control lifetime (seconds)
 SEND_FILE_MAX_AGE_DEFAULT = 604800
 

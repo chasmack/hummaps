@@ -23,7 +23,7 @@ span.fileinput-button span, button.start-button span {
     <div class="row" style="margin-bottom: 15px;">
       <div class="col-sm-7">
         <h1>GPX conversions</h1>
-        <h2 class="lead">Convert between PNEZD points, DXF lines and GPX.</h2>
+        <h2 class="lead">Convert between GPX and PNEZD points.</h2>
       </div>
     </div>
     <form id="fileupload" method="post" action="{{  url_for('gpx') }}" enctype="multipart/form-data">
@@ -42,12 +42,6 @@ span.fileinput-button span, button.start-button span {
               <button class="btn btn-primary start-button" value="pnts">
                 <i class="glyphicon glyphicon-file"></i>
                 <span>Get pnts</span>
-              </button>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-primary start-button" value="dxf">
-                <i class="glyphicon glyphicon-file"></i>
-                <span>Get dxf</span>
               </button>
             </div>
             <div class="btn-group">
@@ -83,9 +77,6 @@ span.fileinput-button span, button.start-button span {
                   <option value="26943">26943 - NAD83 / California zone 3</option>
                   <option value="26944">26944 - NAD83 / California zone 4</option>
                   <option value="26945">26945 - NAD83 / California zone 5</option>
-                  <option value="32609">32609 - WGS 84 / UTM zone 9N</option>
-                  <option value="32610">32610 - WGS 84 / UTM zone 10N</option>
-                  <option value="32611">32611 - WGS 84 / UTM zone 11N</option>
                 </select>
               </div>
             </div>
@@ -128,7 +119,6 @@ span.fileinput-button span, button.start-button span {
 {% block scripts %}
 <!-- begin scripts block -->
     {{- super() }}
-    <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.fileupload.js') }}"></script>
     <script src="{{ url_for('static', filename='js/gpx-18.1.1.js') }}"></script>
 <!-- end scripts block -->
