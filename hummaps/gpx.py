@@ -1,22 +1,21 @@
 import xml.etree.ElementTree as etree
 import xml.dom.minidom as minidom
 from datetime import datetime, timedelta
-import io, pytz, math, re
-import dxfgrabber
-import ezdxf
+from os import path
+import pytz
 
 import numpy as np
-import numpy.linalg as la
+# import numpy.linalg as la
 from math import sqrt, hypot, radians, degrees, pi
-from math import sin, cos, atan, atan2, asin
+from math import sin, cos, atan, atan2, floor
 
 from osgeo import ogr, osr
 
 # NAD83 ellipsoid (meters)
-A_NAD83 = 6378137.0
-F_NAD83 = 1 / 298.257222101
-B_NAD834 = A_NAD83 * (1 - F_NAD83)
-E2_NAD83 = 2 * F_NAD83 - F_NAD83 ** 2
+A_GRS80 = 6378137.0
+F_GRS80 = 1 / 298.257222101
+B_GRS80 = A_GRS80 * (1 - F_GRS80)
+E2_GRS80 = 2 * F_GRS80 - F_GRS80 ** 2
 
 # WGS84 ellipsoid (meters)
 A_WGS84 = 6378137.0
@@ -29,87 +28,170 @@ SRID_WGS84 = 4326
 
 WPT_SYMBOL = 'Flag, Red'
 
+DISP_GRID_FILE = 'data/enu-15sec-grid.npy'
+DISP_DIMS_FILE = 'data/enu-15sec-grid.dim'
+
+
+# Convert geographic coordinates (decimal degrees, meters) to ECEF cartesian coordinates
+def ellip_to_cart(P, grs80=False):
+    lon, lat, h = P
+    lon, lat = map(radians, (lon, lat))
+    a, e2 = (A_GRS80, E2_GRS80) if grs80 else (A_WGS84, E2_WGS84)
+
+    n = a / sqrt(1 - e2 * sin(lat) ** 2)
+    x = (n + h) * cos(lat) * cos(lon)
+    y = (n + h) * cos(lat) * sin(lon)
+    z = (n * (1 - e2) + h) * sin(lat)
+
+    return (x, y, z)
+
 
 class NonConvergenceError(Exception):
     pass
 
 
-# Convert geographic coordinates (decimal degrees, meters) to ECEF cartesian coordinates
-def geographic_to_cartesian(lon, lat, h, nad83=False):
-    lon, lat = map(radians, (lon, lat))
-
-    a, e2 = (A_NAD83, E2_NAD83) if nad83 else (A_WGS84, E2_WGS84)
-
-    N = a / sqrt(1 - e2 * sin(lat) ** 2)
-    x = (N + h) * cos(lat) * cos(lon)
-    y = (N + h) * cos(lat) * sin(lon)
-    z = (N * (1 - e2) + h) * sin(lat)
-
-    return x, y, z
-
-
 # Convert ECEF cartesian coordinates to geographic coordinates
-def cartesian_to_geographic(x, y, z, nad83=False):
-    a, e2 = (A_NAD83, E2_NAD83) if nad83 else (A_WGS84, E2_WGS84)
-
-    # Terminate iterative soln when delta is satisfied
-    LATITIUE_DELTA = 1E-12
-    ITERATION_LIMIT = 10
-
+def cart_to_ellip(V, grs80=False):
+    x, y, z = V
+    a, e2 = (A_GRS80, E2_GRS80) if grs80 else (A_WGS84, E2_WGS84)
     lon = atan2(y, x)
     p = hypot(x, y)
 
+    latitiue_delta = 1.0E-12
+    iteration_limit = 10
     last_lat = 0.0
     i = 0
     while True:
         i += 1
 
         # Calculate a new latitude from the previous result
-        N = a / sqrt(1 - e2 * sin(last_lat) ** 2)
-        lat = atan(z / p / (1 - e2 * N * cos(last_lat) / p))
+        n = a / sqrt(1 - e2 * sin(last_lat) ** 2)
+        lat = atan(z / p / (1 - e2 * n * cos(last_lat) / p))
 
         # Check latitude delta and iteration limit
-        if abs(lat - last_lat) < LATITIUE_DELTA:
+        if abs(lat - last_lat) < latitiue_delta:
             break
-        if i > ITERATION_LIMIT:
+        if i > iteration_limit:
             raise NonConvergenceError()
         last_lat = lat
 
     h = p / cos(lat) - a / sqrt(1 - e2 * sin(lat) ** 2)
-
     lon, lat = map(degrees, (lon, lat))
-    return lon, lat, h
+
+    return (lon, lat, h)
 
 
-def nad83_to_wgs84(lon, lat, h, inverse=False):
+# Load the displacement grid
+def load_disp_grid(grid_file, dims_file):
+    grid = np.load(grid_file)
+    with open(dims_file, 'r') as f:
+        fields =  f.read().split()
+        base_lon, base_lat = map(float, fields[0:2])
+        step_lon, step_lat = map(int, fields[2:4])
 
-    # Helmert 7-parameter transformation parameters (coordinate frame rotation)
-    # tx (m), ty (m), tz (m), rx (arc-seconds), ry (arc-seconds), rz (arc-seconds), ds (ppm)
-    # See ArcGIS Geographic and Vertical Transformation Tables
-    # NAD_1983_To_WGS_1984_5 WKID: 1515
+    return grid, (base_lon, base_lat, step_lon, step_lat)
 
-    tx, ty, tz, rx, ry, rz, ds = (
-        -0.9910, +1.9072, +0.5129,
-        -0.02578991 / 3600 / 180 * pi,
-        -0.00965010 / 3600 / 180 * pi,
-        -0.01165994 / 3600 / 180 * pi,
-        +0.0
+
+# Get a displacement from the grid
+def get_disp(P, grid, grid_dims):
+    lon, lat, h = P
+
+    # Get the nearest displacement
+    dim_i, dim_j = grid.shape[0:2]
+    base_lon, base_lat, step_lon, step_lat = grid_dims
+    i = (lon - base_lon) * 3600 / step_lon * -1
+    j = (lat - base_lat) * 3600 / step_lat
+    mod_lon = i % 1
+    mod_lat = j % 1
+    i = floor(i)
+    j = floor(j)
+
+    if i < 0 or i + 1 >= dim_i or j < 0 or j + 1 >= dim_j:
+        return None
+
+    LR = grid[i,j].astype(np.float)
+    LL = grid[i+1,j].astype(np.float)
+    UR = grid[i,j+1].astype(np.float)
+    UL = grid[i+1,j+1].astype(np.float)
+
+    D = (1 - mod_lat) * ((1 - mod_lon) * LR + mod_lon * LL)
+    D += mod_lat * ((1 - mod_lon) * UR + mod_lon * UL)
+    D /= 1000
+
+    e, n = D.flat
+    u = 0.0
+
+    return (e, n, u)
+
+
+# Add a northing/easting/up displacement to point
+def add_enu_disp(P, D):
+    lon, lat, h = P
+
+    # Rotation matrix from ECEF to ENU by Misra/Enge page 137
+    #
+    # R = R1(-lon + 90) * R3(lat + 90)
+    # Vd = R * (V1 - V0)
+    #
+    # Since R is orthogonal
+    #
+    # inv(R) = R.T
+    # V1 = R.T * Vd + V0
+    #
+
+    V0 = np.array(ellip_to_cart(P))
+    Vd = np.array(D)
+
+    sl, sp = map(lambda d: sin(radians(d)), (lon, lat))
+    cl, cp = map(lambda d: cos(radians(d)), (lon, lat))
+
+    R = np.array((
+        -sl,    -sp * cl,   +cp * cl,
+        +cl,    -sp * sl,   +cp * sl,
+        0.0,    +cp,        +sp
+    )).reshape((3, 3))
+    V1 = R.dot(Vd) + V0
+
+    lon, lat, h = cart_to_ellip(V1)
+
+    return (lon, lat, h)
+
+
+def itrf_to_nad(P, grid, grid_dims, inverse=False):
+
+    # Helmert 7-parameter transform (coordinate frame rotation)
+    # tx, ty, tz (m)
+    # rx, ry, rz (milli-arc-seconds)
+    # ds (ppb)
+    #
+    # See EPSG Guidance Note 373-7-2 - Coordinate Conversions and Transformations including Formulas
+    # Helmert transform parameters with epoch
+    # translations - tx, ty, tz (m)
+    # rotations - rx, ry, rz (mas)
+    # scale difference - s (ppb)
+    #
+    # Derived from -
+    # ITRF 1997 -> ITRF 2008 (EPSG::6299) by IERS
+    # ITRF 1997 -> NAD83(CORS96) (EPSG::6865) by IOGP
+    #
+    ITRF08_NAD83_2010 = (
+        +1.00380,
+        -1.91110,
+        -0.54350,
+        +26.78600,
+        -0.41500,
+        +11.45600,
+        +0.42000,
     )
+    tx, ty, tz, rx, ry, rz, s = ITRF08_NAD83_2010
 
-    # Rotation matrix
-    # R = np.array((
-    #     + cos(ry) * cos(rz),
-    #     + cos(rx) * sin(rz) + sin(rx) * sin(ry) * cos(rz),
-    #     + sin(rx) * sin(rz) - cos(rx) * sin(ry) * cos(rz),
-    #     - cos(ry) * sin(rz),
-    #     + cos(rx) * cos(rz) - sin(rx) * sin(ry) * sin(rz),
-    #     + sin(rx) * cos(rz) + cos(rx) * sin(ry) * sin(rz),
-    #     + sin(ry),
-    #     - sin(rx) * cos(ry),
-    #     + cos(rx) * cos(ry)
-    # ), dtype=np.double).reshape((3, 3))
+    # Convert milli-arc-seconds to radians
+    rx, ry, rz = map(lambda n: radians(n / 3.6E+06), (rx, ry, rz))
 
-    # Approximate rotation matrix for very small rotation angels
+    # Convert ppd to decimal
+    s /= 1.0E+06
+
+    # Rotation matrix for very small rotation angels
     R = np.array((
         (1.0, +rz, -ry),
         (-rz, 1.0, +rx),
@@ -120,26 +202,32 @@ def nad83_to_wgs84(lon, lat, h, inverse=False):
     T = np.array((tx, ty, tz), dtype=np.double)
 
     # Scale factor
-    M =  1.0 + ds * 1e-6
+    M = 1.0 + s
+
+    # HTDP displacement ITRF08 to NAD83 2010.00
+    D = np.array(get_disp(P, grid, grid_dims))
 
     if inverse:
-        # WGS84 to NAD83
-        R = la.inv(R)
+        # NAD83 2010.00 to ITRF08 in the current epoch
+        R = R.T
         M = 1.0 / M
-        Vs = geographic_to_cartesian(lon, lat, h, nad83=False)
+        Vs = ellip_to_cart(P, grs80=True)
         Vt = M * R.dot(Vs - T)
-        lon, lat, h = cartesian_to_geographic(*Vt, nad83=True)
+        P = cart_to_ellip(Vt, grs80=False)
+        lon, lat, h = add_enu_disp(P, -D)
+
     else:
-        # NAD83 to WGS84
-        Vs = geographic_to_cartesian(lon, lat, h, nad83=True)
+        # ITRF08 in the current epoch to NAD83 2010.00
+        P = add_enu_disp(P, D)
+        Vs = ellip_to_cart(P, grs80=False)
         Vt = M * R.dot(Vs) + T
-        lon, lat, h = cartesian_to_geographic(*Vt, nad83=False)
+        lon, lat, h = cart_to_ellip(Vt, grs80=True)
 
     return lon, lat, h
 
 
 # Transform points in place from projected coordinates to WGS84 geographic (4326)
-def projected_to_wgs84(pnts, srid_source):
+def grid_to_ellip(pnts, srid_source):
 
     # Source spacial reference system
     sr_source = osr.SpatialReference()
@@ -162,13 +250,13 @@ def projected_to_wgs84(pnts, srid_source):
         geom = ogr.CreateGeometryFromWkt('POINT (%s %s)' % (x, y))
         geom.Transform(source_to_target)
         lon, lat = geom.GetX(), geom.GetY()
-        if sr_source.GetAttrValue('GEOGCS') == 'NAD83':
-            lon, lat, h = nad83_to_wgs84(lon, lat, 0.0, inverse=False)
+        # if sr_source.GetAttrValue('GEOGCS') == 'NAD83':
+        #     lon, lat, h = itrf_to_nad(lon, lat, 0.0, inverse=True, epoch=epoch)
         p[0:3] = (lon, lat, ele)
 
 
 # Transform points in place from WGS84 geographic (4326) to projected coordinates
-def wgs84_to_projected(pnts, srid_target):
+def ellip_to_grid(pnts, srid_target):
     # Target spacial reference system
     sr_target = osr.SpatialReference()
     sr_target.ImportFromEPSG(srid_target)
@@ -187,8 +275,8 @@ def wgs84_to_projected(pnts, srid_target):
     for p in pnts:
         lon, lat, ele = p[0:3]
         ele /= sr_target.GetLinearUnits()
-        if sr_target.GetAttrValue('GEOGCS') == 'NAD83':
-            lon, lat, h = nad83_to_wgs84(lon, lat, 0.0, inverse=True)
+        # if sr_target.GetAttrValue('GEOGCS') == 'NAD83':
+        #     lon, lat, h = itrf_to_nad(lon, lat, 0.0, inverse=False, epoch=epoch)
         geom = ogr.CreateGeometryFromWkt('POINT (%s %s)' % (lon, lat))
         geom.Transform(source_to_target)
         x, y = geom.GetX(), geom.GetY()
@@ -202,13 +290,13 @@ def pnts_sort_key(p):
         return -1
 
 
-def pnezd_out(pnts, srid_target):
+def pnezd_out(pts, srid_target):
 
     # Transform WGS84 to the target coordinate system
-    wgs84_to_projected(pnts, srid_target)
+    ellip_to_grid(pts, srid_target)
 
     pnezd = ''
-    for p in sorted(pnts, key=pnts_sort_key):
+    for p in sorted(pts, key=pnts_sort_key):
         # x, y, ele, time, name, cmt, desc, sym, type, samples
         x, y, ele = p[0:3]
         name = '%d' % int(p[4]) if p[4] and p[4].isdigit() else ''
@@ -221,7 +309,7 @@ def pnezd_out(pnts, srid_target):
 def pnezd_in(f, srid_source):
 
     # Read a pnezd comma delimited points file
-    pnts = []
+    pts = []
     for bytes in f:
 
         row = bytes.decode('utf-8').strip()
@@ -234,16 +322,16 @@ def pnezd_in(f, srid_source):
         x, y, ele = map(float, [x, y, ele])
 
         # lon, lat, ele, time, name, cmt, desc, sym, type, samples
-        pnts.append([x, y, ele, None, name, None, desc, None, None, None])
+        pts.append([x, y, ele, None, name, None, desc, None, None, None])
 
     # Transform points to WGS84 lon/lat (4326)
-    projected_to_wgs84(pnts, srid_source)
+    grid_to_ellip(pts, srid_source)
 
-    return pnts
+    return pts
 
 
 # Parse wpt elements into a list of ordered tuples
-def gpx_in(f):
+def gpx_in(f, nad83=False):
 
     ns = {
         'gpx': 'http://www.topografix.com/GPX/1/1',
@@ -265,7 +353,7 @@ def gpx_in(f):
         'gpx:desc', 'gpx:sym', 'gpx:type', './gpx:extensions//wptx1:Samples'
     )
 
-    pnts = []
+    pts = []
     gpx = etree.parse(f).getroot()
     for wpt in gpx.findall('gpx:wpt', ns):
         pnt = list(map(float, (wpt.get('lon'), wpt.get('lat'))))
@@ -275,12 +363,22 @@ def gpx_in(f):
 
         # Check the elevation
         pnt[2] = 0.0 if pnt[2] is None else float(pnt[2])
-        pnts.append(pnt)
+        pts.append(pnt)
 
-    return pnts
+    if nad83:
+        grid_file = path.join(path.dirname(__file__), DISP_GRID_FILE)
+        dims_file = path.join(path.dirname(__file__), DISP_DIMS_FILE)
+        grid, grid_dims = load_disp_grid(grid_file, dims_file)
+
+        for pt in pts:
+            lon, lat = pt[0:2]
+            lon, lat, h = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, inverse=False)
+            pt[0:2] = (lon, lat)
+
+    return pts
 
 
-def gpx_out(pnts):
+def gpx_out(pts, nad83=False):
     """ Format a list of points as a GPX file.
 
     GPX format for waypoints and routes -
@@ -340,21 +438,31 @@ def gpx_out(pnts):
     etree.SubElement(link, 'text').text = 'Charlie'
     etree.SubElement(meta, 'time').text = time
 
-    for p in sorted(pnts, key=pnts_sort_key):
+    if nad83:
+        grid_file = path.join(path.dirname(__file__), DISP_GRID_FILE)
+        dims_file = path.join(path.dirname(__file__), DISP_DIMS_FILE)
+        grid, grid_dims = load_disp_grid(grid_file, dims_file)
+
+        for pt in pts:
+            lon, lat = pt[0:2]
+            lon, lat, h = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, inverse=True)
+            pt[0:2] = (lon, lat)
+
+    for pt in sorted(pts, key=pnts_sort_key):
         # lon, lat, ele, time, name, cmt, desc, sym, type, samples
-        lon, lat = ('%.8f' % c for c in p[0:2])
+        lon, lat = ('%.8f' % c for c in pt[0:2])
         wpt = etree.SubElement(gpx, 'wpt', attrib={'lat': lat, 'lon': lon})
-        etree.SubElement(wpt, 'ele').text = '%.4f' % p[2]
+        etree.SubElement(wpt, 'ele').text = '%.4f' % pt[2]
 
         # Format wpt name
-        p[4] = '%04d' % int(p[4]) if p[4] and p[4].isdigit() else p[4]
+        pt[4] = '%04d' % int(pt[4]) if pt[4] and pt[4].isdigit() else pt[4]
 
         # Default wpt symbol
-        p[7] = p[7] or WPT_SYMBOL
+        pt[7] = pt[7] or WPT_SYMBOL
 
         for tag, i in zip(('time', 'name', 'cmt', 'desc', 'sym', 'type'), range(3,9)):
-            if p[i]:
-                etree.SubElement(wpt, tag).text = p[i]
+            if pt[i]:
+                etree.SubElement(wpt, tag).text = pt[i]
 
         # gpx:extensions/wptx1:WaypointExtension/wptx1:Samples
         # if p[9]:
@@ -368,137 +476,36 @@ def gpx_out(pnts):
 
 if __name__ == '__main__':
 
-    # with open('data/PantherGap190321_Clean.gpx', 'rb') as f:
-    #     pnts = gpx_in(f)
-    # pnezd = pnezd_out(pnts, 2225)
-    # print(pnezd)
+    TEST_GPX = 'data/PantherGap190321_Clean.gpx'
+    TEST_PNEZD = 'data/PantherGap190321_NAD83_2010.00.txt'
 
-    with open('data/NAD_1983_To_WGS_1984_5.txt', 'rb') as f:
+    with open(TEST_GPX, 'rb') as f:
+        pnts = gpx_in(f, nad83=True)
+    pnezd = pnezd_out(pnts, 2225)
+    # with open(TEST_PNEZD, 'w') as f:
+    #     f.write(pnezd)
+    print(pnezd)
+
+    with open(TEST_PNEZD, 'rb') as f:
         pnts = pnezd_in(f, 2225)
-    gpx = gpx_out(pnts)
+    gpx = gpx_out(pnts, nad83=True)
     print(gpx)
 
     exit(0)
 
+    # P = (-124.0566589683, 40.2698929701, 0.0)
+    #
+    # grid, grid_dims = load_disp_grid(DISP_GRID_FILE, DISP_DIMS_FILE)
+    #
+    # D = get_disp(P, grid, grid_dims)
+    # print(D)
+    #
+    # P = add_enu_disp(P, D)
+    # print('   %.10f  %.10f' % (P[1], -1 * P[0]))
+    #
+    # P = itrf_to_nad(P, grid, grid_dims)
+    # print('   %.10f  %.10f' % (P[0], P[1]))
+    #
+    # P = itrf_to_nad(P, grid, grid_dims, inverse=True)
+    # print('   %.10f  %.10f' % (P[0], P[1]))
 
-# def dxf_in(f, srid):
-#
-#     dxf = dxfgrabber.read(f)
-#
-#     wkt = {}
-#     for ent in dxf.entities:
-#
-#         layer = ent.layer
-#         if layer.startswith('CONTOUR'):
-#             continue    # skip contours
-#
-#         if layer not in wkt:
-#             wkt[layer] = []
-#
-#         if ent.dxftype == 'LINE':
-#             wkt[layer].append('LINESTRING (%f %f, %f %f)' % (ent.start[0], ent.start[1], ent.end[0], ent.end[1]))
-#
-#         elif ent.dxftype == 'ARC':
-#
-#             # calc the endpoints of the arc
-#             c = ent.center
-#             r = ent.radius
-#             t0 = math.radians(ent.start_angle)
-#             t1 = math.radians(ent.end_angle)
-#             p0 = (c[0] + r * math.cos(t0), c[1] + r * math.sin(t0))
-#             p1 = (c[0] + r * math.cos(t1), c[1] + r * math.sin(t1))
-#
-#             # calc the midpoint on the arc
-#             m = ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)
-#             t = math.atan2(m[1] - c[1], m[0] - c[0])
-#             pm = (c[0] + r * math.cos(t), c[1] + r * math.sin(t))
-#
-#             wkt[layer].append('LINESTRING (%f %f, %f %f, %f %f)' % (p0[0], p0[1], pm[0], pm[1], p1[0], p1[1]))
-#
-#         elif ent.dxftype == 'LWPOLYLINE':
-#             verts = []
-#             for i in range(len(ent.points) - 1):
-#                 p0 = ent.points[i]
-#                 verts.append('%f %f' % (p0[0], p0[1]))
-#
-#                 b = ent.bulge[i]
-#                 if b != 0:
-#                     # next segment is an arc, add the midpoint
-#                     p1 = ent.points[i + 1]
-#                     d = math.sqrt((p1[0] - p0[0]) ** 2 + (p1[1] - p0[1]) ** 2) / 2  # length to midpoint of the chord
-#                     t = math.atan2(p1[1] - p0[1], p1[0] - p0[0]) - math.atan(b)  # direction p0 to pm
-#                     c = math.sqrt(1 + b**2) * d  # length p0 to pm
-#                     pm = (p0[0] + c * math.cos(t), p0[1] + c * math.sin(t))
-#                     verts.append('%f %f' % (pm[0], pm[1]))
-#
-#                     # r = d / math.sin(2 * math.atan(b))  # signed radius
-#                     # print('p0=(%.4f,%.4f) p1=(%.4f,%.4f) b=%.8f t=%.4f c=%.4f r=%.4f' % (p0[0],p0[1], p1[0],p1[1], b, math.degrees(t), c, r))
-#
-#             # add the last vertex and build the wkt
-#             p = ent.points[-1]
-#             verts.append('%f %f' % (p[0], p[1]))
-#             wkt[layer].append('LINESTRING (%s)' % ', '.join(verts))
-#
-#         else:
-#             # print('Skipping dxftype=%s layer=%s' % (ent.dxftype, ent.layer))
-#             continue
-#
-#     # create geometry
-#     geom = []
-#     for layer in wkt.keys():
-#         for i in range(len(wkt[layer])):
-#             g = ogr.CreateGeometryFromWkt(wkt[layer][i])
-#             geom.append({'name': '%s-%03d' % (layer, i + 1), 'geom': g})
-#
-#
-#     # transform geometry to WGS 84 Lon/Lat (EPSG:4326)
-#     source = osr.SpatialReference()
-#     source.ImportFromEPSG(srid)
-#     wgs84 = osr.SpatialReference()
-#     wgs84.ImportFromEPSG(4326)
-#
-#     transform = osr.CoordinateTransformation(source, wgs84)
-#     for rec in geom:
-#         rec['geom'].Transform(transform)
-#
-#     return geom
-#
-#
-# def dxf_out(geom, srid):
-#
-#     dwg = ezdxf.new('R2004')
-#     dwg.layers.new(name='GPX-TRACKS', dxfattribs={'linetype': 'CONTINUOUS', 'color': 7})
-#     msp = dwg.modelspace()
-#
-#     # transform geometry from WGS 84 Lon/Lat (EPSG:4326) to currentMap srs
-#     wgs84 = osr.SpatialReference()
-#     wgs84.ImportFromEPSG(4326)
-#     target = osr.SpatialReference()
-#     target.ImportFromEPSG(srid)
-#
-#     transform = osr.CoordinateTransformation(wgs84, target)
-#     for rec in geom:
-#         rec['geom'].Transform(transform)
-#         if 'ele' in rec:
-#             # convert elevation to currentMap linear units
-#             rec['ele'] = '%.4f' % (float(rec['ele']) / target.GetLinearUnits())
-#
-#     for g in [g['geom'] for g in geom]:
-#         if g.GetGeometryName() != 'LINESTRING':
-#             continue
-#         pts = []
-#         for i in range(g.GetPointCount()):
-#             p = g.GetPoint(i)
-#             if p[0] < 0 or p[1] < 0:
-#                 pts = []
-#                 break
-#             pts.append((p[0], p[1]))
-#         if pts:
-#             msp.add_lwpolyline(pts, dxfattribs={'layer': 'GPX-TRACKS'})
-#
-#     with io.StringIO() as out:
-#         dwg.write(out)
-#         dxf = out.getvalue()
-#
-#     return dxf
-#
