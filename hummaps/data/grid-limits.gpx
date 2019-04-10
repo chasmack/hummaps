@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="MapSource 6.16.3" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+
+  <metadata>
+    <link href="http://www.garmin.com">
+      <text>Garmin International</text>
+    </link>
+    <time>2019-04-10T21:16:22Z</time>
+    <bounds maxlat="44.05517578125" maxlon="-119.94049072265625" minlat="38.437728881835938" minlon="-124.420166015625"/>
+  </metadata>
+
+  <wpt lat="42.40997314453125" lon="-124.420166015625">
+    <time>2019-04-10T21:15:59Z</time>
+    <name>0001</name>
+    <cmt>Gold Beach</cmt>
+    <desc>Gold Beach</desc>
+    <sym>Flag, Blue</sym>
+    <extensions>
+      <gpxx:WaypointExtension xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+
+  <wpt lat="42.188873291015625" lon="-120.34629821777344">
+    <time>2019-04-10T19:54:39Z</time>
+    <name>0002</name>
+    <cmt>Lakeview</cmt>
+    <desc>Lakeview</desc>
+    <sym>Flag, Blue</sym>
+    <extensions>
+      <gpxx:WaypointExtension xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+
+  <wpt lat="38.911685943603516" lon="-123.6924934387207">
+    <time>2019-04-10T19:55:17Z</time>
+    <name>0003</name>
+    <cmt>Point Arena</cmt>
+    <desc>Point Arena</desc>
+    <sym>Flag, Blue</sym>
+    <extensions>
+      <gpxx:WaypointExtension xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+
+  <wpt lat="38.91082763671875" lon="-120.00709533691406">
+    <time>2019-04-10T19:56:27Z</time>
+    <name>0004</name>
+    <cmt>South Lake Tahoe</cmt>
+    <desc>South Lake Tahoe</desc>
+    <sym>Flag, Blue</sym>
+    <extensions>
+      <gpxx:WaypointExtension xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+
+  <wpt lat="38.961639404296875" lon="-119.94049072265625">
+    <time>2019-04-10T19:56:45Z</time>
+    <name>0005</name>
+    <cmt>Stateline</cmt>
+    <desc>Stateline</desc>
+    <sym>Flag, Red</sym>
+    <extensions>
+      <gpxx:WaypointExtension xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+
+  <wpt lat="38.437728881835938" lon="-122.71247863769531">
+    <time>2019-04-10T19:57:56Z</time>
+    <name>0006</name>
+    <cmt>Santa Rosa</cmt>
+    <desc>Santa Rosa</desc>
+    <sym>Flag, Red</sym>
+    <extensions>
+      <gpxx:WaypointExtension xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+
+  <wpt lat="44.05517578125" lon="-123.0908203125">
+    <time>2019-04-10T19:59:00Z</time>
+    <name>0007</name>
+    <cmt>Eugene</cmt>
+    <desc>Eugene</desc>
+    <sym>Flag, Red</sym>
+    <extensions>
+      <gpxx:WaypointExtension xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+
+</gpx>

@@ -26,10 +26,23 @@ E2_WGS84 = 2 * F_WGS84 - F_WGS84 ** 2
 SRID_NAD83 = 4269
 SRID_WGS84 = 4326
 
-WPT_SYMBOL = 'Flag, Red'
+# Two ways to convert ITRF08 in the current epoch to NAD83 2010.00.
+#
+# Add HTDP displacement in ITRF08 then transform ITRF08 to NAD83 in epoch 2010.00.
+# This requires a displacement grid in ITRF08.
+#
+# Transform ITRF08 to NAD83 in the current epoch then add HTDP displacement.
+# This requires a displacement grid in NAD83
+#
+# You must change the order of transforms and epoch date in itrf_to_nad()
 
-DISP_GRID_FILE = 'data/enu-15sec-grid.npy'
-DISP_DIMS_FILE = 'data/enu-15sec-grid.dim'
+# DISP_GRID_FILE = 'data/itrf08-2019.50-grid.npy'
+# DISP_DIMS_FILE = 'data/itrf08-2019.50-grid.dim'
+
+DISP_GRID_FILE = 'data/nad83-2019.50-grid.npy'
+DISP_DIMS_FILE = 'data/nad83-2019.50-grid.dim'
+
+WPT_SYMBOL = 'Flag, Red'
 
 
 # Convert geographic coordinates (decimal degrees, meters) to ECEF cartesian coordinates
@@ -157,23 +170,25 @@ def add_enu_disp(P, D):
     return (lon, lat, h)
 
 
-def itrf_to_nad(P, grid, grid_dims, inverse=False):
+def itrf_to_nad(P, grid, grid_dims, epoch=2019.50, inverse=False):
 
     # Helmert 7-parameter transform (coordinate frame rotation)
-    # tx, ty, tz (m)
-    # rx, ry, rz (milli-arc-seconds)
-    # ds (ppb)
+    # translations - tx, ty, tz (m)
+    # rotations - rx, ry, rz (milli-arc-seconds)
+    # scale difference - s (ppb)
+    #
+    # Rates of change per year and reference epoch
+    # translations - dtx, dty, dtz (m/year)
+    # rotations - drx, dry, drz (milli-arc-seconds/year)
+    # scale difference - ds (ppb/year)
+    # reference epoch - t0 (decimal year)
     #
     # See EPSG Guidance Note 373-7-2 - Coordinate Conversions and Transformations including Formulas
-    # Helmert transform parameters with epoch
-    # translations - tx, ty, tz (m)
-    # rotations - rx, ry, rz (mas)
-    # scale difference - s (ppb)
     #
     # Derived from -
     # ITRF 1997 -> ITRF 2008 (EPSG::6299) by IERS
     # ITRF 1997 -> NAD83(CORS96) (EPSG::6865) by IOGP
-    #
+
     ITRF08_NAD83_2010 = (
         +1.00380,
         -1.91110,
@@ -182,8 +197,26 @@ def itrf_to_nad(P, grid, grid_dims, inverse=False):
         -0.41500,
         +11.45600,
         +0.42000,
+        +0.00010,
+        -0.00050,
+        -0.00320,
+        +0.05320,
+        -0.74230,
+        -0.01160,
+        +0.09000,
+         2010.00
     )
-    tx, ty, tz, rx, ry, rz, s = ITRF08_NAD83_2010
+    tx, ty, tz, rx, ry, rz, s = ITRF08_NAD83_2010[0:7]
+
+    if epoch:
+        dtx, dty, dtz, drx, dry, drz, ds, t0 = ITRF08_NAD83_2010[7:]
+        tx += dtx * (epoch - t0)
+        ty += dty * (epoch - t0)
+        tz += dtz * (epoch - t0)
+        rx += drx * (epoch - t0)
+        ry += dry * (epoch - t0)
+        rz += drz * (epoch - t0)
+        s += ds * (epoch - t0)
 
     # Convert milli-arc-seconds to radians
     rx, ry, rz = map(lambda n: radians(n / 3.6E+06), (rx, ry, rz))
@@ -205,23 +238,27 @@ def itrf_to_nad(P, grid, grid_dims, inverse=False):
     M = 1.0 + s
 
     # HTDP displacement ITRF08 to NAD83 2010.00
-    D = np.array(get_disp(P, grid, grid_dims))
+    D = get_disp(P, grid, grid_dims)
+    if D is None:
+        # Outside displacement grid
+        return None
+    D = np.array(D)
 
     if inverse:
-        # NAD83 2010.00 to ITRF08 in the current epoch
+        # NAD83 2010.00 -> NAD83 2019.50 (HTDP) -> ITRF08 2019.50
         R = R.T
         M = 1.0 / M
+        P = add_enu_disp(P, -D)
         Vs = ellip_to_cart(P, grs80=True)
         Vt = M * R.dot(Vs - T)
-        P = cart_to_ellip(Vt, grs80=False)
-        lon, lat, h = add_enu_disp(P, -D)
+        lon, lat, h = cart_to_ellip(Vt, grs80=False)
 
     else:
-        # ITRF08 in the current epoch to NAD83 2010.00
-        P = add_enu_disp(P, D)
+        # ITRF08 2019.50 -> NAD83 2019.50 -> NAD83 2010.00 (HTDP)
         Vs = ellip_to_cart(P, grs80=False)
         Vt = M * R.dot(Vs) + T
-        lon, lat, h = cart_to_ellip(Vt, grs80=True)
+        P = cart_to_ellip(Vt, grs80=True)
+        lon, lat, h = add_enu_disp(P, D)
 
     return lon, lat, h
 
@@ -370,10 +407,16 @@ def gpx_in(f, nad83=False):
         dims_file = path.join(path.dirname(__file__), DISP_DIMS_FILE)
         grid, grid_dims = load_disp_grid(grid_file, dims_file)
 
-        for pt in pts:
-            lon, lat = pt[0:2]
-            lon, lat, h = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, inverse=False)
-            pt[0:2] = (lon, lat)
+        i = len(pts)
+        while i > 0:
+            i -= 1
+            lon, lat = pts[i][0:2]
+            P = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, inverse=False)
+            if P is None:
+                # Outside displacement grid - should warn user here
+                pts.pop(i)
+            else:
+                pts[i][0:2] = P[0:2]
 
     return pts
 
@@ -430,29 +473,39 @@ def gpx_out(pts, nad83=False):
     # Get the ISO 8601 date-time string.
     time = datetime.now(pytz.utc)
     time -= timedelta(microseconds=time.microsecond)  # remove the microseconds
-    time = time.isoformat()
+    isotime = time.isoformat()
 
     gpx = etree.Element('gpx', attrib=gpx_attrib)
     meta = etree.SubElement(gpx, 'metadata')
     link = etree.SubElement(meta, 'link', attrib={'href': 'https://hummaps.org/'})
     etree.SubElement(link, 'text').text = 'Charlie'
-    etree.SubElement(meta, 'time').text = time
+    etree.SubElement(meta, 'time').text = isotime
 
     if nad83:
         grid_file = path.join(path.dirname(__file__), DISP_GRID_FILE)
         dims_file = path.join(path.dirname(__file__), DISP_DIMS_FILE)
         grid, grid_dims = load_disp_grid(grid_file, dims_file)
 
-        for pt in pts:
-            lon, lat = pt[0:2]
-            lon, lat, h = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, inverse=True)
-            pt[0:2] = (lon, lat)
+        i = len(pts)
+        while i > 0:
+            i -= 1
+            lon, lat = pts[i][0:2]
+            P = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, inverse=True)
+            if P is None:
+                # Outside displacement grid - should warn user here
+                pts.pop(i)
+            else:
+                pts[i][0:2] = P[0:2]
 
     for pt in sorted(pts, key=pnts_sort_key):
         # lon, lat, ele, time, name, cmt, desc, sym, type, samples
         lon, lat = ('%.8f' % c for c in pt[0:2])
         wpt = etree.SubElement(gpx, 'wpt', attrib={'lat': lat, 'lon': lon})
         etree.SubElement(wpt, 'ele').text = '%.4f' % pt[2]
+
+        # Default wpt time
+        if pt[3] is None:
+            pt[3] = isotime
 
         # Format wpt name
         pt[4] = '%04d' % int(pt[4]) if pt[4] and pt[4].isdigit() else pt[4]
@@ -476,14 +529,14 @@ def gpx_out(pts, nad83=False):
 
 if __name__ == '__main__':
 
-    TEST_GPX = 'data/PantherGap190321_Clean.gpx'
-    TEST_PNEZD = 'data/PantherGap190321_NAD83_2010.00.txt'
+    TEST_GPX = 'data/grid-limits.gpx'
+    TEST_PNEZD = 'data/grid-limits.txt'
 
     with open(TEST_GPX, 'rb') as f:
         pnts = gpx_in(f, nad83=True)
     pnezd = pnezd_out(pnts, 2225)
-    # with open(TEST_PNEZD, 'w') as f:
-    #     f.write(pnezd)
+    with open(TEST_PNEZD, 'w') as f:
+        f.write(pnezd)
     print(pnezd)
 
     with open(TEST_PNEZD, 'rb') as f:
@@ -493,19 +546,28 @@ if __name__ == '__main__':
 
     exit(0)
 
-    # P = (-124.0566589683, 40.2698929701, 0.0)
-    #
-    # grid, grid_dims = load_disp_grid(DISP_GRID_FILE, DISP_DIMS_FILE)
-    #
-    # D = get_disp(P, grid, grid_dims)
-    # print(D)
-    #
-    # P = add_enu_disp(P, D)
-    # print('   %.10f  %.10f' % (P[1], -1 * P[0]))
-    #
-    # P = itrf_to_nad(P, grid, grid_dims)
-    # print('   %.10f  %.10f' % (P[0], P[1]))
-    #
-    # P = itrf_to_nad(P, grid, grid_dims, inverse=True)
-    # print('   %.10f  %.10f' % (P[0], P[1]))
+    grid, grid_dims = load_disp_grid(DISP_GRID_FILE, DISP_DIMS_FILE)
 
+    P = (-124.0566589683, 40.2698929701, 0.0)
+    print('   %.10f  %.10f' % (P[0], P[1]))
+
+    P = itrf_to_nad(P, grid, grid_dims, inverse=False)
+    print('   %.10f  %.10f' % (P[0], P[1]))
+
+    P = itrf_to_nad(P, grid, grid_dims, inverse=True)
+    print('   %.10f  %.10f' % (P[0], P[1]))
+
+    exit(0)
+
+    # disp = sqrt(np.sum(np.square(grid[0, 0].astype(np.float) / 1000))) * 3937 / 1200
+    # disp_min = disp_max = disp
+    # for i in range(grid.shape[0]):
+    #     for j in range(grid.shape[1]):
+    #         disp = sqrt(np.sum(np.square(grid[i, j].astype(np.float) / 1000))) * 3937 / 1200
+    #         if disp < disp_min:
+    #             disp_min = disp
+    #         elif disp > disp_max:
+    #             disp_max = disp
+    #
+    # print('min: %.3f ft' % disp_min)  # min: 0.235 ft
+    # print('max: %.3f ft' % disp_max)  # max: 1.444 ft
