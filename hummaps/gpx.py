@@ -26,72 +26,108 @@ E2_WGS84 = 2 * F_WGS84 - F_WGS84 ** 2
 SRID_NAD83 = 4269
 SRID_WGS84 = 4326
 
-# Two ways to convert ITRF08 in the current epoch to NAD83 2010.00.
-#
-# Add HTDP displacement in ITRF08 then transform ITRF08 to NAD83 in epoch 2010.00.
-# This requires a displacement grid in ITRF08.
-#
-# Transform ITRF08 to NAD83 in the current epoch then add HTDP displacement.
-# This requires a displacement grid in NAD83
-#
-# You must change the order of transforms and epoch date in itrf_to_nad()
-
-# DISP_GRID_FILE = 'data/itrf08-2019.50-grid.npy'
-# DISP_DIMS_FILE = 'data/itrf08-2019.50-grid.dim'
-
-DISP_GRID_FILE = 'data/nad83-2019.50-grid.npy'
-DISP_DIMS_FILE = 'data/nad83-2019.50-grid.dim'
-
 WPT_SYMBOL = 'Flag, Red'
 
+#
+# Transform ITRF08 to NAD83 in the current epoch then add HTDP displacement.
+# This requires a displacement grid in NAD83. The displacement grid is created
+# from an NGS HTDP displacement file. The HTDP dispmacement file is large and
+# should be generated locally with the PC version of HTDP. The HTDP displacement
+# file format-
+#
+#  HTDP (VERSION v3.2.7    ) OUTPUT
+#
+#  DISPLACEMENTS IN METERS RELATIVE TO NAD_83(2011/CORS96/2007)
+#  FROM 07-02-2019 TO 01-01-2010 (month-day-year)
+#  FROM 2019.500 TO 2010.000 (decimal years)
+#
+# NAME OF SITE             LATITUDE          LONGITUDE            NORTH    EAST    UP
+# 2019.50      0   0       38 30  0.00000 N  120  0  0.00000 W   -0.087   0.067   0.013
+# 2019.50      0   1       38 30  0.00000 N  120  0 15.00000 W   -0.087   0.067   0.013
+# 2019.50      0   2       38 30  0.00000 N  120  0 30.00000 W   -0.087   0.067   0.013
+# 2019.50      0   3       38 30  0.00000 N  120  0 45.00000 W   -0.087   0.067   0.013
+# 2019.50      0   4       38 30  0.00000 N  120  1  0.00000 W   -0.087   0.067   0.013
+# 2019.50      0   5       38 30  0.00000 N  120  1 15.00000 W   -0.087   0.067   0.013
+#
+# The NORTH and EAST displacements are saved as signed 32-bit integer offsets in mm.
+# The columns are arranged such that displacements are accessed as-
+#
+# e, n = disp_grid[offset_lon, offset_lat]
+#
+# A dims file is saved with the grid file defining the base lon/lat and step size.
+# For the HTDP displacement file shown above the dims are-
+#
+# base_lon = -120.00000000 (negative west)
+# base_lat = 38.300000000
+# step_lon = 15 (arc-seconds)
+# step_lat = 15
+#
+# At this time the current epoch is taken to be 2019.50. In future a velocity grid
+# could calculate small differences between 2019.50 and the actual epoch of the point.
 
-# Convert geographic coordinates (decimal degrees, meters) to ECEF cartesian coordinates
-def ellip_to_cart(P, grs80=False):
-    lon, lat, h = P
-    lon, lat = map(radians, (lon, lat))
-    a, e2 = (A_GRS80, E2_GRS80) if grs80 else (A_WGS84, E2_WGS84)
 
-    n = a / sqrt(1 - e2 * sin(lat) ** 2)
-    x = (n + h) * cos(lat) * cos(lon)
-    y = (n + h) * cos(lat) * sin(lon)
-    z = (n * (1 - e2) + h) * sin(lat)
+HTDP_DISP_FILE = 'data/disp-grid-nad83-2019.50.txt'
+HTDP_SITE_NAME = '2019.50'
 
-    return (x, y, z)
+DISP_GRID_FILE = 'data/disp-grid-nad83-2019.50.npy'
+DISP_DIMS_FILE = 'data/disp-grid-nad83-2019.50.dim'
 
 
-class NonConvergenceError(Exception):
-    pass
+def make_disp_grid(htdp_file, grid_file, dims_file, site):
+
+    grid = []
+    row = []
+    with open(htdp_file, 'r') as f:
+
+        # Get the base lon/lat and step size in arc-seconds
+        base_lon = base_lat = None
+        step_lon = step_lat = None
+        for line in f:
+            if line.startswith(site):
+
+                # Parse indices positionally, split remaining fields
+                i = int(line[10:14].strip())
+                j = int(line[14:18].strip())
+                fields = line[18:].split()
+
+                if i == 0 and j == 0:
+                    d, m, s = map(float, fields[0:3])
+                    base_lat = d + m / 60 + s / 3600
+                    d, m, s = map(float, fields[4:7])
+                    base_lon = -1 * (d + m / 60 + s / 3600)
+                elif i == 0 and j == 1:
+                    d, m, s = map(float, fields[4:7])
+                    step_lon = round(((d + m / 60 + s / 3600) + base_lon) * 3600)
+                elif i == 1 and j == 0:
+                    d, m, s = map(float, fields[0:3])
+                    step_lat = round(((d + m / 60 + s / 3600) - base_lat) * 3600)
+                    break
+
+        f.seek(0)
+        for line in f:
+            if line.startswith(site):
+                fields = line.split()
+                i, j = map(int, fields[1:3])
+                if j == 0 and row:
+                    grid.append(row)
+                    row = []
+                n, e = map(lambda n: int(float(n) * 1000), fields[-3:-1])
+                row.append((e,n))
+        if row:
+            grid.append(row)
+
+        # Grid of signed integers representing mm displacements accessed as grid(lon, lat)
+        grid = np.array(grid, dtype=np.int32).swapaxes(0, 1)
+        np.save(grid_file, grid)
+
+        # Dimensions file
+        with open(dims_file, 'w') as f:
+            f.write('%f %f %d %d' % (base_lon, base_lat, step_lon, step_lat))
 
 
-# Convert ECEF cartesian coordinates to geographic coordinates
-def cart_to_ellip(V, grs80=False):
-    x, y, z = V
-    a, e2 = (A_GRS80, E2_GRS80) if grs80 else (A_WGS84, E2_WGS84)
-    lon = atan2(y, x)
-    p = hypot(x, y)
+    return
 
-    latitiue_delta = 1.0E-12
-    iteration_limit = 10
-    last_lat = 0.0
-    i = 0
-    while True:
-        i += 1
 
-        # Calculate a new latitude from the previous result
-        n = a / sqrt(1 - e2 * sin(last_lat) ** 2)
-        lat = atan(z / p / (1 - e2 * n * cos(last_lat) / p))
-
-        # Check latitude delta and iteration limit
-        if abs(lat - last_lat) < latitiue_delta:
-            break
-        if i > iteration_limit:
-            raise NonConvergenceError()
-        last_lat = lat
-
-    h = p / cos(lat) - a / sqrt(1 - e2 * sin(lat) ** 2)
-    lon, lat = map(degrees, (lon, lat))
-
-    return (lon, lat, h)
 
 
 # Load the displacement grid
@@ -261,6 +297,55 @@ def itrf_to_nad(P, grid, grid_dims, epoch=2019.50, inverse=False):
         lon, lat, h = add_enu_disp(P, D)
 
     return lon, lat, h
+
+
+# Convert geographic coordinates (decimal degrees, meters) to ECEF cartesian coordinates
+def ellip_to_cart(P, grs80=False):
+    lon, lat, h = P
+    lon, lat = map(radians, (lon, lat))
+    a, e2 = (A_GRS80, E2_GRS80) if grs80 else (A_WGS84, E2_WGS84)
+
+    n = a / sqrt(1 - e2 * sin(lat) ** 2)
+    x = (n + h) * cos(lat) * cos(lon)
+    y = (n + h) * cos(lat) * sin(lon)
+    z = (n * (1 - e2) + h) * sin(lat)
+
+    return (x, y, z)
+
+
+class NonConvergenceError(Exception):
+    pass
+
+
+# Convert ECEF cartesian coordinates to geographic coordinates
+def cart_to_ellip(V, grs80=False):
+    x, y, z = V
+    a, e2 = (A_GRS80, E2_GRS80) if grs80 else (A_WGS84, E2_WGS84)
+    lon = atan2(y, x)
+    p = hypot(x, y)
+
+    latitiue_delta = 1.0E-12
+    iteration_limit = 10
+    last_lat = 0.0
+    i = 0
+    while True:
+        i += 1
+
+        # Calculate a new latitude from the previous result
+        n = a / sqrt(1 - e2 * sin(last_lat) ** 2)
+        lat = atan(z / p / (1 - e2 * n * cos(last_lat) / p))
+
+        # Check latitude delta and iteration limit
+        if abs(lat - last_lat) < latitiue_delta:
+            break
+        if i > iteration_limit:
+            raise NonConvergenceError()
+        last_lat = lat
+
+    h = p / cos(lat) - a / sqrt(1 - e2 * sin(lat) ** 2)
+    lon, lat = map(degrees, (lon, lat))
+
+    return (lon, lat, h)
 
 
 # Transform points in place from projected coordinates to WGS84 geographic (4326)
@@ -529,45 +614,48 @@ def gpx_out(pts, nad83=False):
 
 if __name__ == '__main__':
 
-    TEST_GPX = 'data/grid-limits.gpx'
-    TEST_PNEZD = 'data/grid-limits.txt'
-
-    with open(TEST_GPX, 'rb') as f:
-        pnts = gpx_in(f, nad83=True)
-    pnezd = pnezd_out(pnts, 2225)
-    with open(TEST_PNEZD, 'w') as f:
-        f.write(pnezd)
-    print(pnezd)
-
-    with open(TEST_PNEZD, 'rb') as f:
-        pnts = pnezd_in(f, 2225)
-    gpx = gpx_out(pnts, nad83=True)
-    print(gpx)
-
-    exit(0)
-
-    grid, grid_dims = load_disp_grid(DISP_GRID_FILE, DISP_DIMS_FILE)
-
-    P = (-124.0566589683, 40.2698929701, 0.0)
-    print('   %.10f  %.10f' % (P[0], P[1]))
-
-    P = itrf_to_nad(P, grid, grid_dims, inverse=False)
-    print('   %.10f  %.10f' % (P[0], P[1]))
-
-    P = itrf_to_nad(P, grid, grid_dims, inverse=True)
-    print('   %.10f  %.10f' % (P[0], P[1]))
-
-    exit(0)
-
-    # disp = sqrt(np.sum(np.square(grid[0, 0].astype(np.float) / 1000))) * 3937 / 1200
-    # disp_min = disp_max = disp
-    # for i in range(grid.shape[0]):
-    #     for j in range(grid.shape[1]):
-    #         disp = sqrt(np.sum(np.square(grid[i, j].astype(np.float) / 1000))) * 3937 / 1200
-    #         if disp < disp_min:
-    #             disp_min = disp
-    #         elif disp > disp_max:
-    #             disp_max = disp
+    # TEST_GPX = 'data/grid-limits.gpx'
+    # TEST_PNEZD = 'data/grid-limits.txt'
     #
-    # print('min: %.3f ft' % disp_min)  # min: 0.235 ft
-    # print('max: %.3f ft' % disp_max)  # max: 1.444 ft
+    # with open(TEST_GPX, 'rb') as f:
+    #     pnts = gpx_in(f, nad83=True)
+    # pnezd = pnezd_out(pnts, 2225)
+    # with open(TEST_PNEZD, 'w') as f:
+    #     f.write(pnezd)
+    # print(pnezd)
+    #
+    # with open(TEST_PNEZD, 'rb') as f:
+    #     pnts = pnezd_in(f, 2225)
+    # gpx = gpx_out(pnts, nad83=True)
+    # print(gpx)
+    #
+    # exit(0)
+
+    # make_disp_grid(HTDP_DISP_FILE, DISP_GRID_FILE, DISP_DIMS_FILE, HTDP_SITE_NAME)
+    #
+    grid, grid_dims = load_disp_grid(DISP_GRID_FILE, DISP_DIMS_FILE)
+    #
+    # P = (-124.0566589683, 40.2698929701, 0.0)
+    # print('   %.10f  %.10f' % (P[0], P[1]))
+    #
+    # P = itrf_to_nad(P, grid, grid_dims, inverse=False)
+    # print('   %.10f  %.10f' % (P[0], P[1]))
+    #
+    # P = itrf_to_nad(P, grid, grid_dims, inverse=True)
+    # print('   %.10f  %.10f' % (P[0], P[1]))
+    #
+    # exit(0)
+
+    disp = sqrt(np.sum(np.square(grid[0, 0].astype(np.float) / 1000))) * 3937 / 1200
+    disp_min = disp_max = disp
+    for i in range(grid.shape[0]):
+        for j in range(grid.shape[1]):
+            disp = sqrt(np.sum(np.square(grid[i, j].astype(np.float) / 1000))) * 3937 / 1200
+            if disp < disp_min:
+                disp_min = disp
+            elif disp > disp_max:
+                disp_max = disp
+
+    print('min: %.3f ft' % disp_min)  # min: 0.133 ft
+    print('max: %.3f ft' % disp_max)  # max: 1.485 ft
+
