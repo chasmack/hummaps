@@ -1,3 +1,75 @@
+#
+# GPX Conversions
+#
+# In the simple case we parse lat/lon coordinates from GPX waypoints, project
+# the lat/lon to state plane coordinates and write a PNEZD points file.
+#
+# This simple conversion is not entirely correct. GPX lat/lon coordinates are
+# defined to use the WGS84 datum (https://www.topografix.com/gpx) and assumed
+# to represent the location at the epoch in which the waypoint was collected.
+# State plane coordinates use the NAD83 datum and are typically referenced to
+# a common epoch. NGS data sheets currently report survey control positions as
+# NAD83 (2011) epoch 2010.00.
+#
+# Transforming coordinates from WGS84 (G1762)/ITRF08 2019.50 to NAD83 2010.00
+# proceeds in two steps.
+#
+# 1. A time-dependent 7-parameter Helmert transform is used to transform the
+# ITRF08 2019.50 coordinates to NAD83 2019.50.
+#
+# Transform parameters are derived from parameters published by the IOGP
+# (http://www.epsg.org). We chain paramaters for two transforms -
+#
+# ESPG:6299 - ITRF97 to ITRF2008 (t0=2000.00)
+# ESPG:6865 - ITRF97 to NAD83(CORS96) (t0=1997.00)
+#
+# ESPG:6299 is inverted and both transforms adjusted to t0=2010.00 before being combined.
+# The resulting time-dependent transform parameters are again adjusted to epoch 2019.50
+# before being used to transform coordinates. See the EPSG Guidance Note 373-7-2
+# Coordinate Conversions and Transformations for details.
+#
+# 2. An HTDP derived displacement is added to the NAD83 2019.50 coordinates to bring
+# coordinates to NAD83 2010.00.
+#
+# This requires a displacement grid in NAD83. The displacement grid is created
+# from an NGS HTDP displacement file. The HTDP dispmacement file is large and
+# should be generated locally with the PC version of HTDP. The HTDP displacement
+# file format -
+#
+#  HTDP (VERSION v3.2.7    ) OUTPUT
+#
+#  DISPLACEMENTS IN METERS RELATIVE TO NAD_83(2011/CORS96/2007)
+#  FROM 07-02-2019 TO 01-01-2010 (month-day-year)
+#  FROM 2019.500 TO 2010.000 (decimal years)
+#
+# NAME OF SITE             LATITUDE          LONGITUDE            NORTH    EAST    UP
+# 2019.50      0   0       38 30  0.00000 N  120  0  0.00000 W   -0.087   0.067   0.013
+# 2019.50      0   1       38 30  0.00000 N  120  0 15.00000 W   -0.087   0.067   0.013
+# 2019.50      0   2       38 30  0.00000 N  120  0 30.00000 W   -0.087   0.067   0.013
+# 2019.50      0   3       38 30  0.00000 N  120  0 45.00000 W   -0.087   0.067   0.013
+# 2019.50      0   4       38 30  0.00000 N  120  1  0.00000 W   -0.087   0.067   0.013
+# 2019.50      0   5       38 30  0.00000 N  120  1 15.00000 W   -0.087   0.067   0.013
+#
+# The NORTH and EAST displacements are saved as signed 32-bit integer offsets in mm.
+# The columns are arranged such that displacements are accessed as -
+#
+# e, n = disp_grid[offset_lon, offset_lat]
+#
+# A dims file is saved with the grid file defining the base lon/lat and cell step size.
+# For the HTDP displacement file shown above the dims are -
+#
+# base_lon = -120.00000000 (negative west)
+# base_lat = 38.300000000
+# step_lon = 15 (arc-seconds)
+# step_lat = 15
+#
+# Currently the point epoch is taken to be 2019.50. A simple refinement would be
+# to read the true epoch of the waypoint from the waypoint date/time and scale the
+# displacement -
+#
+# D(t) = D(2019.50) * (t - 2010.00) / (2019.50 - 2010.00)
+#
+
 import xml.etree.ElementTree as etree
 import xml.dom.minidom as minidom
 from datetime import datetime, timedelta
@@ -5,8 +77,7 @@ from os import path
 import pytz
 
 import numpy as np
-# import numpy.linalg as la
-from math import sqrt, hypot, radians, degrees, pi
+from math import sqrt, hypot, radians, degrees
 from math import sin, cos, atan, atan2, floor
 
 from osgeo import ogr, osr
@@ -28,43 +99,37 @@ SRID_WGS84 = 4326
 
 WPT_SYMBOL = 'Flag, Red'
 
+# Time-dependent Helmert 7-parameter transform (coordinate frame rotation)
 #
-# Transform ITRF08 to NAD83 in the current epoch then add HTDP displacement.
-# This requires a displacement grid in NAD83. The displacement grid is created
-# from an NGS HTDP displacement file. The HTDP dispmacement file is large and
-# should be generated locally with the PC version of HTDP. The HTDP displacement
-# file format-
+# translations - tx, ty, tz (m)
+# rotations - rx, ry, rz (milli-arc-seconds)
+# scale difference - s (ppb)
+# translation rates - dtx, dty, dtz (m/year)
+# rotation rates - drx, dry, drz (milli-arc-seconds/year)
+# scale difference rate - ds (ppb/year)
+# reference epoch - t0 (decimal year)
 #
-#  HTDP (VERSION v3.2.7    ) OUTPUT
-#
-#  DISPLACEMENTS IN METERS RELATIVE TO NAD_83(2011/CORS96/2007)
-#  FROM 07-02-2019 TO 01-01-2010 (month-day-year)
-#  FROM 2019.500 TO 2010.000 (decimal years)
-#
-# NAME OF SITE             LATITUDE          LONGITUDE            NORTH    EAST    UP
-# 2019.50      0   0       38 30  0.00000 N  120  0  0.00000 W   -0.087   0.067   0.013
-# 2019.50      0   1       38 30  0.00000 N  120  0 15.00000 W   -0.087   0.067   0.013
-# 2019.50      0   2       38 30  0.00000 N  120  0 30.00000 W   -0.087   0.067   0.013
-# 2019.50      0   3       38 30  0.00000 N  120  0 45.00000 W   -0.087   0.067   0.013
-# 2019.50      0   4       38 30  0.00000 N  120  1  0.00000 W   -0.087   0.067   0.013
-# 2019.50      0   5       38 30  0.00000 N  120  1 15.00000 W   -0.087   0.067   0.013
-#
-# The NORTH and EAST displacements are saved as signed 32-bit integer offsets in mm.
-# The columns are arranged such that displacements are accessed as-
-#
-# e, n = disp_grid[offset_lon, offset_lat]
-#
-# A dims file is saved with the grid file defining the base lon/lat and step size.
-# For the HTDP displacement file shown above the dims are-
-#
-# base_lon = -120.00000000 (negative west)
-# base_lat = 38.300000000
-# step_lon = 15 (arc-seconds)
-# step_lat = 15
-#
-# At this time the current epoch is taken to be 2019.50. In future a velocity grid
-# could calculate small differences between 2019.50 and the actual epoch of the point.
+# Derived from -
+# ITRF 1997 -> ITRF 2008 (EPSG:6299) by IERS
+# ITRF 1997 -> NAD83(CORS96) (EPSG:6865) by IOGP
 
+ITRF08_NAD83_2010 = (
+    +1.00380,
+    -1.91110,
+    -0.54350,
+    +26.78600,
+    -0.41500,
+    +11.45600,
+    +0.42000,
+    +0.00010,
+    -0.00050,
+    -0.00320,
+    +0.05320,
+    -0.74230,
+    -0.01160,
+    +0.09000,
+     2010.00
+)
 
 HTDP_DISP_FILE = 'data/disp-grid-nad83-2019.50.txt'
 HTDP_SITE_NAME = '2019.50'
@@ -73,15 +138,30 @@ DISP_GRID_FILE = 'data/disp-grid-nad83-2019.50.npy'
 DISP_DIMS_FILE = 'data/disp-grid-nad83-2019.50.dim'
 
 
+# Convert HTDP displacements to a numpy grid of signed 32-bit integers.
+# The grid is saved as a .npy file. An associated dims file is created
+# listing the base lon/lat (decimal degrees, negative west) and grid cell
+# size (arc-seconds).
+#
+# Offsets into the grid of the lower right corner of the grid cell
+# containing a point lat/lon-
+#
+# offset_lon = floor((lon - base_lon) * 3600 / step_lon * -1)
+# offset_lat = floor((lat - base_lat) * 3600 / step_lat)
+#
+# East/north displacements (up displacement is not saved)-
+#
+# e, n = disp_grid[offset_lon, offset_lat]
+#
 def make_disp_grid(htdp_file, grid_file, dims_file, site):
 
     grid = []
-    row = []
+    base_lon = base_lat = None
+    step_lon = step_lat = None
+
     with open(htdp_file, 'r') as f:
 
-        # Get the base lon/lat and step size in arc-seconds
-        base_lon = base_lat = None
-        step_lon = step_lat = None
+        # Get the base lon/lat and step size
         for line in f:
             if line.startswith(site):
 
@@ -104,6 +184,7 @@ def make_disp_grid(htdp_file, grid_file, dims_file, site):
                     break
 
         f.seek(0)
+        row = []
         for line in f:
             if line.startswith(site):
                 fields = line.split()
@@ -116,21 +197,18 @@ def make_disp_grid(htdp_file, grid_file, dims_file, site):
         if row:
             grid.append(row)
 
-        # Grid of signed integers representing mm displacements accessed as grid(lon, lat)
-        grid = np.array(grid, dtype=np.int32).swapaxes(0, 1)
-        np.save(grid_file, grid)
+    # Grid of signed integers of mm east/north displacements
+    grid = np.array(grid, dtype=np.int32).swapaxes(0, 1)
+    np.save(grid_file, grid)
 
-        # Dimensions file
-        with open(dims_file, 'w') as f:
-            f.write('%f %f %d %d' % (base_lon, base_lat, step_lon, step_lat))
-
+    # Dimensions file
+    with open(dims_file, 'w') as f:
+        f.write('%f %f %d %d' % (base_lon, base_lat, step_lon, step_lat))
 
     return
 
 
-
-
-# Load the displacement grid
+# Load the displacement grid and dim file
 def load_disp_grid(grid_file, dims_file):
     grid = np.load(grid_file)
     with open(dims_file, 'r') as f:
@@ -141,7 +219,7 @@ def load_disp_grid(grid_file, dims_file):
     return grid, (base_lon, base_lat, step_lon, step_lat)
 
 
-# Get a displacement from the grid
+# Get a enu displacement (meters) for a point using 2d linear interpolation
 def get_disp(P, grid, grid_dims):
     lon, lat, h = P
 
@@ -182,11 +260,9 @@ def add_enu_disp(P, D):
     # R = R1(-lon + 90) * R3(lat + 90)
     # Vd = R * (V1 - V0)
     #
-    # Since R is orthogonal
+    # Since R is orthogonal R.T is the inverse of R
     #
-    # inv(R) = R.T
     # V1 = R.T * Vd + V0
-    #
 
     V0 = np.array(ellip_to_cart(P))
     Vd = np.array(D)
@@ -195,10 +271,10 @@ def add_enu_disp(P, D):
     cl, cp = map(lambda d: cos(radians(d)), (lon, lat))
 
     R = np.array((
-        -sl,    -sp * cl,   +cp * cl,
-        +cl,    -sp * sl,   +cp * sl,
-        0.0,    +cp,        +sp
-    )).reshape((3, 3))
+        -sl,        +cl,        0.0,
+        -sp * cl,   -sp * sl,   +cp,
+        +cp * cl,   +cp * sl,   +sp
+    )).reshape((3, 3)).T
     V1 = R.dot(Vd) + V0
 
     lon, lat, h = cart_to_ellip(V1)
@@ -208,40 +284,6 @@ def add_enu_disp(P, D):
 
 def itrf_to_nad(P, grid, grid_dims, epoch=2019.50, inverse=False):
 
-    # Helmert 7-parameter transform (coordinate frame rotation)
-    # translations - tx, ty, tz (m)
-    # rotations - rx, ry, rz (milli-arc-seconds)
-    # scale difference - s (ppb)
-    #
-    # Rates of change per year and reference epoch
-    # translations - dtx, dty, dtz (m/year)
-    # rotations - drx, dry, drz (milli-arc-seconds/year)
-    # scale difference - ds (ppb/year)
-    # reference epoch - t0 (decimal year)
-    #
-    # See EPSG Guidance Note 373-7-2 - Coordinate Conversions and Transformations including Formulas
-    #
-    # Derived from -
-    # ITRF 1997 -> ITRF 2008 (EPSG::6299) by IERS
-    # ITRF 1997 -> NAD83(CORS96) (EPSG::6865) by IOGP
-
-    ITRF08_NAD83_2010 = (
-        +1.00380,
-        -1.91110,
-        -0.54350,
-        +26.78600,
-        -0.41500,
-        +11.45600,
-        +0.42000,
-        +0.00010,
-        -0.00050,
-        -0.00320,
-        +0.05320,
-        -0.74230,
-        -0.01160,
-        +0.09000,
-         2010.00
-    )
     tx, ty, tz, rx, ry, rz, s = ITRF08_NAD83_2010[0:7]
 
     if epoch:
@@ -260,7 +302,7 @@ def itrf_to_nad(P, grid, grid_dims, epoch=2019.50, inverse=False):
     # Convert ppd to decimal
     s /= 1.0E+06
 
-    # Rotation matrix for very small rotation angels
+    # Rotation matrix for very small rotation angles
     R = np.array((
         (1.0, +rz, -ry),
         (-rz, 1.0, +rx),
@@ -634,28 +676,45 @@ if __name__ == '__main__':
     # make_disp_grid(HTDP_DISP_FILE, DISP_GRID_FILE, DISP_DIMS_FILE, HTDP_SITE_NAME)
     #
     grid, grid_dims = load_disp_grid(DISP_GRID_FILE, DISP_DIMS_FILE)
-    #
-    # P = (-124.0566589683, 40.2698929701, 0.0)
-    # print('   %.10f  %.10f' % (P[0], P[1]))
-    #
-    # P = itrf_to_nad(P, grid, grid_dims, inverse=False)
-    # print('   %.10f  %.10f' % (P[0], P[1]))
-    #
-    # P = itrf_to_nad(P, grid, grid_dims, inverse=True)
-    # print('   %.10f  %.10f' % (P[0], P[1]))
-    #
-    # exit(0)
 
-    disp = sqrt(np.sum(np.square(grid[0, 0].astype(np.float) / 1000))) * 3937 / 1200
-    disp_min = disp_max = disp
-    for i in range(grid.shape[0]):
-        for j in range(grid.shape[1]):
-            disp = sqrt(np.sum(np.square(grid[i, j].astype(np.float) / 1000))) * 3937 / 1200
-            if disp < disp_min:
-                disp_min = disp
-            elif disp > disp_max:
-                disp_max = disp
+    P = (-124.0566589683, 40.2698929701, 0.0)
+    print('   %.10f  %.10f' % (P[0], P[1]))
 
-    print('min: %.3f ft' % disp_min)  # min: 0.133 ft
-    print('max: %.3f ft' % disp_max)  # max: 1.485 ft
+    P = itrf_to_nad(P, grid, grid_dims, inverse=False)
+    print('   %.10f  %.10f' % (P[0], P[1]))
 
+    P = itrf_to_nad(P, grid, grid_dims, inverse=True)
+    print('   %.10f  %.10f' % (P[0], P[1]))
+
+    exit(0)
+
+    # disp = sqrt(np.sum(np.square(grid[0, 0].astype(np.float) / 1000))) * 3937 / 1200
+    # disp_min = disp_max = disp
+    # for i in range(grid.shape[0]):
+    #     for j in range(grid.shape[1]):
+    #         disp = sqrt(np.sum(np.square(grid[i, j].astype(np.float) / 1000))) * 3937 / 1200
+    #         if disp < disp_min:
+    #             disp_min = disp
+    #         elif disp > disp_max:
+    #             disp_max = disp
+    #
+    # print('min: %.3f ft' % disp_min)  # min: 0.133 ft
+    # print('max: %.3f ft' % disp_max)  # max: 1.485 ft
+
+    # Calculate ENU displacement between grs80 and wgs84 at a lon/lat
+    # P = -124.0, 40.0, 0.0
+    # V0 = np.array(ellip_to_cart(P, grs80=False), dtype=np.double)
+    # V1 = np.array(ellip_to_cart(P, grs80=True), dtype=np.double)
+    #
+    # lon, lat, h = P
+    # sl, sp = map(lambda d: sin(radians(d)), (lon, lat))
+    # cl, cp = map(lambda d: cos(radians(d)), (lon, lat))
+    #
+    # R = np.array((
+    #     -sl, +cl, 0.0,
+    #     -sp * cl, -sp * sl, +cp,
+    #     +cp * cl, +cp * sl, +sp
+    # )).reshape((3, 3))
+    # Vd = R.dot(V1 - V0)
+    #
+    # print('e=%.6f n=%.6f u=%.6f' % (Vd[0], Vd[1], Vd[2]))
