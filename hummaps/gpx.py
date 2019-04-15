@@ -55,19 +55,24 @@
 #
 # e, n = disp_grid[offset_lon, offset_lat]
 #
-# A dims file is saved with the grid file defining the base lon/lat and cell step size.
-# For the HTDP displacement file shown above the dims are -
+# A dims file is saved with the grid file defining the base lon/lat, cell step size,
+# and the source and destination epoch. For the HTDP displacement file shown above
+# the dims are -
 #
 # base_lon = -120.00000000 (negative west)
-# base_lat = 38.300000000
+# base_lat = 38.500000000
 # step_lon = 15 (arc-seconds)
 # step_lat = 15
+# epoch_src = 2019.50
+# epoch_dst = 2010.00
 #
-# Currently the point epoch is taken to be 2019.50. A simple refinement would be
-# to read the true epoch of the waypoint from the waypoint date/time and scale the
-# displacement -
+# Currently the waypoint epoch is taken to be 2019.50. A simple refinement would be
+# to read the true epoch from the waypoint date/time and scale the displacement -
 #
-# D(t) = D(2019.50) * (t - 2010.00) / (2019.50 - 2010.00)
+# t0 = epoch_src (2019.50)
+# t1 = epoch_dst (2010.00)
+#
+# D(t) = D(t0) * (t - t1) / (t0 - t1)
 #
 
 import xml.etree.ElementTree as etree
@@ -75,6 +80,7 @@ import xml.dom.minidom as minidom
 from datetime import datetime, timedelta
 from os import path
 import pytz
+import re
 
 import numpy as np
 from math import sqrt, hypot, radians, degrees
@@ -153,7 +159,10 @@ DISP_DIMS_FILE = 'data/disp-grid-nad83-2019.50.dim'
 #
 # e, n = disp_grid[offset_lon, offset_lat]
 #
-def make_disp_grid(htdp_file, grid_file, dims_file, site):
+def make_disp_grid():
+    htdp_file = path.join(path.dirname(__file__), HTDP_DISP_FILE)
+    grid_file = path.join(path.dirname(__file__), DISP_GRID_FILE)
+    dims_file = path.join(path.dirname(__file__), DISP_DIMS_FILE)
 
     grid = []
     base_lon = base_lat = None
@@ -161,9 +170,12 @@ def make_disp_grid(htdp_file, grid_file, dims_file, site):
 
     with open(htdp_file, 'r') as f:
 
-        # Get the base lon/lat and step size
+        # Get the reference frame, source/target epochs, base lon/lat and step size
         for line in f:
-            if line.startswith(site):
+            m1 = re.match('DISPLACEMENTS.*RELATIVE TO\s+(.*)', line.strip())
+            m2 = re.match('FROM (\d{4}\.\d+) TO (\d{4}\.\d+)', line.strip())
+
+            if line.startswith(HTDP_SITE_NAME):
 
                 # Parse indices positionally, split remaining fields
                 i = int(line[10:14].strip())
@@ -182,13 +194,17 @@ def make_disp_grid(htdp_file, grid_file, dims_file, site):
                     d, m, s = map(float, fields[0:3])
                     step_lat = round(((d + m / 60 + s / 3600) - base_lat) * 3600)
                     break
+            elif m1:
+                ref_frame = m1.group(1)
+            elif m2:
+                epoch_src, epoch_dst = map(float, m2.groups())
 
         f.seek(0)
         row = []
         for line in f:
-            if line.startswith(site):
-                fields = line.split()
-                i, j = map(int, fields[1:3])
+            if line.startswith(HTDP_SITE_NAME):
+                j = int(line[14:18].strip())
+                fields = line[18:].split()
                 if j == 0 and row:
                     grid.append(row)
                     row = []
@@ -197,35 +213,48 @@ def make_disp_grid(htdp_file, grid_file, dims_file, site):
         if row:
             grid.append(row)
 
-    # Grid of signed integers of mm east/north displacements
+    # Grid of signed integers of east/north displacements (mm)
     grid = np.array(grid, dtype=np.int32).swapaxes(0, 1)
     np.save(grid_file, grid)
 
     # Dimensions file
     with open(dims_file, 'w') as f:
-        f.write('%f %f %d %d' % (base_lon, base_lat, step_lon, step_lat))
+        f.write('%s\n' % ref_frame)
+        f.write('%f %f\n' % (base_lon, base_lat))
+        f.write('%d %d\n' % (step_lon, step_lat))
+        f.write('%.2f %.2f\n' % (epoch_src, epoch_dst))
 
     return
 
 
 # Load the displacement grid and dim file
-def load_disp_grid(grid_file, dims_file):
-    grid = np.load(grid_file)
-    with open(dims_file, 'r') as f:
-        fields =  f.read().split()
-        base_lon, base_lat = map(float, fields[0:2])
-        step_lon, step_lat = map(int, fields[2:4])
+def load_disp_grid():
+    grid_file = path.join(path.dirname(__file__), DISP_GRID_FILE)
+    dims_file = path.join(path.dirname(__file__), DISP_DIMS_FILE)
 
-    return grid, (base_lon, base_lat, step_lon, step_lat)
+    grid = np.load(grid_file)
+
+    dims = []
+    with open(dims_file, 'r') as f:
+        for line in f:
+            dims += line.split()
+
+    base_lon, base_lat = map(float, dims[1:3])
+    step_lon, step_lat = map(int, dims[3:5])
+    epoch_src, epoch_dst = map(float, dims[5:7])
+
+    return grid, (base_lon, base_lat, step_lon, step_lat, epoch_src, epoch_dst)
 
 
 # Get a enu displacement (meters) for a point using 2d linear interpolation
-def get_disp(P, grid, grid_dims):
+def get_disp(P, epoch, grid, dims):
     lon, lat, h = P
 
     # Get the nearest displacement
     dim_i, dim_j = grid.shape[0:2]
-    base_lon, base_lat, step_lon, step_lat = grid_dims
+    base_lon, base_lat = dims[0:2]
+    step_lon, step_lat = dims[2:4]
+    epoch_src, epoch_dst = dims[4:6]
     i = (lon - base_lon) * 3600 / step_lon * -1
     j = (lat - base_lat) * 3600 / step_lat
     mod_lon = i % 1
@@ -244,6 +273,11 @@ def get_disp(P, grid, grid_dims):
     D = (1 - mod_lat) * ((1 - mod_lon) * LR + mod_lon * LL)
     D += mod_lat * ((1 - mod_lon) * UR + mod_lon * UL)
     D /= 1000
+
+    # Adjust displacement for epoch
+    D *= (epoch - epoch_dst) / (epoch_src - epoch_dst)
+
+    print(D)
 
     e, n = D.flat
     u = 0.0
@@ -282,7 +316,7 @@ def add_enu_disp(P, D):
     return (lon, lat, h)
 
 
-def itrf_to_nad(P, grid, grid_dims, epoch=2019.50, inverse=False):
+def itrf_to_nad(P, grid, dims, epoch, inverse=False):
 
     tx, ty, tz, rx, ry, rz, s = ITRF08_NAD83_2010[0:7]
 
@@ -316,7 +350,7 @@ def itrf_to_nad(P, grid, grid_dims, epoch=2019.50, inverse=False):
     M = 1.0 + s
 
     # HTDP displacement ITRF08 to NAD83 2010.00
-    D = get_disp(P, grid, grid_dims)
+    D = get_disp(P, epoch, grid, dims)
     if D is None:
         # Outside displacement grid
         return None
@@ -530,15 +564,13 @@ def gpx_in(f, nad83=False):
         pts.append(pnt)
 
     if nad83:
-        grid_file = path.join(path.dirname(__file__), DISP_GRID_FILE)
-        dims_file = path.join(path.dirname(__file__), DISP_DIMS_FILE)
-        grid, grid_dims = load_disp_grid(grid_file, dims_file)
+        grid, dims = load_disp_grid()
 
         i = len(pts)
         while i > 0:
             i -= 1
             lon, lat = pts[i][0:2]
-            P = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, inverse=False)
+            P = itrf_to_nad((lon, lat, 0.0), grid, dims, epoch=2019.50, inverse=False)
             if P is None:
                 # Outside displacement grid - should warn user here
                 pts.pop(i)
@@ -609,15 +641,13 @@ def gpx_out(pts, nad83=False):
     etree.SubElement(meta, 'time').text = isotime
 
     if nad83:
-        grid_file = path.join(path.dirname(__file__), DISP_GRID_FILE)
-        dims_file = path.join(path.dirname(__file__), DISP_DIMS_FILE)
-        grid, grid_dims = load_disp_grid(grid_file, dims_file)
+        grid, grid_dims = load_disp_grid()
 
         i = len(pts)
         while i > 0:
             i -= 1
             lon, lat = pts[i][0:2]
-            P = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, inverse=True)
+            P = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, epoch=2019.50, inverse=True)
             if P is None:
                 # Outside displacement grid - should warn user here
                 pts.pop(i)
@@ -673,17 +703,17 @@ if __name__ == '__main__':
     #
     # exit(0)
 
-    # make_disp_grid(HTDP_DISP_FILE, DISP_GRID_FILE, DISP_DIMS_FILE, HTDP_SITE_NAME)
-    #
-    grid, grid_dims = load_disp_grid(DISP_GRID_FILE, DISP_DIMS_FILE)
+    # make_disp_grid()
+
+    grid, dims = load_disp_grid()
 
     P = (-124.0566589683, 40.2698929701, 0.0)
     print('   %.10f  %.10f' % (P[0], P[1]))
 
-    P = itrf_to_nad(P, grid, grid_dims, inverse=False)
+    P = itrf_to_nad(P, grid, dims, epoch=2019.22, inverse=False)
     print('   %.10f  %.10f' % (P[0], P[1]))
 
-    P = itrf_to_nad(P, grid, grid_dims, inverse=True)
+    P = itrf_to_nad(P, grid, dims, epoch=2019.22, inverse=True)
     print('   %.10f  %.10f' % (P[0], P[1]))
 
     exit(0)
