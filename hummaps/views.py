@@ -108,6 +108,11 @@ def gpx():
                 pnts += pnezd_in(f.stream, target_srid)
             elif ext == 'gpx':
                 pnts += gpx_in(f.stream, nad83=nad83)
+            else:
+                return jsonify(
+                    error='Unsupported file type: <strong>"%s"</strong>' % ext
+                )
+
         if datatype == 'pnts':
             resp = make_response(pnezd_out(pnts, target_srid))
             outfile += '.txt'
@@ -115,7 +120,7 @@ def gpx():
             resp = make_response(gpx_out(pnts, nad83=nad83))
             outfile += '.gpx'
         else:
-            return('Bad type: %s' % datatype, 400)
+            return('Bad request type: %s' % datatype, 400)
 
         resp.headers['Content-Disposition'] = 'attachment; filename="%s"' % outfile
         resp.mimetype = 'application/octet-stream'

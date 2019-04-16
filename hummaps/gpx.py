@@ -26,7 +26,7 @@
 # ESPG:6299 is inverted and both transforms adjusted to t0=2010.00 before being combined.
 # The resulting time-dependent transform parameters are again adjusted to epoch 2019.50
 # before being used to transform coordinates. See the EPSG Guidance Note 373-7-2
-# Coordinate Conversions and Transformations for details.
+# Coordinate Conversions and Transformations.
 #
 # 2. An HTDP derived displacement is added to the NAD83 2019.50 coordinates to bring
 # coordinates to NAD83 2010.00.
@@ -55,7 +55,7 @@
 #
 # e, n = disp_grid[offset_lon, offset_lat]
 #
-# A dims file is saved with the grid file defining the base lon/lat, cell step size,
+# A dims file is saved with the grid file defining the base lon/lat, cell size,
 # and the source and destination epoch. For the HTDP displacement file shown above
 # the dims are -
 #
@@ -69,8 +69,9 @@
 # Currently the waypoint epoch is taken to be 2019.50. A simple refinement would be
 # to read the true epoch from the waypoint date/time and scale the displacement -
 #
-# t0 = epoch_src (2019.50)
-# t1 = epoch_dst (2010.00)
+#  t = epoch waypoint
+# t0 = epoch_src
+# t1 = epoch_dst
 #
 # D(t) = D(t0) * (t - t1) / (t0 - t1)
 #
@@ -146,16 +147,16 @@ DISP_DIMS_FILE = 'data/disp-grid-nad83-2019.50.dim'
 
 # Convert HTDP displacements to a numpy grid of signed 32-bit integers.
 # The grid is saved as a .npy file. An associated dims file is created
-# listing the base lon/lat (decimal degrees, negative west) and grid cell
-# size (arc-seconds).
+# listing the base lon/lat (decimal degrees, negative west), grid cell
+# size (arc-seconds) and source and destination epochs.
 #
 # Offsets into the grid of the lower right corner of the grid cell
-# containing a point lat/lon-
+# containing a point -
 #
 # offset_lon = floor((lon - base_lon) * 3600 / step_lon * -1)
 # offset_lat = floor((lat - base_lat) * 3600 / step_lat)
 #
-# East/north displacements (up displacement is not saved)-
+# East/north displacements (up displacement is not used) -
 #
 # e, n = disp_grid[offset_lon, offset_lat]
 #
@@ -209,7 +210,7 @@ def make_disp_grid():
                     grid.append(row)
                     row = []
                 n, e = map(lambda n: int(float(n) * 1000), fields[-3:-1])
-                row.append((e,n))
+                row.append((e, n))
         if row:
             grid.append(row)
 
@@ -250,34 +251,37 @@ def load_disp_grid():
 def get_disp(P, epoch, grid, dims):
     lon, lat, h = P
 
-    # Get the nearest displacement
-    dim_i, dim_j = grid.shape[0:2]
     base_lon, base_lat = dims[0:2]
     step_lon, step_lat = dims[2:4]
     epoch_src, epoch_dst = dims[4:6]
+    dim_i, dim_j = grid.shape[0:2]
+
+    # Index of lower-right corner of grid cell containing point and
+    # fractional position relative the lower right corner of point in cell.
     i = (lon - base_lon) * 3600 / step_lon * -1
     j = (lat - base_lat) * 3600 / step_lat
-    mod_lon = i % 1
-    mod_lat = j % 1
+    frac_lon = i % 1
+    frac_lat = j % 1
+
     i = floor(i)
     j = floor(j)
 
+    # Check all four corners of the grid cell are in range.
     if i < 0 or i + 1 >= dim_i or j < 0 or j + 1 >= dim_j:
         return None
 
-    LR = grid[i,j].astype(np.float)
-    LL = grid[i+1,j].astype(np.float)
-    UR = grid[i,j+1].astype(np.float)
-    UL = grid[i+1,j+1].astype(np.float)
+    LR = grid[i,j].astype(np.double)
+    LL = grid[i+1,j].astype(np.double)
+    UR = grid[i,j+1].astype(np.double)
+    UL = grid[i+1,j+1].astype(np.double)
 
-    D = (1 - mod_lat) * ((1 - mod_lon) * LR + mod_lon * LL)
-    D += mod_lat * ((1 - mod_lon) * UR + mod_lon * UL)
+    # 2D linear interpolation.
+    D = (1 - frac_lat) * ((1 - frac_lon) * LR + frac_lon * LL)
+    D += frac_lat * ((1 - frac_lon) * UR + frac_lon * UL)
     D /= 1000
 
     # Adjust displacement for epoch
     D *= (epoch - epoch_dst) / (epoch_src - epoch_dst)
-
-    print(D)
 
     e, n = D.flat
     u = 0.0
@@ -708,13 +712,31 @@ if __name__ == '__main__':
     grid, dims = load_disp_grid()
 
     P = (-124.0566589683, 40.2698929701, 0.0)
-    print('   %.10f  %.10f' % (P[0], P[1]))
 
-    P = itrf_to_nad(P, grid, dims, epoch=2019.22, inverse=False)
-    print('   %.10f  %.10f' % (P[0], P[1]))
+    print()
+    print('   %.8f    %.8f' % (P[0], P[1]))
+    pts = [P]
 
-    P = itrf_to_nad(P, grid, dims, epoch=2019.22, inverse=True)
-    print('   %.10f  %.10f' % (P[0], P[1]))
+    P = itrf_to_nad(P, grid, dims, epoch=2019.50, inverse=False)
+    print('   %.8f    %.8f' % (P[0], P[1]))
+    pts.append(P)
+
+    P = itrf_to_nad(P, grid, dims, epoch=2019.50, inverse=True)
+    print('   %.8f    %.8f' % (P[0], P[1]))
+    pts.append(P)
+
+    sr_target = osr.SpatialReference()
+    sr_target.ImportFromEPSG(2225)
+    sr_source = osr.SpatialReference()
+    sr_source.ImportFromEPSG(SRID_NAD83)
+    source_to_target = osr.CoordinateTransformation(sr_source, sr_target)
+
+    print()
+    for P in pts:
+        lon, lat = P[0:2]
+        geom = ogr.CreateGeometryFromWkt('POINT (%s %s)' % (lon, lat))
+        geom.Transform(source_to_target)
+        print('     %.3f    %.3f' % (geom.GetY(), geom.GetX()))
 
     exit(0)
 
