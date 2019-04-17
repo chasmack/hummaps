@@ -128,14 +128,32 @@ ITRF08_NAD83_2010 = (
     -0.41500,
     +11.45600,
     +0.42000,
-    +0.00010,
-    -0.00050,
-    -0.00320,
-    +0.05320,
-    -0.74230,
-    -0.01160,
-    +0.09000,
+    +0.00080,
+    -0.00060,
+    -0.00130,
+    +0.06700,
+    -0.75700,
+    -0.01100,
+    -0.10000,
      2010.00
+)
+
+ITRF08_NAD83_1997_SNAY = (
+    +0.99343,
+    -1.90331,
+    -0.52655,
+    +25.91467,
+    +9.42645,
+    +11.59935,
+    +1.71504,
+    +0.00079,
+    -0.00060,
+    -0.00134,
+    +0.06667,
+    -0.75744,
+    -0.05133,
+    -0.10201,
+     1997.00
 )
 
 HTDP_DISP_FILE = 'data/disp-grid-nad83-2019.50.txt'
@@ -168,6 +186,8 @@ def make_disp_grid():
     grid = []
     base_lon = base_lat = None
     step_lon = step_lat = None
+    epoch_src = epoch_dst = None
+    ref_frame = None
 
     with open(htdp_file, 'r') as f:
 
@@ -248,7 +268,7 @@ def load_disp_grid():
 
 
 # Get a enu displacement (meters) for a point using 2d linear interpolation
-def get_disp(P, epoch, grid, dims):
+def get_disp(P, grid, dims, epoch):
     lon, lat, h = P
 
     base_lon, base_lat = dims[0:2]
@@ -321,24 +341,23 @@ def add_enu_disp(P, D):
 
 
 def itrf_to_nad(P, grid, dims, epoch, inverse=False):
+    lon, lat, h = P
 
     tx, ty, tz, rx, ry, rz, s = ITRF08_NAD83_2010[0:7]
-
-    if epoch:
-        dtx, dty, dtz, drx, dry, drz, ds, t0 = ITRF08_NAD83_2010[7:]
-        tx += dtx * (epoch - t0)
-        ty += dty * (epoch - t0)
-        tz += dtz * (epoch - t0)
-        rx += drx * (epoch - t0)
-        ry += dry * (epoch - t0)
-        rz += drz * (epoch - t0)
-        s += ds * (epoch - t0)
+    dtx, dty, dtz, drx, dry, drz, ds, t0 = ITRF08_NAD83_2010[7:]
+    tx += dtx * (epoch - t0)
+    ty += dty * (epoch - t0)
+    tz += dtz * (epoch - t0)
+    rx += drx * (epoch - t0)
+    ry += dry * (epoch - t0)
+    rz += drz * (epoch - t0)
+    s += ds * (epoch - t0)
 
     # Convert milli-arc-seconds to radians
     rx, ry, rz = map(lambda n: radians(n / 3.6E+06), (rx, ry, rz))
 
-    # Convert ppd to decimal
-    s /= 1.0E+06
+    # Convert ppb to decimal
+    s /= 1.0E+09
 
     # Rotation matrix for very small rotation angles
     R = np.array((
@@ -347,17 +366,22 @@ def itrf_to_nad(P, grid, dims, epoch, inverse=False):
         (+ry, -rx, 1.0)
     ), dtype=np.double)
 
+    # print(R)
+
     # Translation vector
     T = np.array((tx, ty, tz), dtype=np.double)
 
     # Scale factor
     M = 1.0 + s
 
-    # HTDP displacement ITRF08 to NAD83 2010.00
-    D = get_disp(P, epoch, grid, dims)
-    if D is None:
-        # Outside displacement grid
-        return None
+    # NAD83 HTDP displacement
+    if grid is None:
+        D = (0.0, 0.0, 0.0)
+    else:
+        D = get_disp(P, grid, dims, epoch)
+        if D is None:
+            raise ValueError('Lat/Lon outside HTDP grid limits: lat=%.8f lon=%.8f' % (lat, lon))
+
     D = np.array(D)
 
     if inverse:
@@ -514,12 +538,12 @@ def pnezd_in(f, srid_source):
     pts = []
     for bytes in f:
 
-        row = bytes.decode('utf-8').strip()
-        if len(row) == 0 or row[0] == '#':
+        line = bytes.decode('utf-8').strip()
+        if len(line) == 0 or line.startswith('#'):
             continue
-        row = row.split(',', 4)
+        row = line.split(',', 4)
         if len(row) != 5:
-            continue
+            raise ValueError('Bad PNEZD Format: %s' % line)
         name, y, x, ele, desc = row
         x, y, ele = map(float, [x, y, ele])
 
@@ -690,32 +714,25 @@ def gpx_out(pts, nad83=False):
 
 if __name__ == '__main__':
 
-    # TEST_GPX = 'data/grid-limits.gpx'
-    # TEST_PNEZD = 'data/grid-limits.txt'
-    #
-    # with open(TEST_GPX, 'rb') as f:
-    #     pnts = gpx_in(f, nad83=True)
-    # pnezd = pnezd_out(pnts, 2225)
-    # with open(TEST_PNEZD, 'w') as f:
-    #     f.write(pnezd)
-    # print(pnezd)
-    #
-    # with open(TEST_PNEZD, 'rb') as f:
-    #     pnts = pnezd_in(f, 2225)
-    # gpx = gpx_out(pnts, nad83=True)
-    # print(gpx)
-    #
-    # exit(0)
-
     # make_disp_grid()
 
     grid, dims = load_disp_grid()
 
     P = (-124.0566589683, 40.2698929701, 0.0)
 
+    # 40 16 11.614692
+    # 124 03 23.97228
+
+    D = get_disp(P, grid, dims, epoch=2019.50)
+    print(D)
+
     print()
     print('   %.8f    %.8f' % (P[0], P[1]))
     pts = [P]
+
+    P1 = add_enu_disp(P, D)
+    print('   %.8f    %.8f' % (P1[0], P1[1]))
+    pts.append(P1)
 
     P = itrf_to_nad(P, grid, dims, epoch=2019.50, inverse=False)
     print('   %.8f    %.8f' % (P[0], P[1]))
@@ -740,6 +757,23 @@ if __name__ == '__main__':
 
     exit(0)
 
+    # TEST_GPX = 'data/grid-limits.gpx'
+    # TEST_PNEZD = 'data/grid-limits.txt'
+    #
+    # with open(TEST_GPX, 'rb') as f:
+    #     pnts = gpx_in(f, nad83=True)
+    # pnezd = pnezd_out(pnts, 2225)
+    # with open(TEST_PNEZD, 'w') as f:
+    #     f.write(pnezd)
+    # print(pnezd)
+    #
+    # with open(TEST_PNEZD, 'rb') as f:
+    #     pnts = pnezd_in(f, 2225)
+    # gpx = gpx_out(pnts, nad83=True)
+    # print(gpx)
+    #
+    # exit(0)
+    #
     # disp = sqrt(np.sum(np.square(grid[0, 0].astype(np.float) / 1000))) * 3937 / 1200
     # disp_min = disp_max = disp
     # for i in range(grid.shape[0]):
@@ -752,8 +786,8 @@ if __name__ == '__main__':
     #
     # print('min: %.3f ft' % disp_min)  # min: 0.133 ft
     # print('max: %.3f ft' % disp_max)  # max: 1.485 ft
-
-    # Calculate ENU displacement between grs80 and wgs84 at a lon/lat
+    #
+    # # Calculate ENU displacement between grs80 and wgs84 at a lon/lat
     # P = -124.0, 40.0, 0.0
     # V0 = np.array(ellip_to_cart(P, grs80=False), dtype=np.double)
     # V1 = np.array(ellip_to_cart(P, grs80=True), dtype=np.double)
@@ -770,3 +804,40 @@ if __name__ == '__main__':
     # Vd = R.dot(V1 - V0)
     #
     # print('e=%.6f n=%.6f u=%.6f' % (Vd[0], Vd[1], Vd[2]))
+    # exit(0)
+    #
+    # # From EPSG 373-07-02 Coordinate Conversions and Transfroms
+    # # Section 4.2.5 Time-dependent Helmert 7-parameter transforms
+    # # Example: Transform ITRF2008 to GDA94 at epoch 2013.90
+    #
+    # X = (-3789470.710, 4841770.404, -1690893.952)
+    # t = 2013.90
+    #
+    # ITRF08_GDA94_1994 = (
+    #     -0.08468,
+    #     -0.01942,
+    #     +0.03201,
+    #     -0.4254,
+    #     +2.2578,
+    #     +2.4015,
+    #     +9.710,
+    #     +0.00142,
+    #     +0.00134,
+    #     +0.00090,
+    #     +1.5461,
+    #     +1.1820,
+    #     +1.1551,
+    #     +0.109,
+    #     1994.00
+    # )
+    #
+    # P = cart_to_ellip(X)
+    # P = itrf_to_nad(P, None, None, epoch=t, inverse=False)
+    # X = ellip_to_cart(P)
+    # print(X)
+    #
+    # P = itrf_to_nad(P, None, None, epoch=t, inverse=True)
+    # X = ellip_to_cart(P)
+    # print(X)
+    #
+    # exit(0)

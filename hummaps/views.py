@@ -83,35 +83,30 @@ def index():
 
 @app.route('/gpx', methods=['GET', 'POST'])
 def gpx():
-    if request.method == 'POST':
+    if request.method == 'GET':
+        return render_template('gpx.html')
 
-        datatype = request.form['datatype']
-        target_srid = int(request.form['srid'])
-        outfile = request.form['filename']
-        nad83 = request.form.get('nad83', None)
-        if outfile:
-            i = outfile.rfind('.')
-            if i > 0:
-                outfile = outfile[0:i]  # strip extension
-        else:
-            outfile = 'results'
+    # XHR request
+    datatype = request.form['datatype']
+    target_srid = int(request.form['srid'])
+    outfile = request.form['filename']
+    nad83 = request.form.get('nad83', None)
+    if outfile:
+        i = outfile.rfind('.')
+        if i > 0:
+            outfile = outfile[0:i]  # strip extension
+    else:
+        outfile = 'results'
 
-        # files = request.files.getlist('file')
-        # headers = 'type: ' + datatype + ', srid: ' + str(srid) + ', files: ' + ', '.join([f.filename for f in files]) + '\n'
-
+    try:
         pnts = []
-
         for f in request.files.getlist('file'):
-            filename = f.filename
-            ext = filename.lower().rsplit('.', 1)[-1]
-            if ext == 'txt':
+            if f.filename.endswith('.txt'):
                 pnts += pnezd_in(f.stream, target_srid)
-            elif ext == 'gpx':
+            elif f.filename.endswith('.gpx'):
                 pnts += gpx_in(f.stream, nad83=nad83)
             else:
-                return jsonify(
-                    error='Unsupported file type: <strong>"%s"</strong>' % ext
-                )
+                raise TypeError('Unsupported file type: "%s"' % f.filename)
 
         if datatype == 'pnts':
             resp = make_response(pnezd_out(pnts, target_srid))
@@ -120,15 +115,16 @@ def gpx():
             resp = make_response(gpx_out(pnts, nad83=nad83))
             outfile += '.gpx'
         else:
-            return('Bad request type: %s' % datatype, 400)
+            raise TypeError('Bad request data type: "%s"' % datatype)
 
-        resp.headers['Content-Disposition'] = 'attachment; filename="%s"' % outfile
-        resp.mimetype = 'application/octet-stream'
-        resp.cache_control.no_cache = True
-        resp.cache_control.no_store = True
-        return resp
+    except Exception as err:
+        return (jsonify(error=str(err)), 400)
 
-    return render_template('gpx.html')
+    resp.headers['Content-Disposition'] = 'attachment; filename="%s"' % outfile
+    resp.mimetype = 'application/octet-stream'
+    resp.cache_control.no_cache = True
+    resp.cache_control.no_store = True
+    return resp
 
 #
 # Service unavailable

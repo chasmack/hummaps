@@ -29,58 +29,49 @@ $('#fileupload').fileupload({
   console.log('Send:');
   return true;
 })
+
 .on('fileuploaddone', function(e, data) {
   console.log('Done:');
   var xhr = data.jqXHR;
+
+  var filename = "";
+  var disp = xhr.getResponseHeader('Content-Disposition');
+  if (disp && disp.indexOf('attachment') !== -1) {
+    var re = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+    var match = re.exec(disp);
+    if (match != null && match[1]) {
+      filename = match[1].replace(/['"]/g, '');
+    }
+  }
   var type = xhr.getResponseHeader('Content-Type');
-  if (type == 'application/json') {
-    var resp = JSON.parse(xhr.responseText);
-    if (resp.error) {
-      $('.alert-danger').css('display', 'block')
-        .find('span').last().replaceWith('<span> ' + resp.error + '</span>');
-    } else if (resp.warning) {
-      $('.alert-warning').css('display', 'block')
-        .find('span').last().replaceWith('<span> ' + resp.warning + '</span>');
-    } else if (resp.success) {
-      $('.alert-success').css('display', 'block')
-        .find('span').last().replaceWith('<span> ' + resp.success + '</span>');
-    };
+  var blob = new Blob([xhr.responseText], {type: type});
+  var URL = window.URL || window.webkitURL;
+  var downloadUrl = URL.createObjectURL(blob);
+
+  if (filename) {
+    // use HTML5 a[download] attribute to specify filename
+    $('#download-result')
+      .find('a').attr({'href': downloadUrl, 'download': filename})
+      .find('span').text(filename)
+      .end().end().show();
+
+    // setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100);
+
   } else {
-    var filename = "";
-    var disp = xhr.getResponseHeader('Content-Disposition');
-    if (disp && disp.indexOf('attachment') !== -1) {
-      var re = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-      var match = re.exec(disp);
-      if (match != null && match[1]) {
-        filename = match[1].replace(/['"]/g, '');
-      }
-    }
-    var blob = new Blob([xhr.responseText], {type: type});
-    var URL = window.URL || window.webkitURL;
-    var downloadUrl = URL.createObjectURL(blob);
-
-    if (filename) {
-      // use HTML5 a[download] attribute to specify filename
-      $('#download-result')
-        .find('a').attr({'href': downloadUrl, 'download': filename})
-        .find('span').text(filename)
-        .end().end().show();
-
-      // setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100);
-
-    } else {
-      // window.location = downloadUrl;
-    }
-    $('.alert-success').css('display', 'block')
-        .find('span').last().replaceWith('<span> Conversion complete.</span>');
+    // window.location = downloadUrl;
   }
 })
+
 .on('fileuploadfail', function(e, data) {
-  var resp = data.jqXHR.responseText;
-  $('.flashed-messages .alert-danger').css('display', 'block')
-    .find('span').last().replaceWith('<span> ' + resp + '</span>');
   console.log('Fail:');
+  var xhr = data.jqXHR;
+  var resp = xhr.status + ': ' + xhr.statusText;
+  if (xhr.getResponseHeader('Content-Type').endsWith('json')) {
+    resp = JSON.parse(xhr.responseText)['error']
+  }
+  $('.alert-danger').css('display', 'block').find('span').last().text(resp);
 })
+
 .on('fileuploadalways', function(e, data) {
   console.log('Always:');
 })
