@@ -12,7 +12,7 @@
 # NAD83 (2011) epoch 2010.00.
 #
 # In the following WGS84 (G1762) is taken to be equivalent to ITRF2008.
-# EPSG7666 provides transform parameters from WGS84 (G1762) to ITRF2008 at
+# EPSG:7666 provides transform parameters from WGS84 (G1762) to ITRF2008 at
 # epoch 2005.00. The 7-parameter transform values are all 0.0 at that epoch
 # and no rates are given.
 #
