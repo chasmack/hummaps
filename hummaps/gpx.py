@@ -11,21 +11,27 @@
 # a common epoch. NGS data sheets currently report survey control positions as
 # NAD83 (2011) epoch 2010.00.
 #
-# Transforming coordinates from WGS84 (G1762)/ITRF08 2019.50 to NAD83 2010.00
-# proceeds in two steps.
+# In the following WGS84 (G1762) is taken to be equivalent to ITRF2008.
+# EPSG7666 provides transform parameters from WGS84 (G1762) to ITRF2008 at
+# epoch 2005.00. The 7-parameter transform values are all 0.0 at that epoch
+# and no rates are given.
+#
+# Transforming coordinates from ITRF2008 2019.50 to NAD83 2010.00 proceeds in
+# two steps as follows.
 #
 # 1. A time-dependent 7-parameter Helmert transform is used to transform the
-# ITRF08 2019.50 coordinates to NAD83 2019.50.
+# ITRF2008 2019.50 coordinates to NAD83 2019.50.
 #
 # Transform parameters are derived from parameters published by the IOGP
 # (http://www.epsg.org). We chain paramaters for two transforms -
 #
-# ESPG:6299 - ITRF97 to ITRF2008 (t0=2000.00)
-# ESPG:6865 - ITRF97 to NAD83(CORS96) (t0=1997.00)
+# EPSG:6299 - ITRF97 to ITRF2008 (t0=2000.00)
+# EPSG:6865 - ITRF97 to NAD83(CORS96) (t0=1997.00)
 #
-# ESPG:6299 is inverted and both transforms adjusted to t0=2010.00 before being combined.
-# The resulting time-dependent transform parameters are again adjusted to epoch 2019.50
-# before being used to transform coordinates. See the EPSG Guidance Note 373-7-2
+# EPSG:6299 is converted from Position Vector to Frame Rotation and inverted and
+# both transforms adjusted to t0=2010.00 before being combined. The resulting
+# time-dependent transform parameters are again adjusted to epoch 2019.50 before
+# being used to transform coordinates. See the EPSG Guidance Note 373-7-2
 # Coordinate Conversions and Transformations.
 #
 # 2. An HTDP derived displacement is added to the NAD83 2019.50 coordinates to bring
@@ -126,34 +132,16 @@ ITRF08_NAD83_2010 = (
     -0.54350,
     +26.78600,
     -0.41500,
-    +11.45600,
+    +10.93600,
     +0.42000,
     +0.00080,
     -0.00060,
     -0.00130,
     +0.06700,
     -0.75700,
-    -0.01100,
+    -0.05100,
     -0.10000,
      2010.00
-)
-
-ITRF08_NAD83_1997_SNAY = (
-    +0.99343,
-    -1.90331,
-    -0.52655,
-    +25.91467,
-    +9.42645,
-    +11.59935,
-    +1.71504,
-    +0.00079,
-    -0.00060,
-    -0.00134,
-    +0.06667,
-    -0.75744,
-    -0.05133,
-    -0.10201,
-     1997.00
 )
 
 HTDP_DISP_FILE = 'data/disp-grid-nad83-2019.50.txt'
@@ -723,16 +711,16 @@ if __name__ == '__main__':
     # 40 16 11.614692
     # 124 03 23.97228
 
-    D = get_disp(P, grid, dims, epoch=2019.50)
-    print(D)
+    # D = get_disp(P, grid, dims, epoch=2019.50)
+    # print(D)
 
     print()
     print('   %.8f    %.8f' % (P[0], P[1]))
     pts = [P]
 
-    P1 = add_enu_disp(P, D)
-    print('   %.8f    %.8f' % (P1[0], P1[1]))
-    pts.append(P1)
+    # P1 = add_enu_disp(P, D)
+    # print('   %.8f    %.8f' % (P1[0], P1[1]))
+    # pts.append(P1)
 
     P = itrf_to_nad(P, grid, dims, epoch=2019.50, inverse=False)
     print('   %.8f    %.8f' % (P[0], P[1]))
@@ -757,6 +745,7 @@ if __name__ == '__main__':
 
     exit(0)
 
+
     # TEST_GPX = 'data/grid-limits.gpx'
     # TEST_PNEZD = 'data/grid-limits.txt'
     #
@@ -773,7 +762,8 @@ if __name__ == '__main__':
     # print(gpx)
     #
     # exit(0)
-    #
+
+
     # disp = sqrt(np.sum(np.square(grid[0, 0].astype(np.float) / 1000))) * 3937 / 1200
     # disp_min = disp_max = disp
     # for i in range(grid.shape[0]):
@@ -804,8 +794,10 @@ if __name__ == '__main__':
     # Vd = R.dot(V1 - V0)
     #
     # print('e=%.6f n=%.6f u=%.6f' % (Vd[0], Vd[1], Vd[2]))
-    # exit(0)
     #
+    # exit(0)
+
+
     # # From EPSG 373-07-02 Coordinate Conversions and Transfroms
     # # Section 4.2.5 Time-dependent Helmert 7-parameter transforms
     # # Example: Transform ITRF2008 to GDA94 at epoch 2013.90
@@ -839,5 +831,124 @@ if __name__ == '__main__':
     # P = itrf_to_nad(P, None, None, epoch=t, inverse=True)
     # X = ellip_to_cart(P)
     # print(X)
+    #
+    # exit(0)
+
+
+    # # Calculate time-dependent Helmert parameters
+    # # ITRF08 -> NAD83 (CORS96) t0=2010.00
+    #
+    # # Position Vector Rotation
+    # ITRF97_ITRF08_2000_EPSG6299 = (
+    #     -4.80000,   # mm
+    #     -2.60000,
+    #     +33.20000,
+    #     +0.00000,   # mas
+    #     +0.00000,
+    #     -0.06000,
+    #     -2.92000,   # ppb
+    #     -0.10000,   # mm/year
+    #     +0.50000,
+    #     +3.20000,
+    #     +0.00000,   # mas/year
+    #     +0.00000,
+    #     -0.02000,
+    #     -0.09000,   # ppb/year
+    #     2000.00
+    # )
+    #
+    # # Position Vector Rotation
+    # ITRF2000_ITRF08_2000_EPSG6300 = (
+    #     +1.9000,
+    #     +1.7000,
+    #     +10.5000,
+    #     +0.0000,
+    #     +0.0000,
+    #     +0.0000,
+    #     -1.3400,
+    #     -0.1000,
+    #     -0.1000,
+    #     +1.8000,
+    #     +0.0000,
+    #     +0.0000,
+    #     +0.0000,
+    #     -0.0800,
+    #     2000.00
+    # )
+    #
+    # # Coordinate Frame Rotation
+    # ITRF97_NAD83_1997_EPSG6865 = (
+    #     +0.98890,   # m
+    #     -1.90740,
+    #     -0.50300,
+    #     +25.91500,  # mas
+    #     +9.42600,
+    #     +11.59900,
+    #     -0.93000,   # ppb
+    #     +0.00070,   # m/year
+    #     -0.00010,
+    #     +0.00190,
+    #     +0.06700,   # mas/year
+    #     -0.75700,
+    #     -0.03100,
+    #     -0.19000,   # ppb/year
+    #     1997.00
+    # )
+    #
+    # # Coordinate Frame Rotation
+    # ITRF2000_NAD83_1997_EPSG6866 = (
+    #     +0.9956,
+    #     -1.9013,
+    #     -0.5215,
+    #     +25.9150,
+    #     +9.4260,
+    #     +11.5990,
+    #     +0.6200,
+    #     +0.0007,
+    #     -0.0007,
+    #     +0.0005,
+    #     +0.0670,
+    #     -0.7570,
+    #     -0.0510,
+    #     -0.1800,
+    #     1997.00
+    # )
+    #
+    # x1 = ITRF97_ITRF08_2000_EPSG6299
+    # x2 = ITRF97_NAD83_1997_EPSG6865
+    #
+    # # Target t0 for transform
+    # t0 = 2010.00
+    #
+    # # ITRF to ITRF
+    # sx1 = np.array(x1[0:7], dtype=np.double)
+    # dx1 = np.array(x1[7:14], dtype=np.double)
+    # tx1 = x1[14]
+    #
+    # # Convert mm to meters, Position Vector to Frame Rotation
+    # sx1 *= np.array((1E-3, 1E-3, 1E-3, -1, -1, -1, 1))
+    # dx1 *= np.array((1E-3, 1E-3, 1E-3, -1, -1, -1, 1))
+    #
+    # # Inverse direction of transform
+    # sx1 *= -1
+    # dx1 *= -1
+    #
+    # # Convert to t0
+    # sx1 += dx1 * (t0 - tx1)
+    #
+    # # ITRF to NAD
+    # sx2 = np.array(x2[0:7], dtype=np.double)
+    # dx2 = np.array(x2[7:14], dtype=np.double)
+    # tx2 = x2[14]
+    #
+    # # Convert to t0
+    # sx2 += dx2 * (t0 - tx2)
+    #
+    # # Combine transforms
+    # sx = sx1 + sx2
+    # dx = dx1 + dx2
+    #
+    # for x in list(sx) + list(dx):
+    #     print('%+12.5f,' % x)
     #
     # exit(0)

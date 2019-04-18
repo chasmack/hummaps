@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <gml:Transformation xmlns:epsg="urn:x-ogp:spec:schema-xsd:EPSG:1.0:dataset" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" gml:id="ogp-op-6299">
+   <gml:metaDataProperty>
+      <epsg:CommonMetaData>
+         <epsg:type>transformation</epsg:type>
+         <epsg:informationSource>International Earth Rotation Service (IERS). http://itrf.ensg.ign.fr</epsg:informationSource>
+         <epsg:revisionDate>2013-05-27</epsg:revisionDate>
+         <epsg:changes>
+            <epsg:changeID xlink:href="urn:ogc:def:change-request:EPSG::2013.021" />
+         </epsg:changes>
+         <epsg:show>true</epsg:show>
+         <epsg:isDeprecated>false</epsg:isDeprecated>
+      </epsg:CommonMetaData>
+   </gml:metaDataProperty>
+   <gml:metaDataProperty>
+      <epsg:CoordinateOperationMetaData>
+         <epsg:variant>1</epsg:variant>
+      </epsg:CoordinateOperationMetaData>
+   </gml:metaDataProperty>
+   <gml:identifier codeSpace="OGP">urn:ogc:def:coordinateOperation:EPSG::6299</gml:identifier>
+   <gml:name>ITRF97 to ITRF2008 (1)</gml:name>
+   <gml:remarks>Scale difference in ppb and scale difference rate in ppb/yr where 1/billion = 1E-9 or nm/m.</gml:remarks>
+   <gml:domainOfValidity xlink:href="urn:ogc:def:area:EPSG::1262" />
+   <gml:scope>Geodesy</gml:scope>
+   <gml:operationVersion>IERS-Wld</gml:operationVersion>
+   <gml:coordinateOperationAccuracy>
+      <gmd:DQ_RelativeInternalPositionalAccuracy>
+         <gmd:result>
+            <gmd:DQ_QuantitativeResult>
+               <gmd:valueUnit xlink:href="urn:ogc:def:uom:EPSG::9001" />
+               <gmd:value>
+                  <gco:Record>
+                     <gco:Decimal>0.01</gco:Decimal>
+                  </gco:Record>
+               </gmd:value>
+            </gmd:DQ_QuantitativeResult>
+         </gmd:result>
+      </gmd:DQ_RelativeInternalPositionalAccuracy>
+   </gml:coordinateOperationAccuracy>
+   <gml:sourceCRS xlink:href="urn:ogc:def:crs:EPSG::4918" />
+   <gml:targetCRS xlink:href="urn:ogc:def:crs:EPSG::5332" />
+   <gml:method xlink:href="urn:ogc:def:method:EPSG::1053" />
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1025">-4.8</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::8605" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1025">-2.6</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::8606" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1025">33.2</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::8607" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1031">0.0</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::8608" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1031">0.0</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::8609" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1031">-0.06</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::8610" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1028">-2.92</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::8611" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1027">-0.1</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::1040" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1027">0.5</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::1041" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1027">3.2</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::1042" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1032">0.0</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::1043" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1032">0.0</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::1044" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1032">-0.02</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::1045" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1030">-0.09</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::1046" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+   <gml:parameterValue>
+      <gml:ParameterValue>
+         <gml:value uom="urn:ogc:def:uom:EPSG::1029">2000.0</gml:value>
+         <gml:operationParameter xlink:href="urn:ogc:def:parameter:EPSG::1047" />
+      </gml:ParameterValue>
+   </gml:parameterValue>
+</gml:Transformation>
