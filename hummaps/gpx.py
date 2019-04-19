@@ -11,10 +11,7 @@
 # a common epoch. NGS data sheets currently report survey control positions as
 # NAD83 (2011) epoch 2010.00.
 #
-# In the following WGS84 (G1762) is taken to be equivalent to ITRF2008.
-# EPSG:7666 provides transform parameters from WGS84 (G1762) to ITRF2008 at
-# epoch 2005.00. The 7-parameter transform values are all 0.0 at that epoch
-# and no rates are given.
+# In the following ITRF2008 is taken to be equivalent to WGS84.
 #
 # Transforming coordinates from ITRF2008 2019.50 to NAD83 2010.00 proceeds in
 # two steps as follows.
@@ -276,7 +273,7 @@ def get_disp(P, grid, dims, epoch):
 
     # Check all four corners of the grid cell are in range.
     if i < 0 or i + 1 >= dim_i or j < 0 or j + 1 >= dim_j:
-        return None
+        raise ValueError('Lat/Lon outside HTDP grid limits: lat=%.8f lon=%.8f' % (lat, lon))
 
     LR = grid[i,j].astype(np.double)
     LL = grid[i+1,j].astype(np.double)
@@ -329,7 +326,6 @@ def add_enu_disp(P, D):
 
 
 def itrf_to_nad(P, grid, dims, epoch, inverse=False):
-    lon, lat, h = P
 
     tx, ty, tz, rx, ry, rz, s = ITRF08_NAD83_2010[0:7]
     dtx, dty, dtz, drx, dry, drz, ds, t0 = ITRF08_NAD83_2010[7:]
@@ -367,8 +363,6 @@ def itrf_to_nad(P, grid, dims, epoch, inverse=False):
         D = (0.0, 0.0, 0.0)
     else:
         D = get_disp(P, grid, dims, epoch)
-        if D is None:
-            raise ValueError('Lat/Lon outside HTDP grid limits: lat=%.8f lon=%.8f' % (lat, lon))
 
     D = np.array(D)
 
@@ -440,10 +434,10 @@ def cart_to_ellip(V, grs80=False):
     return (lon, lat, h)
 
 
-# Transform points in place from projected coordinates to WGS84 geographic (4326)
-def grid_to_ellip(pnts, srid_source):
+# Convert points in place from projected to geographic coordinates
+def proj_to_ellip(pnts, srid_source):
 
-    # Source spacial reference system
+    # Source spatial reference system
     sr_source = osr.SpatialReference()
     sr_source.ImportFromEPSG(srid_source)
 
@@ -457,21 +451,20 @@ def grid_to_ellip(pnts, srid_source):
         raise ValueError('Unsupported source datum: SRID=%d' % srid_source)
     source_to_target = osr.CoordinateTransformation(sr_source, sr_target)
 
-    # Transform points to geographic coordinates, elevations to meters
+    # Convert to geographic coordinates, elevations to meters
     for p in pnts:
         x, y, ele = p[0:3]
         ele *= sr_source.GetLinearUnits()
         geom = ogr.CreateGeometryFromWkt('POINT (%s %s)' % (x, y))
         geom.Transform(source_to_target)
         lon, lat = geom.GetX(), geom.GetY()
-        # if sr_source.GetAttrValue('GEOGCS') == 'NAD83':
-        #     lon, lat, h = itrf_to_nad(lon, lat, 0.0, inverse=True, epoch=epoch)
         p[0:3] = (lon, lat, ele)
 
 
-# Transform points in place from WGS84 geographic (4326) to projected coordinates
-def ellip_to_grid(pnts, srid_target):
-    # Target spacial reference system
+# Convert points in place from geographic to projected coordinates
+def ellip_to_proj(pnts, srid_target):
+
+    # Target spatial reference system
     sr_target = osr.SpatialReference()
     sr_target.ImportFromEPSG(srid_target)
 
@@ -485,12 +478,10 @@ def ellip_to_grid(pnts, srid_target):
         raise ValueError('Unsupported target datum: SRID=%d' % srid_target)
     source_to_target = osr.CoordinateTransformation(sr_source, sr_target)
 
-    # Transform points to projected coordinates, elevations to target units
+    # Convert to projected coordinates, elevations to target units
     for p in pnts:
         lon, lat, ele = p[0:3]
         ele /= sr_target.GetLinearUnits()
-        # if sr_target.GetAttrValue('GEOGCS') == 'NAD83':
-        #     lon, lat, h = itrf_to_nad(lon, lat, 0.0, inverse=False, epoch=epoch)
         geom = ogr.CreateGeometryFromWkt('POINT (%s %s)' % (lon, lat))
         geom.Transform(source_to_target)
         x, y = geom.GetX(), geom.GetY()
@@ -506,8 +497,8 @@ def pnts_sort_key(p):
 
 def pnezd_out(pts, srid_target):
 
-    # Transform WGS84 to the target coordinate system
-    ellip_to_grid(pts, srid_target)
+    # Convert points to the target projected coordinate system
+    ellip_to_proj(pts, srid_target)
 
     pnezd = ''
     for p in sorted(pts, key=pnts_sort_key):
@@ -522,7 +513,7 @@ def pnezd_out(pts, srid_target):
 
 def pnezd_in(f, srid_source):
 
-    # Read a pnezd comma delimited points file
+    # Read a PNEZD comma delimited points file
     pts = []
     for bytes in f:
 
@@ -535,16 +526,20 @@ def pnezd_in(f, srid_source):
         name, y, x, ele, desc = row
         x, y, ele = map(float, [x, y, ele])
 
-        # lon, lat, ele, time, name, cmt, desc, sym, type, samples
+        # [lon, lat, ele, time, name, cmt, desc, sym, type, samples]
         pts.append([x, y, ele, None, name, None, desc, None, None, None])
 
-    # Transform points to WGS84 lon/lat (4326)
-    grid_to_ellip(pts, srid_source)
+    # Convert points to geographic coordinates
+    proj_to_ellip(pts, srid_source)
 
     return pts
 
 
-# Parse wpt elements into a list of ordered tuples
+# Parse wpt elements into a list of point tuples.
+# Each point consists of the following fields -
+#
+# [lon, lat, ele, time, name, cmt, desc, sym, type, samples]
+#
 def gpx_in(f, nad83=False):
 
     ns = {
@@ -559,9 +554,6 @@ def gpx_in(f, nad83=False):
     etree.register_namespace('wptx1', 'http://www.garmin.com/xmlschemas/WaypointExtension/v1')
     etree.register_namespace('ctx', 'http://www.garmin.com/xmlschemas/CreationTimeExtension/v1')
 
-    wpt_keys = (
-        'lon', 'lat', 'ele', 'time', 'name', 'cmt', 'desc', 'sym', 'type', 'samples'
-    )
     wpt_elems = (
         'gpx:ele', 'gpx:time', 'gpx:name', 'gpx:cmt',
         'gpx:desc', 'gpx:sym', 'gpx:type', './gpx:extensions//wptx1:Samples'
@@ -570,28 +562,23 @@ def gpx_in(f, nad83=False):
     pts = []
     gpx = etree.parse(f).getroot()
     for wpt in gpx.findall('gpx:wpt', ns):
-        pnt = list(map(float, (wpt.get('lon'), wpt.get('lat'))))
+        lon, lat = map(float, (wpt.get('lon'), wpt.get('lat')))
+        pt = [lon, lat]
         for tag in wpt_elems:
             elem = wpt.find(tag, ns)
-            pnt.append(None if elem is None else elem.text)
+            pt.append(None if elem is None else elem.text)
 
-        # Check the elevation
-        pnt[2] = 0.0 if pnt[2] is None else float(pnt[2])
-        pts.append(pnt)
+        # Convert elevation to float
+        pt[2] = 0.0 if pt[2] is None else float(pt[2])
+        pts.append(pt)
 
     if nad83:
         grid, dims = load_disp_grid()
 
-        i = len(pts)
-        while i > 0:
-            i -= 1
-            lon, lat = pts[i][0:2]
+        for pt in pts:
+            lon, lat = pt[0:2]
             P = itrf_to_nad((lon, lat, 0.0), grid, dims, epoch=2019.50, inverse=False)
-            if P is None:
-                # Outside displacement grid - should warn user here
-                pts.pop(i)
-            else:
-                pts[i][0:2] = P[0:2]
+            pt[0:2] = P[0:2]
 
     return pts
 
@@ -659,16 +646,10 @@ def gpx_out(pts, nad83=False):
     if nad83:
         grid, grid_dims = load_disp_grid()
 
-        i = len(pts)
-        while i > 0:
-            i -= 1
-            lon, lat = pts[i][0:2]
+        for pt in pts:
+            lon, lat = pt[0:2]
             P = itrf_to_nad((lon, lat, 0.0), grid, grid_dims, epoch=2019.50, inverse=True)
-            if P is None:
-                # Outside displacement grid - should warn user here
-                pts.pop(i)
-            else:
-                pts[i][0:2] = P[0:2]
+            pt[0:2] = P[0:2]
 
     for pt in sorted(pts, key=pnts_sort_key):
         # lon, lat, ele, time, name, cmt, desc, sym, type, samples
@@ -702,27 +683,41 @@ def gpx_out(pts, nad83=False):
 
 if __name__ == '__main__':
 
+    # TEST_GPX = 'data/grid-limits.gpx'
+    # TEST_PNEZD = 'data/grid-limits.txt'
+    # TEST_GPX = 'data/PantherGap190321_Clean.gpx'
+    # TEST_PNEZD = 'data/PantherGap190321_NAD83_2010.00.txt'
+    #
+    # with open(TEST_GPX, 'rb') as f:
+    #     pts = gpx_in(f, nad83=True)
+    # pnezd = pnezd_out(pts, 2225)
+    # with open(TEST_PNEZD, 'w') as f:
+    #     f.write(pnezd)
+    # print(pnezd)
+    #
+    # with open(TEST_PNEZD, 'rb') as f:
+    #     pnts = pnezd_in(f, 2225)
+    # gpx = gpx_out(pnts, nad83=True)
+    # print(gpx)
+    #
+    # exit(0)
+
     # make_disp_grid()
-
-    grid, dims = load_disp_grid()
-
-    P = (-124.0566589683, 40.2698929701, 0.0)
 
     # 40 16 11.614692
     # 124 03 23.97228
 
-    # D = get_disp(P, grid, dims, epoch=2019.50)
-    # print(D)
+    P = (-124.0566589683, 40.2698929701, 0.0)
 
     print()
     print('   %.8f    %.8f' % (P[0], P[1]))
     pts = [P]
 
-    # P1 = add_enu_disp(P, D)
-    # print('   %.8f    %.8f' % (P1[0], P1[1]))
-    # pts.append(P1)
+    grid, dims = load_disp_grid()
 
-    P = itrf_to_nad(P, grid, dims, epoch=2019.50, inverse=False)
+    D = get_disp(P, grid, dims, epoch=2019.50)
+    P = itrf_to_nad(P, None, None, epoch=2019.50, inverse=False)
+    P = add_enu_disp(P, D)
     print('   %.8f    %.8f' % (P[0], P[1]))
     pts.append(P)
 
@@ -744,25 +739,6 @@ if __name__ == '__main__':
         print('     %.3f    %.3f' % (geom.GetY(), geom.GetX()))
 
     exit(0)
-
-
-    # TEST_GPX = 'data/grid-limits.gpx'
-    # TEST_PNEZD = 'data/grid-limits.txt'
-    #
-    # with open(TEST_GPX, 'rb') as f:
-    #     pnts = gpx_in(f, nad83=True)
-    # pnezd = pnezd_out(pnts, 2225)
-    # with open(TEST_PNEZD, 'w') as f:
-    #     f.write(pnezd)
-    # print(pnezd)
-    #
-    # with open(TEST_PNEZD, 'rb') as f:
-    #     pnts = pnezd_in(f, 2225)
-    # gpx = gpx_out(pnts, nad83=True)
-    # print(gpx)
-    #
-    # exit(0)
-
 
     # disp = sqrt(np.sum(np.square(grid[0, 0].astype(np.float) / 1000))) * 3937 / 1200
     # disp_min = disp_max = disp
