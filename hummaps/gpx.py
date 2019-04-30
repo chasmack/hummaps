@@ -42,16 +42,17 @@
 #  HTDP (VERSION v3.2.7    ) OUTPUT
 #
 #  DISPLACEMENTS IN METERS RELATIVE TO NAD_83(2011/CORS96/2007)
-#  FROM 07-02-2019 TO 01-01-2010 (month-day-year)
-#  FROM 2019.500 TO 2010.000 (decimal years)
+#  FROM 01-01-2010 TO 01-01-2020 (month-day-year)
+#  FROM 2010.000 TO 2020.000 (decimal years)
 #
 # NAME OF SITE             LATITUDE          LONGITUDE            NORTH    EAST    UP
-# 2019.50      0   0       38 30  0.00000 N  120  0  0.00000 W   -0.087   0.067   0.013
-# 2019.50      0   1       38 30  0.00000 N  120  0 15.00000 W   -0.087   0.067   0.013
-# 2019.50      0   2       38 30  0.00000 N  120  0 30.00000 W   -0.087   0.067   0.013
-# 2019.50      0   3       38 30  0.00000 N  120  0 45.00000 W   -0.087   0.067   0.013
-# 2019.50      0   4       38 30  0.00000 N  120  1  0.00000 W   -0.087   0.067   0.013
-# 2019.50      0   5       38 30  0.00000 N  120  1 15.00000 W   -0.087   0.067   0.013
+# 2020.00      0   0       38 30  0.00000 N  120  0  0.00000 W    0.092  -0.071  -0.013
+# 2020.00      0   1       38 30  0.00000 N  120  0 15.00000 W    0.092  -0.071  -0.013
+# 2020.00      0   2       38 30  0.00000 N  120  0 30.00000 W    0.092  -0.071  -0.013
+# 2020.00      0   3       38 30  0.00000 N  120  0 45.00000 W    0.092  -0.071  -0.013
+# 2020.00      0   4       38 30  0.00000 N  120  1  0.00000 W    0.092  -0.071  -0.013
+# 2020.00      0   5       38 30  0.00000 N  120  1 15.00000 W    0.092  -0.071  -0.013
+#
 #
 # The NORTH and EAST displacements are saved as signed 32-bit integer offsets in mm.
 # The columns are arranged such that displacements are accessed as -
@@ -66,17 +67,15 @@
 # base_lat = 38.500000000
 # step_lon = 15 (arc-seconds)
 # step_lat = 15
-# epoch_src = 2019.50
-# epoch_dst = 2010.00
+# epoch_src = 2010.00
+# epoch_dst = 2020.00
+#
+# The displacement grid values are from the source epoch to the destination epoch.
+# With a source epoch of 2010.00 and a destination epoch 2020.00 displacements are
+# effectively in mm per decade. Calculated displacement is scaled to the target epoch.
 #
 # Currently the waypoint epoch is taken to be 2019.50. A simple refinement would be
-# to read the true epoch from the waypoint date/time and scale the displacement -
-#
-#  t = epoch waypoint
-# t0 = epoch_src
-# t1 = epoch_dst
-#
-# D(t) = D(t0) * (t - t1) / (t0 - t1)
+# to read the true epoch from the waypoint date/time.
 #
 
 import xml.etree.ElementTree as etree
@@ -141,11 +140,11 @@ ITRF08_NAD83_2010 = (
      2010.00
 )
 
-HTDP_DISP_FILE = 'data/disp-grid-nad83-2019.50.txt'
-HTDP_SITE_NAME = '2019.50'
+HTDP_DISP_FILE = 'data/disp-grid-nad83.txt'
+HTDP_SITE_NAME = '2020.00'
 
-DISP_GRID_FILE = 'data/disp-grid-nad83-2019.50.npy'
-DISP_DIMS_FILE = 'data/disp-grid-nad83-2019.50.dim'
+DISP_GRID_FILE = 'data/disp-grid-nad83.npy'
+DISP_DIMS_FILE = 'data/disp-grid-nad83.dim'
 
 
 # Convert HTDP displacements to a numpy grid of signed 32-bit integers.
@@ -252,7 +251,7 @@ def load_disp_grid():
     return grid, (base_lon, base_lat, step_lon, step_lat, epoch_src, epoch_dst)
 
 
-# Get a enu displacement (meters) for a point using 2d linear interpolation
+# Get a enu displacement (meters) for a point using 2d linear interpolation.
 def get_disp(P, grid, dims, epoch):
     lon, lat, h = P
 
@@ -283,10 +282,9 @@ def get_disp(P, grid, dims, epoch):
     # 2D linear interpolation.
     D = (1 - frac_lat) * ((1 - frac_lon) * LR + frac_lon * LL)
     D += frac_lat * ((1 - frac_lon) * UR + frac_lon * UL)
-    D /= 1000
 
-    # Adjust displacement for epoch
-    D *= (epoch - epoch_dst) / (epoch_src - epoch_dst)
+    # Adjust displacement to target epoch and convert to meters
+    D *= (epoch - epoch_src) / (epoch_dst - epoch_src) * 1E-3
 
     e, n = D.flat
     u = 0.0
@@ -370,7 +368,7 @@ def itrf_to_nad(P, grid, dims, epoch, inverse=False):
         # NAD83 2010.00 -> NAD83 2019.50 (HTDP) -> ITRF08 2019.50
         R = R.T
         M = 1.0 / M
-        P = add_enu_disp(P, -D)
+        P = add_enu_disp(P, D)
         Vs = ellip_to_cart(P, grs80=True)
         Vt = M * R.dot(Vs - T)
         lon, lat, h = cart_to_ellip(Vt, grs80=False)
@@ -380,7 +378,7 @@ def itrf_to_nad(P, grid, dims, epoch, inverse=False):
         Vs = ellip_to_cart(P, grs80=False)
         Vt = M * R.dot(Vs) + T
         P = cart_to_ellip(Vt, grs80=True)
-        lon, lat, h = add_enu_disp(P, D)
+        lon, lat, h = add_enu_disp(P, -D)
 
     return lon, lat, h
 
@@ -703,6 +701,7 @@ if __name__ == '__main__':
     # exit(0)
 
     # make_disp_grid()
+    # exit(0)
 
     # 40 16 11.614692
     # 124 03 23.97228
@@ -716,8 +715,7 @@ if __name__ == '__main__':
     grid, dims = load_disp_grid()
 
     D = get_disp(P, grid, dims, epoch=2019.50)
-    P = itrf_to_nad(P, None, None, epoch=2019.50, inverse=False)
-    P = add_enu_disp(P, D)
+    P = itrf_to_nad(P, grid, dims, epoch=2019.50, inverse=False)
     print('   %.8f    %.8f' % (P[0], P[1]))
     pts.append(P)
 
