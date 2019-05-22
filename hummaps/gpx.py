@@ -292,7 +292,7 @@ def get_disp(P, grid, dims, epoch):
     return (e, n, u)
 
 
-# Add a northing/easting/up displacement to point
+# Add a easting/northing/up displacement to point
 def add_enu_disp(P, D):
     lon, lat, h = P
 

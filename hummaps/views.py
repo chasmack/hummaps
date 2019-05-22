@@ -1,4 +1,4 @@
-from flask import request, make_response
+from flask import request, make_response, redirect
 from flask import render_template, flash
 from flask.json import jsonify, dumps
 
@@ -15,13 +15,21 @@ from hummaps.gpx import pnezd_in, pnezd_out
 import os.path
 from time import time
 
+
 # Custom filter for the Jinja2 template processor
 @app.template_filter('basename')
 def basename_filter(s):
     return os.path.basename(s)
 
+
+# Redirect to the default tool
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    return redirect('hummaps')
+
+
+@app.route('/hummaps', methods=['GET', 'POST'])
+def hummaps():
 
     args = request.args
     if request.is_xhr:
@@ -37,7 +45,7 @@ def index():
 
     q = args.get('q', '')
     if q == '':
-        return render_template('index.html', query='', results=[])
+        return render_template('hummaps.html', query='', results=[])
 
         # Server side processing of form data
         # if form:
@@ -78,7 +86,7 @@ def index():
     if total > 200:
         results = results[0:200]
 
-    return render_template('index.html', query=q, form=form, results=results, total=total)
+    return render_template('hummaps.html', query=q, form=form, results=results, total=total)
 
 
 @app.route('/gpx', methods=['GET', 'POST'])
