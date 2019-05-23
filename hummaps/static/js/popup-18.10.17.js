@@ -127,7 +127,7 @@ $('#input-surveyor')
     .one('input', function(e) {
       // Lazy initialization of the surveyor typeahead.
       var input = $(this);
-      $.get('/', { req: 'surveyors' }, function(data) {
+      $.get('/hummaps', { req: 'surveyors' }, function(data) {
         // console.log('init surveyor typeahead: ' + data.length + ' items');
         input.typeahead({
           source: data,
@@ -692,6 +692,6 @@ $('#search-submit').on('click', function (e) {
   if (terms.length > 0) {
     var query = terms.join(' ');
     $('#search-query').val(query);
-    $('#search-dialog form').attr('action', '/?q=' + encodeURIComponent(query)).submit();
+    $('#search-dialog form').attr('action', '/hummaps?q=' + encodeURIComponent(query)).submit();
   }
 });

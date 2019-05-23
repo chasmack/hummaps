@@ -127,7 +127,7 @@ $('#input-surveyor')
     .one('input', function(e) {
       // Lazy initialization of the surveyor typeahead.
       var input = $(this);
-      $.get('/', { req: 'surveyors' }, function(data) {
+      $.get('/hummaps', { req: 'surveyors' }, function(data) {
         // console.log('init surveyor typeahead: ' + data.length + ' items');
         input.typeahead({
           source: data,
@@ -655,7 +655,7 @@ $('#search-submit').on('click', function (e) {
 
   if (val['surveyor'].length > 0) {
     // Strip off the LS/RCE number before adding to the query string.
-    terms.push('by="' + val['surveyor'].match(/.*?(?=\s*\()/)[0] + '"');
+    terms.push('by="' + val['surveyor'].match(/([^(]*)/)[1].trim() + '"');
   }
 
   if (val['client'].length > 0) {
@@ -692,6 +692,6 @@ $('#search-submit').on('click', function (e) {
   if (terms.length > 0) {
     var query = terms.join(' ');
     $('#search-query').val(query);
-    $('#search-dialog form').attr('action', '/?q=' + encodeURIComponent(query)).submit();
+    $('#search-dialog form').attr('action', '/hummaps?q=' + encodeURIComponent(query)).submit();
   }
 });
