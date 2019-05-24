@@ -1,10 +1,11 @@
 from sqlalchemy.orm import relationship
 from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey
+from sqlalchemy_utils import LtreeType
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from hummaps.database import Base
 
-URL_BASE = 'https://hummaps.com'
+URL_BASE = 'http://maps.cmack.org'
 # URL_BASE = ''
 
 class MapImage(Base):
@@ -107,14 +108,11 @@ class Source(Base):
 
 
 class TRS(Base):
-    __tablename__ = 'trs'
+    __tablename__ = 'trs_path'
 
     id = Column(Integer, primary_key=True)
     map_id = Column(Integer, ForeignKey('map.id'))
-    tshp = Column(Integer)
-    rng = Column(Integer)
-    sec = Column(Integer)
-    subsec = Column(Integer)
+    trs_path = Column(LtreeType)
     source_id = Column(Integer, ForeignKey('source.id'))
 
     map = relationship('Map', back_populates='trs')

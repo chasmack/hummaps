@@ -6,8 +6,7 @@ import tempfile
 
 from hummaps import app
 from hummaps.xhr import xhr_request
-# from hummaps.search import do_search, ParseError
-from hummaps.search_paths import do_search, ParseError
+from hummaps.search import do_search, ParseError
 
 from hummaps.gpx import gpx_in, gpx_out
 from hummaps.gpx import pnezd_in, pnezd_out

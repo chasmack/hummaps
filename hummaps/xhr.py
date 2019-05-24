@@ -1,7 +1,6 @@
 
 from hummaps.database import db_session
-# from hummaps.models import Surveyor
-from hummaps.models_paths import Surveyor
+from hummaps.models import Surveyor
 
 
 def xhr_request(req):

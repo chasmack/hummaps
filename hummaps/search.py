@@ -2,6 +2,7 @@ import re
 from datetime import date
 import calendar
 from sqlalchemy import and_, or_, not_, between
+from sqlalchemy_utils import Ltree
 
 from hummaps.database import db_session
 from hummaps.models import Map, MapImage, TRS, Source, MapType, Surveyor, CC, CCImage
@@ -77,42 +78,22 @@ def parse_dates(date_str):
     return (start_date.isoformat(), end_date.isoformat())
 
 
-def tshp_num(tshp_str):
-    m = re.match('(\d{1,2})([NS])', tshp_str.upper())
-    if m is None:
-        return None
-    if m.group(2) == 'N':
-        return int(m.group(1)) - 1
-    else:
-        return -1 * int(m.group(1))
+def subsec_codes(subsec_str):
 
-
-def rng_num(rng_str):
-    m = re.match('(\d{1,2})([EW])', rng_str.upper())
-    if m is None:
-        return None
-    if m.group(2) == 'E':
-        return int(m.group(1)) - 1
-    else:
-        return -1 * int(m.group(1))
-
-
-def subsec_bits(subsec_str):
-
-    # bit patterns for first (right) term
-    q_bits = {
-        'NE': 0x00CC, 'SE': 0xCC00, 'SW': 0x3300, 'NW': 0x0033,
-        'N': 0x00FF, 'S': 0xFF00, 'E': 0xCCCC, 'W': 0x3333
+    # codes for first (right) term
+    q_code = {
+        'NE': 'CDGH', 'SE': 'KLOP', 'SW': 'IJMN', 'NW': 'ABEF',
+        'N': 'ABCDEFGH', 'S': 'IJKLMNOP', 'E': 'CDGHKLOP', 'W': 'ABEFIJMN'
     }
 
-    # bit patterns for second (left) term
-    qq_bits = {
-        'NE': 0x0A0A, 'SE': 0xA0A0, 'SW': 0x5050, 'NW': 0x0505,
-        'N': 0x0F0F, 'S': 0xF0F0, 'E': 0xAAAA, 'W': 0x5555
+    # codes for second (left) term
+    qq_code = {
+        'NE': 'BDJL', 'SE': 'FHNP', 'SW': 'EGMO', 'NW': 'ACIK',
+        'N': 'ABCDIJKL', 'S': 'EFGHMNOP', 'E': 'BDFHJLNP', 'W': 'ACEGIKMO'
     }
 
     if re.search('1/1', subsec_str):
-        return 0xffff               # all subsections
+        return 'ABCDEFGHIJKLMNOP'       # all subsections
 
     ss = subsec_str.upper().strip()
 
@@ -120,22 +101,22 @@ def subsec_bits(subsec_str):
     m = re.fullmatch('(?:([NS][EW])/4\s+)?([NS][EW])/4', ss)
     if m:
         qq, q = m.groups()
-        return q_bits[q] if qq is None else q_bits[q] & qq_bits[qq]
+        return q_code[q] if qq is None else ''.join(sorted(set(q_code[q]).intersection(qq_code[qq])))
 
     # x/2 and x/2 x/2
     m = re.fullmatch('(?:([NSEW])/2\s+)?([NSEW])/2', ss)
     if m:
         qq, q = m.groups()
-        if qq and re.match('E[NS]|[NS]W', ''.join(sorted([q,qq]))):
+        if qq and re.match('E[NS]|[NS]W', ''.join(sorted([q, qq]))):
             # this algorithm doesn't work for N/2 E/2, etc (and it shouldn't have to)
             return None
-        return q_bits[q] if qq is None else q_bits[q] & qq_bits[qq]
+        return q_code[q] if qq is None else ''.join(sorted(set(q_code[q]).intersection(qq_code[qq])))
 
     # x/2 xx/4
     m = re.fullmatch('([NSEW])/2\s+([NS][EW])/4', ss)
     if m:
         qq, q = m.groups()
-        return q_bits[q] & qq_bits[qq]
+        return ''.join(sorted(set(q_code[q]).intersection(qq_code[qq])))
 
     return None
 
@@ -159,6 +140,11 @@ def do_search(search):
         kwterms = [(s[0], s[1], re.sub('""', '"', s[2])) for s in dquotes]
         # empty search "" becomes a double quote which is a valid search
         subterms += kwterms
+        term = re.sub(pat, '', term, flags=re.I)
+
+        # parse for surveyor, client, date & desc with empty double quotes
+        pat = '((BY|FOR|REC|DATE|DESC)[=:]"()")'
+        subterms += re.findall(pat, term, flags=re.I)
         term = re.sub(pat, '', term, flags=re.I)
 
         # parse for single word surveyor, client, date, desc & maptype without quotes
@@ -195,20 +181,20 @@ def do_search(search):
         m = re.search(trs_pat, term, flags=re.I)
         if m:
             term = term[:m.start()] + term[m.end():]
-            trs = {'tshp': tshp_num(m.group(2)), 'rng': rng_num(m.group(3)), 'secs': []}
+            trs = {'tshp': m.group(2), 'rng': m.group(3), 'secs': []}
             trs_str = m.group(0)
 
             # parse the sections/subsections
             sec_pat = '((?:{ss_pat}\s+)?{ss_pat}\s+)?(S\d{{1,2}})'.format(ss_pat=ss_pat)
             for ss, s in re.findall(sec_pat, m.group(1), flags=re.I):
                 if ss:
-                    subsec = subsec_bits(ss)
+                    subsec = subsec_codes(ss)
                     if subsec is None:
                         raise ParseError(ss, trs_str)
                 else:
                     subsec = None
-                sec = int(s[1:])
-                if sec == 0 or sec > 36:
+                sec = s[1:]
+                if not 1 <= int(sec) <= 36:
                     raise ParseError(s, trs_str)
                 trs['secs'].append({'sec': sec, 'subsec': subsec})
 
@@ -246,30 +232,41 @@ def do_search(search):
                         # pattern search both pls and rce
                         and_terms.append(or_(Surveyor.pls.op('~*')(v), Surveyor.rce.op('~*')(v)))
                     elif type.upper()[-2:] == 'LS':
-                        and_terms.append(and_(Surveyor.pls.op('~*')(number)))
+                        and_terms.append(Surveyor.pls.op('~*')(number))
                     else:
-                        and_terms.append(and_(Surveyor.rce.op('~*')(number)))
+                        and_terms.append(Surveyor.rce.op('~*')(number))
+                elif v == '':
+                    and_terms.append(Surveyor.fullname == None)
                 else:
                     # replace spaces with wildcards and pattern search fullname
                     if v.strip().find(' ') < 0:
                         # pattern search full name
-                        and_terms.append(and_(Surveyor.fullname.op('~*')(v)))
+                        and_terms.append(Surveyor.fullname.op('~*')(v))
                     else:
                         # assume each non-space fragment starts a word
                         # add wildcards and word boundary qualifiers
                         vqual = '\m' + re.sub('\s+', '.*\m', v)
-                        and_terms.append(and_(Surveyor.fullname.op('~*')(vqual)))
+                        and_terms.append(Surveyor.fullname.op('~*')(vqual))
             elif k == 'DATE' or k == 'REC':
-                dates = parse_dates(v)
-                and_terms.append(between(Map.recdate, *dates))
+                if v == '':
+                    and_terms.append(Map.recdate == None)
+                else:
+                    dates = parse_dates(v)
+                    and_terms.append(between(Map.recdate, *dates))
             elif k == 'FOR':
-                try: re.compile(v)
-                except: raise ParseError(v, term)
-                and_terms.append(and_(Map.client.op('~*')(v)))
+                if v == '':
+                    and_terms.append(Map.client == None)
+                else:
+                    try: re.compile(v)
+                    except: raise ParseError(v, term)
+                    and_terms.append(Map.client.op('~*')(v))
             elif k == 'DESC':
-                try: re.compile(v)
-                except: raise ParseError(v, term)
-                and_terms.append(and_(Map.description.op('~*')(v)))
+                if v == '':
+                    and_terms.append(Map.description == None)
+                else:
+                    try: re.compile(v)
+                    except: raise ParseError(v, term)
+                    and_terms.append(Map.description.op('~*')(v))
             elif k == 'ANY':
                 try:
                     re.compile(v)
@@ -281,9 +278,9 @@ def do_search(search):
             elif k == 'TYPE':
                 try: re.compile(v)
                 except: raise ParseError(v, term)
-                and_terms.append(and_(MapType.abbrev.op('~*')(v)))
+                and_terms.append(MapType.abbrev.op('~*')(v))
             elif k == 'ID':
-                and_terms.append(and_(Map.id == v))
+                and_terms.append(Map.id == v)
             elif k == 'MAP':
                 book, maptype, page = v
                 maptype = maptype.upper()
@@ -301,15 +298,21 @@ def do_search(search):
             elif k == 'TR':
                 or_terms.append(Map.client.op('~*')('\(%s\)(\s\w+)*$' % v))
             elif k == 'TRS':
-                secs = []
-                for sec in v['secs']:
-                    if sec['subsec']:
-                        secs.append(and_(
-                            TRS.sec == sec['sec'],
-                            TRS.subsec.op('&')(sec['subsec']) > 0))
-                    else:
-                        secs.append(and_(TRS.sec == sec['sec']))
-                and_terms.append(and_(TRS.tshp == v['tshp'], TRS.rng == v['rng'], or_(*secs)))
+                tshp = (v['tshp'] + '.' + v['rng']).upper()
+                if len(v['secs']) == 0:
+                    and_terms.append(TRS.trs_path.op('<@')(Ltree(tshp)))
+                else:
+                    sec_terms = []
+                    subsec_paths = []
+                    for sec in v['secs']:
+                        path = tshp + '.' + sec['sec']
+                        if sec['subsec'] is None:
+                            sec_terms.append(TRS.trs_path.op('<@')(Ltree(path)))
+                        else:
+                            for code in sec['subsec']:
+                                subsec_paths.append(Ltree(path + '.' + code))
+                    sec_terms.append(TRS.trs_path.in_(subsec_paths))
+                    and_terms.append(or_(*sec_terms))
 
         if and_terms:
             or_terms.append(and_(*and_terms))
@@ -339,6 +342,82 @@ def do_search(search):
 
 
 if __name__ == '__main__':
+
+    assert subsec_codes('NE/4') == 'CDGH'
+    assert subsec_codes('NE/4 NE/4') == 'D'
+    assert subsec_codes('SE/4 NE/4') == 'H'
+    assert subsec_codes('SW/4 NE/4') == 'G'
+    assert subsec_codes('NW/4 NE/4') == 'C'
+    assert subsec_codes('N/2 NE/4') == 'CD'
+    assert subsec_codes('S/2 NE/4') == 'GH'
+    assert subsec_codes('E/2 NE/4') == 'DH'
+    assert subsec_codes('W/2 NE/4') == 'CG'
+    assert subsec_codes('SE/4') == 'KLOP'
+    assert subsec_codes('NE/4 SE/4') == 'L'
+    assert subsec_codes('SE/4 SE/4') == 'P'
+    assert subsec_codes('SW/4 SE/4') == 'O'
+    assert subsec_codes('NW/4 SE/4') == 'K'
+    assert subsec_codes('N/2 SE/4') == 'KL'
+    assert subsec_codes('S/2 SE/4') == 'OP'
+    assert subsec_codes('E/2 SE/4') == 'LP'
+    assert subsec_codes('W/2 SE/4') == 'KO'
+    assert subsec_codes('SW/4') == 'IJMN'
+    assert subsec_codes('NE/4 SW/4') == 'J'
+    assert subsec_codes('SE/4 SW/4') == 'N'
+    assert subsec_codes('SW/4 SW/4') == 'M'
+    assert subsec_codes('NW/4 SW/4') == 'I'
+    assert subsec_codes('N/2 SW/4') == 'IJ'
+    assert subsec_codes('S/2 SW/4') == 'MN'
+    assert subsec_codes('E/2 SW/4') == 'JN'
+    assert subsec_codes('W/2 SW/4') == 'IM'
+    assert subsec_codes('NW/4') == 'ABEF'
+    assert subsec_codes('NE/4 NW/4') == 'B'
+    assert subsec_codes('SE/4 NW/4') == 'F'
+    assert subsec_codes('SW/4 NW/4') == 'E'
+    assert subsec_codes('NW/4 NW/4') == 'A'
+    assert subsec_codes('N/2 NW/4') == 'AB'
+    assert subsec_codes('S/2 NW/4') == 'EF'
+    assert subsec_codes('E/2 NW/4') == 'BF'
+    assert subsec_codes('W/2 NW/4') == 'AE'
+    assert subsec_codes('N/2') == 'ABCDEFGH'
+    assert subsec_codes('NE/4 N/2') is None
+    assert subsec_codes('SE/4 N/2') is None
+    assert subsec_codes('SW/4 N/2') is None
+    assert subsec_codes('NW/4 N/2') is None
+    assert subsec_codes('N/2 N/2') == 'ABCD'
+    assert subsec_codes('S/2 N/2') == 'EFGH'
+    assert subsec_codes('E/2 N/2') is None
+    assert subsec_codes('W/2 N/2') is None
+    assert subsec_codes('S/2') == 'IJKLMNOP'
+    assert subsec_codes('NE/4 S/2') is None
+    assert subsec_codes('SE/4 S/2') is None
+    assert subsec_codes('SW/4 S/2') is None
+    assert subsec_codes('NW/4 S/2') is None
+    assert subsec_codes('N/2 S/2') == 'IJKL'
+    assert subsec_codes('S/2 S/2') == 'MNOP'
+    assert subsec_codes('E/2 S/2') is None
+    assert subsec_codes('W/2 S/2') is None
+    assert subsec_codes('E/2') == 'CDGHKLOP'
+    assert subsec_codes('NE/4 E/2') is None
+    assert subsec_codes('SE/4 E/2') is None
+    assert subsec_codes('SW/4 E/2') is None
+    assert subsec_codes('NW/4 E/2') is None
+    assert subsec_codes('N/2 E/2') is None
+    assert subsec_codes('S/2 E/2') is None
+    assert subsec_codes('E/2 E/2') == 'DHLP'
+    assert subsec_codes('W/2 E/2') == 'CGKO'
+    assert subsec_codes('W/2') == 'ABEFIJMN'
+    assert subsec_codes('NE/4 W/2') is None
+    assert subsec_codes('SE/4 W/2') is None
+    assert subsec_codes('SW/4 W/2') is None
+    assert subsec_codes('NW/4 W/2') is None
+    assert subsec_codes('N/2 W/2') is None
+    assert subsec_codes('S/2 W/2') is None
+    assert subsec_codes('E/2 W/2') == 'BFJN'
+    assert subsec_codes('W/2 W/2') == 'AEIM'
+    assert subsec_codes('1/1') == 'ABCDEFGHIJKLMNOP'
+
+    exit(0)
 
     # for m in db_session.query(Map).join(Surveyor, Map.surveyor).filter(Surveyor.fullname.op('~*')('crivelli')):
     #     print(m, ', '.join([s.name for s in m.surveyor]))
@@ -493,79 +572,4 @@ if __name__ == '__main__':
     #             print('assert subsection(\'%s\') == 0x%04X' % (subsec, qq_bits))
     #         else:
     #             print('assert subsection(\'%s\') is None' % (subsec))
-
-
-    assert subsec_bits('NE/4') == 0x00CC
-    assert subsec_bits('NE/4 NE/4') == 0x0008
-    assert subsec_bits('SE/4 NE/4') == 0x0080
-    assert subsec_bits('SW/4 NE/4') == 0x0040
-    assert subsec_bits('NW/4 NE/4') == 0x0004
-    assert subsec_bits('N/2 NE/4') == 0x000C
-    assert subsec_bits('S/2 NE/4') == 0x00C0
-    assert subsec_bits('E/2 NE/4') == 0x0088
-    assert subsec_bits('W/2 NE/4') == 0x0044
-    assert subsec_bits('SE/4') == 0xCC00
-    assert subsec_bits('NE/4 SE/4') == 0x0800
-    assert subsec_bits('SE/4 SE/4') == 0x8000
-    assert subsec_bits('SW/4 SE/4') == 0x4000
-    assert subsec_bits('NW/4 SE/4') == 0x0400
-    assert subsec_bits('N/2 SE/4') == 0x0C00
-    assert subsec_bits('S/2 SE/4') == 0xC000
-    assert subsec_bits('E/2 SE/4') == 0x8800
-    assert subsec_bits('W/2 SE/4') == 0x4400
-    assert subsec_bits('SW/4') == 0x3300
-    assert subsec_bits('NE/4 SW/4') == 0x0200
-    assert subsec_bits('SE/4 SW/4') == 0x2000
-    assert subsec_bits('SW/4 SW/4') == 0x1000
-    assert subsec_bits('NW/4 SW/4') == 0x0100
-    assert subsec_bits('N/2 SW/4') == 0x0300
-    assert subsec_bits('S/2 SW/4') == 0x3000
-    assert subsec_bits('E/2 SW/4') == 0x2200
-    assert subsec_bits('W/2 SW/4') == 0x1100
-    assert subsec_bits('NW/4') == 0x0033
-    assert subsec_bits('NE/4 NW/4') == 0x0002
-    assert subsec_bits('SE/4 NW/4') == 0x0020
-    assert subsec_bits('SW/4 NW/4') == 0x0010
-    assert subsec_bits('NW/4 NW/4') == 0x0001
-    assert subsec_bits('N/2 NW/4') == 0x0003
-    assert subsec_bits('S/2 NW/4') == 0x0030
-    assert subsec_bits('E/2 NW/4') == 0x0022
-    assert subsec_bits('W/2 NW/4') == 0x0011
-    assert subsec_bits('N/2') == 0x00FF
-    assert subsec_bits('NE/4 N/2') is None
-    assert subsec_bits('SE/4 N/2') is None
-    assert subsec_bits('SW/4 N/2') is None
-    assert subsec_bits('NW/4 N/2') is None
-    assert subsec_bits('N/2 N/2') == 0x000F
-    assert subsec_bits('S/2 N/2') == 0x00F0
-    assert subsec_bits('E/2 N/2') is None
-    assert subsec_bits('W/2 N/2') is None
-    assert subsec_bits('S/2') == 0xFF00
-    assert subsec_bits('NE/4 S/2') is None
-    assert subsec_bits('SE/4 S/2') is None
-    assert subsec_bits('SW/4 S/2') is None
-    assert subsec_bits('NW/4 S/2') is None
-    assert subsec_bits('N/2 S/2') == 0x0F00
-    assert subsec_bits('S/2 S/2') == 0xF000
-    assert subsec_bits('E/2 S/2') is None
-    assert subsec_bits('W/2 S/2') is None
-    assert subsec_bits('E/2') == 0xCCCC
-    assert subsec_bits('NE/4 E/2') is None
-    assert subsec_bits('SE/4 E/2') is None
-    assert subsec_bits('SW/4 E/2') is None
-    assert subsec_bits('NW/4 E/2') is None
-    assert subsec_bits('N/2 E/2') is None
-    assert subsec_bits('S/2 E/2') is None
-    assert subsec_bits('E/2 E/2') == 0x8888
-    assert subsec_bits('W/2 E/2') == 0x4444
-    assert subsec_bits('W/2') == 0x3333
-    assert subsec_bits('NE/4 W/2') is None
-    assert subsec_bits('SE/4 W/2') is None
-    assert subsec_bits('SW/4 W/2') is None
-    assert subsec_bits('NW/4 W/2') is None
-    assert subsec_bits('N/2 W/2') is None
-    assert subsec_bits('S/2 W/2') is None
-    assert subsec_bits('E/2 W/2') == 0x2222
-    assert subsec_bits('W/2 W/2') == 0x1111
-
 
