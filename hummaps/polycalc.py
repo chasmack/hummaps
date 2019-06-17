@@ -98,7 +98,7 @@ def check_tangency(poly):
     v1 = p1 - p0
     t1 = atan2(v1[1], v1[0]) + d0 / 2
     v2 = p2 - p1
-    t2 = atan2(v2[1], v2[0]) + d1 / 2
+    t2 = atan2(v2[1], v2[0]) - d1 / 2
     dt = t2 - t1
 
     resp = []
@@ -136,18 +136,19 @@ def process_line_data(f):
                     y, x = map(float, params)
                 except Exception as e:
                     raise ValueError('[%d] Bad northing/easting coordinate: %s' % (linenum, line))
+                listing.append('[%d] Begin polyline\n' % linenum)
             elif len(params) == 1:
                 id = params[0].upper()
                 if id not in points:
                     raise ValueError('[%d] Point not found: %s' % (linenum, line))
                 x, y = points[id][0:2]
+                listing.append('[%d] Begin polyline from point %s\n' % (linenum, id))
             else:
                 raise ValueError('[%d] Bad line format: %s' % (linenum, line))
 
             pt = [x, y, 0.0]
             polylines.append([pt])
-            listing.append('[%d] Begin polyline\n' % linenum +
-                           '  From N: %-14.3f     E: %.3f\n' % (y, x))
+            listing[-1] += '  From N: %-14.3f     E: %.3f\n' % (y, x)
 
         elif cmd == 'BRANCH':
             # Begin a new polyline from the last point
@@ -312,6 +313,9 @@ def process_line_data(f):
                            '  Tangent: %-10.3f        Chord:  %-10.3f     Course: %s\n' % (tan_len, c, bearing_string(t + a / 2)) + \
                            '  Arc Len: %-10.3f        Radius: %-10.3f     Delta:  %s\n' % (arc_len, r, dms_string(delta))
 
+            if len(poly) > 2:
+                listing += check_tangency(poly)
+
         elif cmd in ('DR', 'DL'):
             # Line by deflection angle/distance
             if len(params) != 2:
@@ -344,6 +348,10 @@ def process_line_data(f):
             listing.append('[%d] Line to %s\n' % (linenum, ('NE', 'SE', 'SW', 'NW')[int(quad) - 1]) +
                            '  To N: %-14.3f       E: %.3f\n' % (y, x) +
                            '  Distance: %-10.3f       Course: %s\n' % (d, bearing_string(t + a)))
+
+            if len(poly) > 2 and polylines[-1][-3][2]:
+                # Previous segment was a curve
+                listing += check_tangency(poly)
 
         else:
             raise ValueError('[%d] Bad line format: %s' % (linenum, line))
@@ -381,12 +389,12 @@ if __name__ == '__main__':
     # LINE_DATA = 'data/linedata-deerfield.txt'
     # DXF_FILE = 'data/linedata-deerfield.dxf'
     # LST_FILE = 'data/linedata-deerfield.lst'
-    LINE_DATA = 'data/linedata-alderpoint.txt'
-    DXF_FILE = 'data/linedata-alderpoint.dxf'
-    LST_FILE = 'data/linedata-alderpoint.lst'
-    # LINE_DATA = 'data/linedata-demo.txt'
-    # DXF_FILE = 'data/linedata-demo.dxf'
-    # LST_FILE = 'data/linedata-demo.lst'
+    # LINE_DATA = 'data/linedata-alderpoint.txt'
+    # DXF_FILE = 'data/linedata-alderpoint.dxf'
+    # LST_FILE = 'data/linedata-alderpoint.lst'
+    LINE_DATA = 'data/linedata-demo.txt'
+    DXF_FILE = 'data/linedata-demo.dxf'
+    LST_FILE = 'data/linedata-demo.lst'
 
     with open(LINE_DATA, 'rb') as f:
         dxf, listing = process_line_data(f)
