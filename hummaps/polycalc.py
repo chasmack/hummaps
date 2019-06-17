@@ -141,8 +141,8 @@ def process_line_data(f):
                 id = params[0].upper()
                 if id not in points:
                     raise ValueError('[%d] Point not found: %s' % (linenum, line))
-                x, y = points[id][0:2]
-                listing.append('[%d] Begin polyline from point %s\n' % (linenum, id))
+                x, y, desc = points[id]
+                listing.append('[%d] Begin polyline from point %s %s\n' % (linenum, id, desc))
             else:
                 raise ValueError('[%d] Bad line format: %s' % (linenum, line))
 
@@ -183,20 +183,21 @@ def process_line_data(f):
                 if len(polylines) == 0:
                     raise ValueError('[%d] No point to store: %s' % (linenum, line))
                 x, y = polylines[-1][-1][0:2]
-                params = params[1:]
+                desc = ' '.join(params[1:])
+
             elif len(params) >= 2:
                 try:
                     y, x = map(float, params[0:2])
                 except ValueError:
                     raise ValueError('[%d] Bad point coordinates: %s' % (linenum, line))
-                params = params[2:]
+                desc = ' '.join(params[2:])
+
             else:
                 raise ValueError('[%d] Bad line format: %s' % (linenum, line))
 
-            desc = ' '.join(params)
             points[id] = [x, y, desc]
 
-            listing.append('[%d] Save point %s\n' % (linenum, id) +
+            listing.append('[%d] Save point %s %s\n' % (linenum, id, desc) +
                            '  N: %-14.3f          E: %.3f\n' % (y, x))
 
         elif cmd == 'CLOSE':
