@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{%- block title %}Polycalc{% endblock title %}
+
+{%- block styles %}
+{{- super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.fileupload.css') }}">
+<style>
+span.fileinput-button span, button.start-button span {
+  margin: 0 0  0 5px;
+}
+</style>
+{%- endblock styles -%}
+
+{%- block navigation %}
+<!-- begin navigation controls block -->
+<!-- end navigation controls -->
+{%- endblock navigation -%}
+
+{% block page %}
+<!-- begin page content block -->
+  <div class="container" style="margin-top: 75px">
+    <div class="row">
+      <div class="col-sm-7">
+        <div class="alert alert-danger alert-dismissible" role="alert" style="display: none;">
+          <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+          <strong>Error: </strong><span>Conversion failed.</span>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom: 15px;">
+      <div class="col-sm-7">
+        <h1>Polycalc</h1>
+        <h2 class="lead">Convert formatted line data into DXF polylines.</h2>
+        <h4>
+          <small>View the
+            <a href="https://github.com/chasmack/polycalc/blob/master/README.md" target="_blank">README</a>
+            and
+            <a href="https://github.com/chasmack/polycalc/tree/master/data" target="_blank">example data</a>.
+          </small>
+        </h4>
+      </div>
+    </div>
+    <form id="fileupload" method="post" action="{{  url_for('polycalc') }}" enctype="multipart/form-data">
+      <!-- Buttons to add files and submit form -->
+      <div class="row" style="margin-bottom: 25px;">
+        <div class="col-sm-5">
+          <div class="btn-group btn-group-justified">
+            <div class="btn-group">
+              <span class="btn btn-success fileinput-button">
+                <i class="glyphicon glyphicon-plus"></i>
+                <span>Add file</span>
+                <input type="file" name="file" multiple/>
+              </span>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-primary start-button" value="dxf">
+                <i class="glyphicon glyphicon-file"></i>
+                <span>Get DXF</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- The table listing the files to upload -->
+      <div class="row">
+        <div class="col-sm-8">
+          <table class="table table-
+          striped" role="presentation">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th style="width: 40%;">Date</th>
+                <th style="width: 15%;">Size</th>
+                <th style="width: 15%; text-align: center;"><a class="removeall" href="#">Remove</a></th>
+              </tr>
+            </thead>
+            <tbody class="files">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Link to download results or display error -->
+      <div class="row">
+        <div class="col-sm-5">
+          <div id="download-result" class="well" style="display: none;">
+            <a href="#">
+              <img src="{{ url_for('static', filename='img/blue-download-icon-64.png') }}">
+              <span style="margin-left: 20px;"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- Results listing -->
+    <div class="row">
+      <div id="listing" class="col-sm-8" style="display: none;">
+        <pre></pre>
+      </div>
+    </div>
+  </div>
+<!-- end page content block -->
+{%- endblock page -%}
+
+{% block scripts %}
+<!-- begin scripts block -->
+    {{- super() }}
+    <script src="{{ url_for('static', filename='js/jquery.fileupload.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/polycalc-19.6.15.js') }}"></script>
+<!-- end scripts block -->
+{% endblock scripts %}

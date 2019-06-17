@@ -7,11 +7,12 @@ $('.alert').on('close.bs.alert', function (e) {
 })
 
 $('#fileupload').fileupload({
-  dataType: 'text',
+  dataType: 'json',
   autoUpload: false,
   singleFileUploads: false,
   maxFileSize: 2500000
 })
+
 .on('fileuploadadd', function (e, data) {
   console.log('Add:');
   var d = $(this).data('data');
@@ -21,10 +22,12 @@ $('#fileupload').fileupload({
   $(this).data('data', data);
   updateFileList(data);
 })
+
 .on('fileuploadsubmit', function(e, data) {
   console.log('Submit:');
   return true;
 })
+
 .on('fileuploadsend', function(e, data) {
   console.log('Send:');
   return true;
@@ -33,21 +36,13 @@ $('#fileupload').fileupload({
 .on('fileuploaddone', function(e, data) {
   console.log('Done:');
   var xhr = data.jqXHR;
-
-  var filename = "";
-  var disp = xhr.getResponseHeader('Content-Disposition');
-  if (disp && disp.indexOf('attachment') !== -1) {
-    var re = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-    var match = re.exec(disp);
-    if (match != null && match[1]) {
-      filename = match[1].replace(/['"]/g, '');
-    }
+  var dxf = xhr.responseJSON.dxf
+  if (dxf) {
+    var blob = new Blob([xhr.responseJSON.dxf], {type: 'text/plain'});
+    var URL = window.URL || window.webkitURL;
+    var downloadUrl = URL.createObjectURL(blob);
   }
-  var type = xhr.getResponseHeader('Content-Type');
-  var blob = new Blob([xhr.responseText], {type: type});
-  var URL = window.URL || window.webkitURL;
-  var downloadUrl = URL.createObjectURL(blob);
-
+  var filename = xhr.responseJSON.filename
   if (filename) {
     // use HTML5 a[download] attribute to specify filename
     $('#download-result')
@@ -59,6 +54,10 @@ $('#fileupload').fileupload({
 
   } else {
     // window.location = downloadUrl;
+  }
+  var listing = xhr.responseJSON.listing
+  if (listing) {
+    $('#listing').find('pre').text(listing).end().show()
   }
 })
 
@@ -75,13 +74,15 @@ $('#fileupload').fileupload({
 .on('fileuploadalways', function(e, data) {
   console.log('Always:');
 })
+
 .on('click', 'button.start-button', function(e) {
   e.preventDefault();
   console.log('Start:');
   $('.alert').each(function() {
-    $(this).css('display', 'none');
+    $(this).hide();
   });
-  $('#download-result').css('display', 'none');
+  $('#download-result').hide();
+  $('#listing').find('pre').text('').end().hide()
   var data = $('#fileupload').data('data');
   if (data) {
     $.each(data.files, function (index, file) { console.log(file.name) });
@@ -91,6 +92,7 @@ $('#fileupload').fileupload({
     data.submit();
   }
 })
+
 .on('click', 'tbody.files button.remove', function(e) {
   e.preventDefault();
   var i = $('tbody.files tr').index($(this).closest('tr'));
@@ -101,6 +103,7 @@ $('#fileupload').fileupload({
     $('#fileupload').removeData('data');
   }
 })
+
 .on('click', 'a.removeall', function(e) {
   e.preventDefault();
   var data = $('#fileupload').data('data');

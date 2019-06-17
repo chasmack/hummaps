@@ -11,6 +11,8 @@ from hummaps.search import do_search, ParseError
 from hummaps.gpx import gpx_in, gpx_out
 from hummaps.gpx import pnezd_in, pnezd_out
 
+from hummaps.polycalc import process_line_data
+
 import os.path
 from time import time
 
@@ -88,6 +90,26 @@ def hummaps():
     return render_template('hummaps.html', query=q, form=form, results=results, total=total)
 
 
+@app.route('/polycalc', methods=['GET', 'POST'])
+def polycalc():
+    if request.method == 'GET':
+        return render_template('polycalc.html')
+    try:
+        f = request.files.get('file')
+        dxf, listing = process_line_data(f.stream)
+    except Exception as err:
+        return (jsonify(error=str(err)), 400)
+
+    filename = 'results.dxf'
+
+    resp = make_response(jsonify(filename=filename, dxf=dxf, listing='\n'.join(listing)))
+    # resp.headers['Content-Disposition'] = 'attachment; filename="%s"' % outfile
+    # resp.mimetype = 'application/octet-stream'
+    # resp.cache_control.no_cache = True
+    # resp.cache_control.no_store = True
+    return resp
+
+
 @app.route('/gpx', methods=['GET', 'POST'])
 def gpx():
     if request.method == 'GET':
@@ -145,15 +167,13 @@ def unavailable():
 # /robots.txt
 #
 
-@app.route ('/robots.txt')
-def robots_txt():
-    txt = ''.join((
-        'User-agent: *\n',
-        'Disallow: /map/\n',
-        'Disallow: /pdf/\n',
-        'Disallow: /scan/\n'
-    ))
-    return make_response(txt)
+# @app.route ('/robots.txt')
+# def robots_txt():
+#     txt = ''.join((
+#         'User-agent: *\r\n',
+#         'Disallow: /\r\n'
+#     ))
+#     return make_response(txt)
 
 #
 # HTTP error handlers
