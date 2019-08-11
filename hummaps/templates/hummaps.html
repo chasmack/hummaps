@@ -32,7 +32,7 @@
         <div id="searchbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav navbar-right">
             <li>
-              <form class="navbar-form" role="search" action="{{ request.path }}" method="get">
+              <form class="navbar-form" role="search" action="{{ request.script_root }}{{ request.path }}" method="get">
                 <div class="form-group">
                   <div class="input-group">
                     <span class="input-group-btn">
@@ -150,7 +150,7 @@
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="queryModalLabel">Map Search</h4>
           </div>
-          <form class="form-horizontal" method="post" action="/">
+          <form class="form-horizontal" method="post" action="{{ request.script_root }}{{ request.path }}">
             <div class="modal-body">
               <div class="form-group">
                 <label for="input-section" class="col-xs-12 col-sm-3 control-label">Section</label>
@@ -276,6 +276,6 @@
     <script src="{{ url_for('static', filename='js/jquery.mousewheel-3.1.11.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/hammer-2.0.8.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/hummaps-18.3.11.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/popup-19.5.22.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popup-19.8.11.js') }}"></script>
 <!-- end scripts block -->
 {% endblock scripts %}

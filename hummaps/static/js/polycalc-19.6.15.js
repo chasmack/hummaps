@@ -15,10 +15,11 @@ $('#fileupload').fileupload({
 
 .on('fileuploadadd', function (e, data) {
   console.log('Add:');
-  var d = $(this).data('data');
-  if (d){
-    data.files = d.files.concat(data.files);
-  }
+  // Maintain a list for multiple file uploads
+  // var d = $(this).data('data');
+  // if (d){
+  //   data.files = d.files.concat(data.files);
+  // }
   $(this).data('data', data);
   updateFileList(data);
 })
@@ -116,7 +117,7 @@ $('#fileupload').fileupload({
 
 function updateFileList(data) {
   var files = data.files;
-  files.sort(function(a, b){return a.name > b.name ? 1 : -1});
+  // files.sort(function(a, b){return a.name > b.name ? 1 : -1});
   var rows = [];
   $.each(files, function (index, file) {
     var d = new Date(file.lastModified);
