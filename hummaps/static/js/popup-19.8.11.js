@@ -128,8 +128,8 @@ $('#input-surveyor')
       // Lazy initialization of the surveyor typeahead.
       var input = $(this);
       // Form's action attrib points to the form processing endpoint.
-      var action = $('#search-dialog form').attr('action');
-      $.get(action, { req: 'surveyors' }, function(data) {
+      var ep = $('#search-dialog form').attr('action');
+      $.get(ep, { req: 'surveyors' }, function(data) {
         // console.log('init surveyor typeahead: ' + data.length + ' items');
         input.typeahead({
           source: data,
