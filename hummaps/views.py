@@ -23,12 +23,13 @@ def basename_filter(s):
     return os.path.basename(s)
 
 
-# Redirect to the default tool
+# Index of available tools.
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return redirect('hummaps')
+    return render_template('index.html')
 
 
+# hummaps - the Humboldt County map index.
 @app.route('/hummaps', methods=['GET', 'POST'])
 def hummaps():
 
@@ -90,6 +91,7 @@ def hummaps():
     return render_template('hummaps.html', query=q, form=form, results=results, total=total)
 
 
+# polycalc - generate DXF linework from a command file.
 @app.route('/polycalc', methods=['GET', 'POST'])
 def polycalc():
     if request.method == 'GET':
@@ -110,6 +112,7 @@ def polycalc():
     return resp
 
 
+# gpx - transform between PNEZD points and GPX waypoints.
 @app.route('/gpx', methods=['GET', 'POST'])
 def gpx():
     if request.method == 'GET':
