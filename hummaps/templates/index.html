@@ -8,6 +8,11 @@
     dt, dd {
       padding-top: 10px;
     }
+    hr {
+      margin: 10px 0 0;
+      border: 0;
+      border-top: 1px solid #333666;
+    }
   </style>
 {%- endblock styles -%}
 
@@ -23,15 +28,20 @@
     <h2 class="text-center">Survey Tools</h2>
     <div class="well">
       <dl class="dl-horizontal">
+        <hr class="visible-xs">
 
         <dt><a href="{{ url_for('gpx') }}">GPX</a></dt>
         <dd>Convert between PNEZD points and GPX waypoints</dd>
+        <hr class="visible-xs">
 
         <dt><a href="{{ url_for('hummaps') }}">Hummaps</a></dt>
         <dd>Humboldt County map index</dd>
+        <hr class="visible-xs">
 
         <dt><a href="{{ url_for('polycalc') }}">Polycalc</a></dt>
         <dd>Create DXF polylines from a command file</dd>
+        <hr class="visible-xs">
+
 
       </dl>
     </div>
