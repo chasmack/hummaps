@@ -1,13 +1,12 @@
-
-# Setup the virtual environment
-
-# activate_this = '/home/ubuntu/www/hummaps/venv/bin/activate_this.py'
-# with open(activate_this) as file_:
-#     exec(file_.read(), dict(__file__=activate_this))
-
 import sys
+
 sys.path.insert(0, '/var/www/html/hummaps')
 
-#from test import app as application
 from hummaps import app as application
 
+# def application(environ, start_response):
+#     status = '200 OK'
+#     output = b'Hello World!'
+#     response_headers = [('Content-type', 'text/plain'), ('Content-Length', str(len(output)))]
+#     start_response(status, response_headers)
+#     return [output]

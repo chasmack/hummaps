@@ -5,8 +5,8 @@ from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from hummaps.database import Base
 
-URL_BASE = 'http://maps.cmack.org'
-# URL_BASE = ''
+# URL_BASE = 'http://maps.cmack.org'
+URL_BASE = '/surv/hummaps'
 
 class MapImage(Base):
     __tablename__ = 'map_image'

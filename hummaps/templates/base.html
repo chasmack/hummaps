@@ -10,7 +10,8 @@
 
 {%- block head %}
 {{- super() }}
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+{#  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">#}
+  <link rel="icon" type="image/png" href="/favicon.png">
 {%- endblock head %}
 
 {% block body %}
