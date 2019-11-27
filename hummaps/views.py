@@ -2,8 +2,6 @@ from flask import request, make_response, redirect
 from flask import render_template, flash
 from flask.json import jsonify, dumps
 
-import tempfile
-
 from hummaps import app
 from hummaps.xhr import xhr_request
 from hummaps.search import do_search, ParseError

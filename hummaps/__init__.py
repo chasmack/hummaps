@@ -1,7 +1,4 @@
 from flask import Flask
-from flask_bootstrap import Bootstrap
-
-from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -23,9 +20,6 @@ SEND_FILE_MAX_AGE_DEFAULT = 604800
 
 # app.config.from_envvar('FLASKAPP_CONFIG', silent=False)
 app.config.from_object(__name__)
-
-# Bootstrap extension
-bootstrap = Bootstrap(app)
 
 import hummaps.views
 
