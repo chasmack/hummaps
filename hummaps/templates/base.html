@@ -1,82 +1,91 @@
-{% extends 'bootstrap/base.html' %}
-
-{%- block styles %}
-    <!-- styles for jquery, bootstrap, site -->
-    <link href="{{ url_for('static', filename='css/jquery-ui.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style-18.1.1.css') }}" rel="stylesheet">
-{%- endblock styles -%}
-
-{%- block head %}
-{{- super() }}
+{% block doc -%}
+<!DOCTYPE html>
+<html{% block html_attribs %}{% endblock html_attribs %}>
+{%- block html %}
+  <head>
+    {%- block head %}
+    <title>{% block title %}{{title|default}}{% endblock title %}</title>
 {#  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">#}
-  <link rel="icon" type="image/png" href="/favicon.png">
-{%- endblock head %}
-
-{% block body %}
-{% block dialog %}{% endblock dialog %}
-{% block navbar %}
+    <link rel="icon" type="image/png" href="/favicon.png">
+    {%- block metas %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    {%- endblock metas %}
+    {%- block styles %}
+<!-- styles for jquery, bootstrap, site -->
+      <link href="{{ url_for('static', filename='css/jquery-ui.min.css') }}" rel="stylesheet">
+      <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+      <link href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
+      <link href="{{ url_for('static', filename='css/style-18.1.1.css') }}" rel="stylesheet">
+    {%- endblock styles -%}
+    {%- endblock head %}
+  </head>
+  <body{% block body_attribs %}{% endblock body_attribs %}>
+    {% block body -%}
+    {% block dialog %}{% endblock dialog %}
+    {% block navbar %}
 <!-- begin navbar block -->
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="{{ url_for('index') }}"><span class="glyphicon glyphicon-fire"></span> Survey Tools</a>
-        </div>
-{% block navigation %}{% endblock navigation %}
-      </div>
-    </nav>
-<!-- end navbar block -->
-{%- endblock navbar -%}
-
-{% block content %}
-<!-- begin content block -->
-  <div id="content-frame" class="container-fluid">
-  {%- with messages = get_flashed_messages(with_categories=True), transform = {
-    'critical': 'danger',
-    'error': 'danger',
-    'warning': 'warning',
-    'info': 'info',
-    'debug': 'info',
-    'success': 'success',
-  }, glyphicon = {
-    'critical': 'exclamation',
-    'error': 'exclamation',
-    'warning': 'exclamation',
-    'info': 'info',
-    'debug': 'info',
-    'success': 'ok',
-  } -%}
-  {%- if messages %}
-<!-- begin flashed messages -->
-    <div class="container flashed-messages">
-      {%- for cat, msg in messages %}
-      <div class="row">
-        <div class="col-md-offset-3 col-md-6">
-          <div class="alert alert-{{ transform.get(cat, 'info') }}" role="alert">
-            <span class="glyphicon glyphicon-{{ glyphicon.get(cat, 'info') }}-sign"></span> {{msg|safe}}
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="{{ url_for('index') }}"><span class="glyphicon glyphicon-fire"></span> Survey Tools</a>
+            </div>
+    {% block navigation %}{% endblock navigation %}
           </div>
+        </nav>
+<!-- end navbar block -->
+    {%- endblock navbar -%}
+    {% block content %}
+<!-- begin content block -->
+      <div id="content-frame" class="container-fluid">
+      {%- with messages = get_flashed_messages(with_categories=True), transform = {
+        'critical': 'danger',
+        'error': 'danger',
+        'warning': 'warning',
+        'info': 'info',
+        'debug': 'info',
+        'success': 'success',
+      }, glyphicon = {
+        'critical': 'exclamation',
+        'error': 'exclamation',
+        'warning': 'exclamation',
+        'info': 'info',
+        'debug': 'info',
+        'success': 'ok',
+      } -%}
+      {%- if messages %}
+<!-- begin flashed messages -->
+        <div class="container flashed-messages">
+          {%- for cat, msg in messages %}
+          <div class="row">
+            <div class="col-md-offset-3 col-md-6">
+              <div class="alert alert-{{ transform.get(cat, 'info') }}" role="alert">
+                <span class="glyphicon glyphicon-{{ glyphicon.get(cat, 'info') }}-sign"></span> {{msg|safe}}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
         </div>
-      </div>
-      {% endfor %}
-    </div>
 <!-- end flashed messages -->
-  {%- endif -%}
-  {%- endwith %}
-  {% block page %}
-  {% endblock page %}
-  </div>
+      {%- endif -%}
+      {%- endwith %}
+      {% block page %}
+      {% endblock page %}
+    </div>
 <!-- end content block -->
-{% endblock content -%}
+    {% endblock content -%}
 
-{%- block scripts -%}
-    <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/jquery-ui-1.12.1.coustom.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-3.3.7.custom.min.js') }}"></script>
-{%- endblock scripts -%}
-{%- endblock body -%}
+    {%- block scripts -%}
+        <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery-ui-1.12.1.coustom.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap-3.3.7.custom.min.js') }}"></script>
+    {%- endblock scripts -%}
+    {%- endblock body %}
+  </body>
+{%- endblock html %}
+</html>
+{% endblock doc -%}
