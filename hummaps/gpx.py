@@ -89,7 +89,7 @@ import numpy as np
 from math import sqrt, hypot, radians, degrees
 from math import sin, cos, atan, atan2, floor
 
-from osgeo import ogr, osr
+from pyproj import CRS, Transformer
 
 # NAD83 ellipsoid (meters)
 A_GRS80 = 6378137.0
@@ -432,57 +432,37 @@ def cart_to_ellip(V, grs80=False):
     return (lon, lat, h)
 
 
-# Convert points in place from projected to geographic coordinates
+# Convert points in place from projected to WGS 84 geographic coordinates
 def proj_to_ellip(pnts, srid_source):
 
-    # Source spatial reference system
-    sr_source = osr.SpatialReference()
-    sr_source.ImportFromEPSG(srid_source)
-
-    # Target spatial reference system and coordinate transform
-    sr_target = osr.SpatialReference()
-    if sr_source.GetAttrValue('GEOGCS') == 'NAD83':
-        sr_target.ImportFromEPSG(SRID_NAD83)
-    elif sr_source.GetAttrValue('GEOGCS') == 'WGS_1984':
-        sr_target.ImportFromEPSG(SRID_WGS84)
-    else:
-        raise ValueError('Unsupported source datum: SRID=%d' % srid_source)
-    source_to_target = osr.CoordinateTransformation(sr_source, sr_target)
+    # Spatial reference systems and coordinate transform
+    sr_source = CRS.from_epsg(srid_source)
+    sr_target = CRS.from_epsg(SRID_WGS84)
+    xf = Transformer.from_crs(sr_source, sr_target, always_xy=True)
 
     # Convert to geographic coordinates, elevations to meters
+    unit_cf = sr_source.coordinate_system.axis_list[0].unit_conversion_factor
     for p in pnts:
         x, y, ele = p[0:3]
-        ele *= sr_source.GetLinearUnits()
-        geom = ogr.CreateGeometryFromWkt('POINT (%s %s)' % (x, y))
-        geom.Transform(source_to_target)
-        lon, lat = geom.GetX(), geom.GetY()
+        ele *= unit_cf
+        lon, lat = xf.transform(x, y)
         p[0:3] = (lon, lat, ele)
 
 
-# Convert points in place from geographic to projected coordinates
+# Convert points in place from WGS 84 geographic to projected coordinates
 def ellip_to_proj(pnts, srid_target):
 
-    # Target spatial reference system
-    sr_target = osr.SpatialReference()
-    sr_target.ImportFromEPSG(srid_target)
-
-    # Source spatial reference system and coordinate transform
-    sr_source = osr.SpatialReference()
-    if sr_target.GetAttrValue('GEOGCS') == 'NAD83':
-        sr_source.ImportFromEPSG(SRID_NAD83)
-    elif sr_target.GetAttrValue('GEOGCS') == 'WGS_1984':
-        sr_source.ImportFromEPSG(SRID_WGS84)
-    else:
-        raise ValueError('Unsupported target datum: SRID=%d' % srid_target)
-    source_to_target = osr.CoordinateTransformation(sr_source, sr_target)
+    # Spatial reference systems and coordinate transform
+    sr_source = CRS.from_epsg(SRID_WGS84)
+    sr_target = CRS.from_epsg(srid_target)
+    xf = Transformer.from_crs(sr_source, sr_target, always_xy=True)
 
     # Convert to projected coordinates, elevations to target units
+    unit_cf = sr_target.coordinate_system.axis_list[0].unit_conversion_factor
     for p in pnts:
         lon, lat, ele = p[0:3]
-        ele /= sr_target.GetLinearUnits()
-        geom = ogr.CreateGeometryFromWkt('POINT (%s %s)' % (lon, lat))
-        geom.Transform(source_to_target)
-        x, y = geom.GetX(), geom.GetY()
+        ele /= unit_cf
+        x, y = xf.transform(lon, lat)
         p[0:3] = (x, y, ele)
 
 
@@ -723,18 +703,14 @@ if __name__ == '__main__':
     print('   %.8f    %.8f' % (P[0], P[1]))
     pts.append(P)
 
-    sr_target = osr.SpatialReference()
-    sr_target.ImportFromEPSG(2225)
-    sr_source = osr.SpatialReference()
-    sr_source.ImportFromEPSG(SRID_NAD83)
-    source_to_target = osr.CoordinateTransformation(sr_source, sr_target)
+    sr_source = CRS.from_epsg(SRID_WGS84)
+    sr_target = CRS.from_epsg(2225)
+    xf = Transformer.from_crs(sr_source, sr_target, always_xy=True)
 
     print()
     for P in pts:
-        lon, lat = P[0:2]
-        geom = ogr.CreateGeometryFromWkt('POINT (%s %s)' % (lon, lat))
-        geom.Transform(source_to_target)
-        print('     %.3f    %.3f' % (geom.GetY(), geom.GetX()))
+        x, y = xf.transform(*P[:2])
+        print('     %.3f    %.3f' % (y, x))
 
     exit(0)
 
