@@ -30,13 +30,15 @@ def index():
 # Map image files.
 @app.route('/hummaps/map/<path:path>', methods=['GET'])
 def send_map_image(path):
-    return send_from_directory('map', path)
+    return send_from_directory(app.config['MAP_IMAGE_ROOT_DIR'], path)
 
 
 # Map pdf files.
 @app.route('/hummaps/pdf/<path:path>', methods=['GET'])
 def send_map_pdf(path):
-    return send_from_directory('pdf', path)
+    print(app.config['MAP_PDF_ROOT_DIR'])
+    print(path)
+    return send_from_directory(app.config['MAP_PDF_ROOT_DIR'], path)
 
 
 # hummaps - the Humboldt County map index.

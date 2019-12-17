@@ -1,4 +1,5 @@
 from flask import Flask
+import os.path
 
 app = Flask(__name__)
 
@@ -17,6 +18,13 @@ MAX_CONTENT_LENGTH = 2.5 * 1024 * 1024
 
 # Default cache control lifetime (seconds)
 SEND_FILE_MAX_AGE_DEFAULT = 604800
+
+# MAP_URL_BASE = 'http://maps.cmack.org'
+MAP_URL_BASE = '/tools/hummaps'
+
+# Location of map images and pdfs.
+MAP_IMAGE_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../map'))
+MAP_PDF_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../pdf'))
 
 # app.config.from_envvar('FLASKAPP_CONFIG', silent=False)
 app.config.from_object(__name__)
