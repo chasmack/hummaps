@@ -27,6 +27,18 @@ def index():
     return render_template('index.html')
 
 
+# Map image files.
+@app.route('/hummaps/map/<path:path>', methods=['GET'])
+def send_map_image(path):
+    return send_from_directory('map', path)
+
+
+# Map pdf files.
+@app.route('/hummaps/pdf/<path:path>', methods=['GET'])
+def send_map_pdf(path):
+    return send_from_directory('pdf', path)
+
+
 # hummaps - the Humboldt County map index.
 @app.route('/hummaps', methods=['GET', 'POST'])
 def hummaps():
@@ -155,19 +167,6 @@ def gpx():
     resp.cache_control.no_cache = True
     resp.cache_control.no_store = True
     return resp
-
-
-# Map image files.
-# Ideally this is handled by the upstream server.
-@app.route('/hummaps/map/<path:path>', methods=['GET'])
-def send_image(path):
-    return send_from_directory('map', path)
-
-
-# Map PDFs.
-@app.route('/hummaps/pdf/<path:path>', methods=['GET'])
-def send_image(path):
-    return send_from_directory('pdf', path)
 
 
 #
