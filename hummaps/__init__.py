@@ -20,6 +20,7 @@ MAX_CONTENT_LENGTH = 2.5 * 1024 * 1024
 SEND_FILE_MAX_AGE_DEFAULT = 604800
 
 # MAP_URL_BASE = 'http://maps.cmack.org'
+# MAP_URL_BASE = '/hummaps/tools'
 MAP_URL_BASE = '/hummaps'
 
 # Location of map images and pdfs.
