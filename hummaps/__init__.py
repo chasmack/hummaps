@@ -19,6 +19,7 @@ MAX_CONTENT_LENGTH = 2.5 * 1024 * 1024
 # Default cache control lifetime (seconds)
 SEND_FILE_MAX_AGE_DEFAULT = 604800
 
+# URL base for locating the map images and pdfs.
 # MAP_URL_BASE = 'http://maps.cmack.org'
 # MAP_URL_BASE = '/hummaps/tools'
 MAP_URL_BASE = '/hummaps'

@@ -26,6 +26,9 @@ def basename_filter(s):
 def index():
     return render_template('index.html')
 
+#
+# Ideally the map images and pdfs are served upstream and the requests never get here.
+#
 
 # Map image files.
 @app.route('/hummaps/map/<path:path>', methods=['GET'])
@@ -36,8 +39,6 @@ def send_map_image(path):
 # Map pdf files.
 @app.route('/hummaps/pdf/<path:path>', methods=['GET'])
 def send_map_pdf(path):
-    print(app.config['MAP_PDF_ROOT_DIR'])
-    print(path)
     return send_from_directory(app.config['MAP_PDF_ROOT_DIR'], path)
 
 
