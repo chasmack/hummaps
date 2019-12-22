@@ -19,7 +19,7 @@ class MapImage(Base):
 
     @hybrid_property
     def url(self):
-        return app.config['MAP_URL_BASE'] + self.imagefile
+        return self.imagefile
 
     def __repr__(self):
         return '<MapImage(id=%d, map=%d, imagefile="%s")>' % (self.id, self.map_id, self.imagefile)
@@ -36,7 +36,7 @@ class Pdf(Base):
 
     @hybrid_property
     def url(self):
-        return app.config['MAP_URL_BASE'] + self.pdffile
+        return self.pdffile
 
     def __repr__(self):
         return '<PdfFile(id=%d, map=%d, pdffile="%s")>' % (self.id, self.map_id, self.pdffile)
@@ -54,7 +54,7 @@ class Scan(Base):
 
     @hybrid_property
     def url(self):
-        return app.config['MAP_URL_BASE'] + self.scanfile
+        return self.scanfile
 
     def __repr__(self):
         return '<Scan(id=%d, map=%d, scanfile="%s")>' % (self.id, self.map_id, self.scanfile)
@@ -72,7 +72,7 @@ class CCImage(Base):
 
     @hybrid_property
     def url(self):
-        return app.config['MAP_URL_BASE'] + self.imagefile
+        return self.imagefile
 
     def __repr__(self):
         return '<CCImage(id=%d, cc=%d, imagefile="%s")>' % (self.id, self.cc_id, self.imagefile)

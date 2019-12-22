@@ -21,7 +21,7 @@ SEND_FILE_MAX_AGE_DEFAULT = 604800
 
 # URL base for locating the map images and pdfs.
 # MAP_URL_BASE = 'http://maps.cmack.org'
-# MAP_URL_BASE = '/hummaps/tools'
+# MAP_URL_BASE = '/tools/hummaps'
 MAP_URL_BASE = '/hummaps'
 
 # Location of map images and pdfs.

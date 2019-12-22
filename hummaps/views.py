@@ -101,7 +101,9 @@ def hummaps():
     if total > 200:
         results = results[0:200]
 
-    return render_template('hummaps.html', query=q, form=form, results=results, total=total)
+    map_url_base = app.config['MAP_URL_BASE']
+
+    return render_template('hummaps.html', map_url_base=map_url_base, query=q, form=form, results=results, total=total)
 
 
 # polycalc - generate DXF linework from a command file.
