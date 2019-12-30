@@ -19,10 +19,10 @@ MAX_CONTENT_LENGTH = 2.5 * 1024 * 1024
 # Default cache control lifetime (seconds)
 SEND_FILE_MAX_AGE_DEFAULT = 604800
 
-# URL base for locating the map images and pdfs.
+# URL base for map images and pdfs
+# A relative URL base accounts for any wsgi SCRIPT_NAME prefix
 # MAP_URL_BASE = 'http://maps.cmack.org'
-# MAP_URL_BASE = '/tools/hummaps'
-MAP_URL_BASE = '/hummaps'
+MAP_URL_BASE = 'hummaps'
 
 # Location of map images and pdfs.
 MAP_IMAGE_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../map'))
