@@ -3,7 +3,6 @@ from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey
 from sqlalchemy_utils import LtreeType
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
-from hummaps import app
 from hummaps.database import Base
 
 

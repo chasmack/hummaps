@@ -1,0 +1,144 @@
+
+Install Hummaps for Windows
+January 4, 2020
+
+
+INTRO
+
+First, you will need Windows Administrator privileges to do this work. 
+Also, although I've installed all the following on my main Windows 7/10
+workstation you might not want to do this first time around on a Mission 
+Critical workstation in your organization.
+
+Most of the following is done from a Windows command prompt, cmd.exe. 
+If you receive an error stating "not recognized" first check your spelling 
+then check your PATH is set point to the directory with the command you are 
+trying to run. Also beware of spaces in paths names. For instance...
+
+> dir %APPDATA%
+
+This does not work if there is a space in your user name. Paths with spaces 
+need to be quoted...
+
+> dir "%APPDATA%"
+
+You also need to edit text files. Windows Notepad will work or you can use your 
+own text editor. Installers for Notepad++ and Sublime Text are included here.
+
+
+CONTENTS
+
+NOTE: For installation on Windows 7/10 x64 systems.
+
+hummaps - The Hummaps web app project including the GPX and Polycalc tools.
+https://github.com/chasmack/hummaps
+
+hummaps-batch - Batch update project for the Hummaps database and map images.
+https://github.com/chasmack/hummaps-batch
+
+Anaconda3 - The Anaconda Python 3 distribution.
+https://www.anaconda.com/distribution/
+
+Git - Git Source Control Management (SCM) tools and command line utilities.
+https://git-scm.com/
+
+Notepad++ - A simple text editor.
+https://notepad-plus-plus.org/
+
+PostgreSQL - The PostgreSQL Database Management System (DBMS), version 9.6.
+https://www.enterprisedb.com/products/edb-postgresql
+
+Pycharm - An Integrated Development Environment (IDE) for Python.
+https://www.jetbrains.com/pycharm/
+
+Sublime Text - A sophisticated text editor.
+https://www.sublimetext.com/
+
+ubuntu - ISO images for Ubuntu Linux. Not used for the Winsows installation.
+
+windows-install.txt - This document.
+
+
+OUTLINE
+
+1. Install Git SCM command line utilities.
+
+NOTES: Git installs a bunch of UNIX style commands. Any vim users out there? 
+After installation open a new command prompt check that your PATH is set.
+
+> echo "Found cat!" | cat
+
+2. Copy the hummaps and hummaps-batch projects to your Projects folder.
+
+NOTES: Create a Projects folder in your C: root or where convenient. 
+Make sure there are NO SPACES in the path to the Projects folder.
+The copy operation can take a LONG TIME as there are 40+ GB of map 
+images and PDFs in the hummaps project. If you prefer you can use the 
+Windows file explorer to create the Projects folder and copy the 
+projects.
+
+> mkdir C:\Projects
+> cp -r hummaps hummaps-batch C:\Projects\
+
+3. Install Anaconda3 distribution of Python and create the conda environment.
+
+NOTES: Install Anaconda3 into the C: root, i.e. C:\Anaconda3, and elect to have 
+conda added to system PATH. Use hummaps\docs\conda-install.txt to initialize 
+the Python 3.6 conda environment.
+
+Info on conda at - https://docs.conda.io/projects/conda/
+
+> conda update -n base conda
+> conda config --add channels conda-forge
+> conda update --all
+> conda create -n py36 python=3.6
+> conda install -y -n py36 --file conda-install.txt
+> activate py36
+(py36) > python --version
+
+4. Install PostgreSQL, create the production database and load the Hummaps data.
+
+NOTES: Install PostgreSQL into the C: root, i.e. C:\PostgreSQL. DO NOT LOOSE the 
+superuser (postgres) password. Add your superuser password to hummaps\docs\pgpass.conf 
+and copy pgpass.conf to %APPDATA%\postgresql\pgpass.conf.
+
+> mkdir %APPDATA%\postgresql
+> cp pgpass.conf %APPDATA%\postgresql\pgpass.conf
+
+Initialize the production database, install the ltree extension and load the data.
+SQL initialization scripts and the database dump are located in the hummaps-batch project.
+
+> cd /d C:\Projects\hummaps-batch
+> psql -h localhost -U postgres -d postgres -f sql\create_db.sql
+> psql -h localhost -U postgres -d production -f sql\create_extension.sql
+> gzip -dc data\update66\dump_hummaps_191213.zip | psql -h localhost -U pgadmin -d production
+> psql -h localhost -U hummaps -d production -c "SELECT fullname FROM hummaps.surveyor WHERE pls='4446';"
+
+5. Open a command prompt in the hummaps project directory and start hummaps.
+
+NOTES: You need to activate the py36 conda environment. Windows firewall may ask for permission 
+to allow connections on port 80. Say Yes.
+
+> cd /d C:\Projects\hummaps
+> activate py36
+(py36) > python start.py
+
+If all went well you should be able to access the hummaps apps...
+
+http://localhost/
+
+
+UBUNTU LINUX
+
+Also included in this package are iso images for Ubuntu Linux server, vers. 16 & 18. 
+This is an excellent option for running Hummaps on a small headless Linux server. 
+Any Intel/AMD x64 based system will work. Hummaps will even run reasonably well on 
+a 32-bit Raspberry Pi system under Raspbian. Setup is similar. Use the apt command 
+to install Python 3.6 and PostgreSQL 9.6. Create a Python virtual environment in 
+the hummaps app directory and install the packages in requirements.txt. Add the uwsgi 
+package for Python and an Nginx web server. Example config files are in hummaps/uwsgi.
+
+
+FEEDBACK
+
+Open an issue in the hummaps or hummaps-batch projects on Github.

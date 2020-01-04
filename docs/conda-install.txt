@@ -1,0 +1,9 @@
+ezdxf
+flask
+numpy
+psycopg2
+pyproj
+pytz
+sqlalchemy
+sqlalchemy-utils
+waitress
