@@ -1,24 +1,26 @@
 
-Install Hummaps for Windows
-January 4, 2020
+Hummaps Installation for Windows
+January 5, 2020
 
 
 INTRO
+
+This describes installation of Hummaps on a Windows 7/10 x64 based system.
 
 First, you will need Windows Administrator privileges to do this work. 
 Also, although I've installed all the following on my main Windows 7/10
 workstation you might not want to do this first time around on a Mission 
 Critical workstation in your organization.
 
-Most of the following is done from a Windows command prompt, cmd.exe. 
+Some of the following is done from a Windows command prompt, cmd.exe. 
 If you receive an error stating "not recognized" first check your spelling 
-then check your PATH is set point to the directory with the command you are 
-trying to run. Also beware of spaces in paths names. For instance...
+then check your PATH is properly set. Also beware of spaces in paths names. 
+For instance...
 
 > dir %APPDATA%
 
 This does not work if there is a space in your user name. Paths with spaces 
-need to be quoted...
+need to be quoted (better yet don't have paths with spaces)...
 
 > dir "%APPDATA%"
 
@@ -28,7 +30,7 @@ own text editor. Installers for Notepad++ and Sublime Text are included here.
 
 CONTENTS
 
-NOTE: For installation on Windows 7/10 x64 systems.
+NOTE: For Windows 7/10 x64 systems.
 
 hummaps - The Hummaps web app project including the GPX and Polycalc tools.
 https://github.com/chasmack/hummaps
@@ -54,56 +56,43 @@ https://www.jetbrains.com/pycharm/
 Sublime Text - A sophisticated text editor.
 https://www.sublimetext.com/
 
-ubuntu - ISO images for Ubuntu Linux. Not used for the Winsows installation.
+ubuntu - ISO images for Ubuntu Linux. Not used for the Windows setup.
 
 windows-install.txt - This document.
 
 
 OUTLINE
 
-1. Install Git SCM command line utilities.
-
-NOTES: Git installs a bunch of UNIX style commands. Any vim users out there? 
-After installation open a new command prompt check that your PATH is set.
-
-> echo "Found cat!" | cat
-
-2. Copy the hummaps and hummaps-batch projects to your Projects folder.
+1. Copy the hummaps and hummaps-batch projects to your Projects folder.
 
 NOTES: Create a Projects folder in your C: root or where convenient. 
 Make sure there are NO SPACES in the path to the Projects folder.
-The copy operation can take a LONG TIME as there are 40+ GB of map 
-images and PDFs in the hummaps project. If you prefer you can use the 
-Windows file explorer to create the Projects folder and copy the 
-projects.
+The copy operation takes a while as there are 40+ GB of map images 
+and PDFs in the hummaps project. 
 
-> mkdir C:\Projects
-> cp -r hummaps hummaps-batch C:\Projects\
+2. Install Git SCM command line utilities.
 
-3. Install Anaconda3 distribution of Python and create the conda environment.
+NOTES: Git provides access to the hummaps project archives on Github 
+and adds a number of useful UNIX style commands. Accept all installation 
+defaults. 
 
-NOTES: Install Anaconda3 into the C: root, i.e. C:\Anaconda3, and elect to have 
-conda added to system PATH. Use hummaps\docs\conda-install.txt to initialize 
-the Python 3.6 conda environment.
+3. Install PostgreSQL, create the production database and load the Hummaps data.
 
-Info on conda at - https://docs.conda.io/projects/conda/
+NOTES: Install PostgreSQL into the C: root, i.e. C:\PostgreSQL. Otherwise 
+accept the installation defaults. Do not run Stack Builder when prompted. 
+DO NOT LOOSE the superuser (postgres) password. When installation completes 
+add the following lines to the end of your System Path using Contrlo Panel - 
+Advanced System Settings - Environment Variables.
 
-> conda update -n base conda
-> conda config --add channels conda-forge
-> conda update --all
-> conda create -n py36 python=3.6
-> conda install -y -n py36 --file conda-install.txt
-> activate py36
-(py36) > python --version
+C:\Program Files\Git\usr\bin
+C:\PostgreSQL\9.6\bin
 
-4. Install PostgreSQL, create the production database and load the Hummaps data.
+Add your superuser password to hummaps\docs\pgpass.conf. Start a new Windows 
+Command Prompt and copy pgpass.conf to %APPDATA%\postgresql\pgpass.conf.
 
-NOTES: Install PostgreSQL into the C: root, i.e. C:\PostgreSQL. DO NOT LOOSE the 
-superuser (postgres) password. Add your superuser password to hummaps\docs\pgpass.conf 
-and copy pgpass.conf to %APPDATA%\postgresql\pgpass.conf.
-
+> cd /d C:\Projects\hummaps
 > mkdir %APPDATA%\postgresql
-> cp pgpass.conf %APPDATA%\postgresql\pgpass.conf
+> cp docs\pgpass.conf %APPDATA%\postgresql\pgpass.conf
 
 Initialize the production database, install the ltree extension and load the data.
 SQL initialization scripts and the database dump are located in the hummaps-batch project.
@@ -114,13 +103,27 @@ SQL initialization scripts and the database dump are located in the hummaps-batc
 > gzip -dc data\update66\dump_hummaps_191213.zip | psql -h localhost -U pgadmin -d production
 > psql -h localhost -U hummaps -d production -c "SELECT fullname FROM hummaps.surveyor WHERE pls='4446';"
 
-5. Open a command prompt in the hummaps project directory and start hummaps.
+4. Install the Anaconda3 distribution of Python and create a conda environment.
 
-NOTES: You need to activate the py36 conda environment. Windows firewall may ask for permission 
-to allow connections on port 80. Say Yes.
+NOTES: Install Anaconda3 into the C: root, i.e. C:\Anaconda3. Otherwise 
+accept the installation defaults. Start an Anaconda Prompt and use 
+hummaps\docs\conda-install.txt to initialize the Python 3.6 environment. 
 
-> cd /d C:\Projects\hummaps
-> activate py36
+Info on conda at - https://docs.conda.io/projects/conda/
+
+(base) > cd C:\Projects\hummaps
+(base) > conda update -n base conda
+(base) > conda config --add channels conda-forge
+(base) > conda update --all
+(base) > conda create -n py36 python=3.6
+(base) > conda install -y -n py36 --file docs\conda-install.txt
+
+5. Activate the py36 environment and start hummaps.
+
+NOTES: Windows Firewall may ask to allow Python to communicate using your computer's 
+network. Select Private Networks and Allow Access. 
+
+(base) > activate py36
 (py36) > python start.py
 
 If all went well you should be able to access the hummaps apps...
@@ -130,15 +133,15 @@ http://localhost/
 
 UBUNTU LINUX
 
-Also included in this package are iso images for Ubuntu Linux server, vers. 16 & 18. 
+Also included in this package are ISO images for Ubuntu Linux server, vers. 16 & 18. 
 This is an excellent option for running Hummaps on a small headless Linux server. 
 Any Intel/AMD x64 based system will work. Hummaps will even run reasonably well on 
 a 32-bit Raspberry Pi system under Raspbian. Setup is similar. Use the apt command 
 to install Python 3.6 and PostgreSQL 9.6. Create a Python virtual environment in 
-the hummaps app directory and install the packages in requirements.txt. Add the uwsgi 
+the hummaps project directory and install the packages in requirements.txt. Add the uwsgi 
 package for Python and an Nginx web server. Example config files are in hummaps/uwsgi.
 
 
 FEEDBACK
 
-Open an issue in the hummaps or hummaps-batch projects on Github.
+Send email to Charlie or open an issue on Github.
