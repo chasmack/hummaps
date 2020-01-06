@@ -130,6 +130,14 @@ If all went well you should be able to access the hummaps apps...
 
 http://localhost/
 
+You can create a batch file to automate Hummaps startup.
+
+@call C:\Anaconda3\condabin\conda.bat activate py36
+@start /min python C:\Projects\hummaps\start.py
+@call C:\Anaconda3\condabin\conda.bat deactivate
+
+Add a shortcut to the batch file to Windows startup.
+
 
 UBUNTU LINUX
 
