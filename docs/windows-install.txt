@@ -1,6 +1,6 @@
 
 Hummaps Installation for Windows
-January 5, 2020
+January 6, 2020
 
 
 INTRO
@@ -73,7 +73,7 @@ and PDFs in the hummaps project.
 2. Install Git SCM command line utilities.
 
 NOTES: Git provides access to the hummaps project archives on Github 
-and adds a number of useful UNIX style commands. Accept all installation 
+and adds several useful UNIX style commands. Accept all installation 
 defaults. 
 
 3. Install PostgreSQL, create the production database and load the Hummaps data.
@@ -81,8 +81,8 @@ defaults.
 NOTES: Install PostgreSQL into the C: root, i.e. C:\PostgreSQL. Otherwise 
 accept the installation defaults. Do not run Stack Builder when prompted. 
 DO NOT LOOSE the superuser (postgres) password. When installation completes 
-add the following lines to the end of your System Path using Contrlo Panel - 
-Advanced System Settings - Environment Variables.
+add the following lines to the end of your System Path using Control Panel - 
+Advanced System Settings - Environment Variables...
 
 C:\Program Files\Git\usr\bin
 C:\PostgreSQL\9.6\bin
@@ -95,13 +95,19 @@ Command Prompt and copy pgpass.conf to %APPDATA%\postgresql\pgpass.conf.
 > cp docs\pgpass.conf %APPDATA%\postgresql\pgpass.conf
 
 Initialize the production database, install the ltree extension and load the data.
-SQL initialization scripts and the database dump are located in the hummaps-batch project.
+SQL initialization scripts and the database dump are located in the hummaps-batch 
+project.
 
 > cd /d C:\Projects\hummaps-batch
 > psql -h localhost -U postgres -d postgres -f sql\create_db.sql
 > psql -h localhost -U postgres -d production -f sql\create_extension.sql
 > gzip -dc data\update66\dump_hummaps_191213.zip | psql -h localhost -U pgadmin -d production
-> psql -h localhost -U hummaps -d production -c "SELECT fullname FROM hummaps.surveyor WHERE pls='4446';"
+> cat sql\test.sql
+> cat sql\test.sql | psql -h localhost -U hummaps -d production
+
+This final command executes a search for Parcel Maps in T2S R3E Section 11 
+recorded between 1960 and 1980. It should return the same two maps as an 
+equivalent search using the Hollins Index.
 
 4. Install the Anaconda3 distribution of Python and create a conda environment.
 
@@ -111,8 +117,8 @@ hummaps\docs\conda-install.txt to initialize the Python 3.6 environment.
 
 Info on conda at - https://docs.conda.io/projects/conda/
 
-(base) > cd C:\Projects\hummaps
-(base) > conda update -n base conda
+(base) > cd /d C:\Projects\hummaps
+(base) > conda update conda
 (base) > conda config --add channels conda-forge
 (base) > conda update --all
 (base) > conda create -n py36 python=3.6
@@ -126,7 +132,7 @@ network. Select Private Networks and Allow Access.
 (base) > activate py36
 (py36) > python start.py
 
-If all went well you should be able to access the hummaps apps...
+If all went well you should be able to access the hummaps app...
 
 http://localhost/
 
@@ -136,7 +142,7 @@ You can create a batch file to automate Hummaps startup.
 @start /min python C:\Projects\hummaps\start.py
 @call C:\Anaconda3\condabin\conda.bat deactivate
 
-Add a shortcut to the batch file to Windows startup.
+Add a shortcut for the batch file to Windows startup.
 
 
 UBUNTU LINUX
