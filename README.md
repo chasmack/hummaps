@@ -5,8 +5,8 @@ It is offered as an alternative to the MS Access based application
 commonly referred to as the Hollins Index.
 
 In February 2019 hosting and maintenance of Hummaps was transferred to 
-the County of Humboldt. Their version is Hummaps is currently hosted at 
-[hummaps.com](https://hummaps.com). 
+the County of Humboldt. The County's version of Hummaps is currently hosted 
+at [hummaps.com](https://hummaps.com). 
 
 At this time I am unaware of any public hosting of the original Hummaps 
 as described here.
